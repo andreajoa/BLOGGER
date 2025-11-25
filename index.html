@@ -1061,6 +1061,8 @@
         let currentUser = null;
         let currentArticle = null;
         let deferredPrompt = null;
+        let adminEmail = null;
+        let adminHash = null;
         
         const CURRENCY_BY_COUNTRY = {
             'US': { symbol: '$', code: 'USD', price: 19.99 },
@@ -1150,9 +1152,6 @@
             document.getElementById('authSuccess').style.display = 'none';
         }
         
-        let adminEmail = null;
-        let adminHash = null;
-        
         async function hashSHA256(t) {
             const e = new TextEncoder().encode(t);
             const n = await crypto.subtle.digest('SHA-256', e);
@@ -1170,57 +1169,9 @@
             return email === adminEmail && h === adminHash;
         }
         
-        async function handleLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value.trim().toLowerCase();
-            const pass = document.getElementById('loginPassword').value;
-            
-            if (await isAdminCredentials(email, pass)) {
-                loginUser({
-                    email: email,
-                    name: 'Admin',
-                    role: 'admin',
-                    subscription_status: 'active',
-                    articles_count: 0,
-                    total_words: 0,
-                    streak: 0
-                });
-                return;
-            }
-            
-            if (email === 'demo@demo.com' && pass === 'demo123') {
-                loginUser({
-                    email: email,
-                    name: 'Demo User',
-                    subscription_status: 'active',
-                    articles_count: 5,
-                    total_words: 12500,
-                    streak: 7
-                });
-                return;
-            }
-            
-            if (!supabase) {
-                showError('❌ Supabase not configured yet');
-                return;
-            }
-            
-            showError('❌ Invalid credentials');
-        }
+        async function handleLogin(e) { e.preventDefault(); const email = document.getElementById('loginEmail').value.trim().toLowerCase(); const pass = document.getElementById('loginPassword').value; if (await isAdminCredentials(email, pass)) { loginUser({ email: email, name: 'Admin', role: 'admin', subscription_status: 'active', articles_count: 0, total_words: 0, streak: 0 }); return; } if (email === 'demo@demo.com' && pass === 'demo123') { loginUser({ email: email, name: 'Demo User', subscription_status: 'active', articles_count: 5, total_words: 12500, streak: 7 }); return; } if (!supabase) { const users = JSON.parse(localStorage.getItem('LOCAL_USERS') || '[]'); const hash = await hashSHA256(pass); const u = users.find(u => u.email === email && u.hash === hash); if (u) { loginUser({ email: email, name: u.name, subscription_status: 'active', articles_count: 0, total_words: 0, streak: 0 }); return; } showError('❌ Invalid credentials'); return; } showError('❌ Invalid credentials'); }
         
-        async function handleSignup(e) {
-            e.preventDefault();
-            const name = document.getElementById('signupName').value.trim();
-            const email = document.getElementById('signupEmail').value.trim().toLowerCase();
-            const pass = document.getElementById('signupPassword').value;
-            
-            if (!supabase) {
-                showError('❌ Supabase not configured yet');
-                return;
-            }
-            
-            showSuccess('✅ Account created! Please login.');
-        }
+        async function handleSignup(e) { e.preventDefault(); const name = document.getElementById('signupName').value.trim(); const email = document.getElementById('signupEmail').value.trim().toLowerCase(); const pass = document.getElementById('signupPassword').value; if (!name || !email || !pass) { showError('❌ Fill all fields'); return; } if (!supabase) { const users = JSON.parse(localStorage.getItem('LOCAL_USERS') || '[]'); const exists = users.find(u => u.email === email); if (exists) { showError('❌ Email already registered'); return; } const hash = await hashSHA256(pass); users.push({ name, email, hash }); localStorage.setItem('LOCAL_USERS', JSON.stringify(users)); showSuccess('✅ Account created! Please login.'); return; } showSuccess('✅ Account created! Please login.'); }
         
         function loginUser(user) {
             currentUser = user;
