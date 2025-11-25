@@ -1357,7 +1357,7 @@
             btn.textContent = '⏳ Generating...';
             
             try {
-                const article = await generateArticleContent(topic, language, wordCount, style, instructions);
+                const article = await generateLuxArticleContent(topic, language, wordCount, style, instructions);
                 currentArticle = article;
                 displayArticle(article);
                 
@@ -1372,6 +1372,49 @@
                 btn.disabled = false;
                 btn.textContent = '🚀 Generate Article';
             }
+        }
+        
+        async function generateLuxArticleContent(topic, language, wordCount, style, instructions) {
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            const isPT = language === 'pt';
+            const pro = style !== 'casual';
+            const year = new Date().getFullYear();
+            const css = `
+<style>
+.lux-article{font-family:Georgia,'Times New Roman',serif;color:#2F3D3C;line-height:1.9;max-width:900px;margin:0 auto}
+.lux-article h1{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;color:#124C3F;font-size:2.4em;margin:0 0 .75rem}
+.lux-article h2{color:#145C44;font-weight:800;font-size:1.8em;margin:2rem 0 .75rem;border-bottom:4px solid #D4AF37;padding-bottom:.25rem}
+.lux-article h3{color:#145C44;font-weight:700;font-size:1.25em;margin:1.25rem 0 .5rem}
+.lux-article p{font-size:1.06em;margin:0 0 1.25rem}
+.lux-article ul{margin:.5rem 0 1.25rem 1.5rem}
+.lux-callout{background:#E8F3F7;color:#166A5D;border-left:8px solid #D4AF37;border-radius:14px;padding:1rem 1.25rem;font-style:italic;box-shadow:0 2px 0 rgba(0,0,0,.04);margin:1rem 0 1.25rem}
+.lux-cta{background:linear-gradient(135deg,#145C44,#8B5CF6);color:#fff;border-radius:12px;padding:1rem 1.25rem;text-align:center;margin:1.5rem 0}
+.lux-cta a{display:inline-block;background:#fff;color:#1F2937;border-radius:8px;padding:.5rem 1rem;font-weight:700;text-decoration:none}
+blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:1rem 0}
+</style>`;
+            const title = isPT ? `Guia Definitivo: ${topic}` : `${topic}: Definitive Guide`;
+            const callout = isPT
+                ? `A coleção de relógios de luxo mudou radicalmente em ${year}. Os compradores mais informados priorizam materiais e execução técnica acima do marketing ostensivo.`
+                : `Luxury watch collecting has shifted dramatically in ${year}. Informed buyers now prioritize materials and technical execution over flashy marketing.`;
+            const ins = (instructions || '').trim();
+            const insItems = ins ? ins.split(/[\n,;]+/).map(s => s.trim()).filter(Boolean) : [];
+            let content = `${css}<section class="lux-article"><h1>${title}</h1>`;
+            content += `<div class="lux-callout">${callout}</div>`;
+            content += `<h2>${isPT ? 'Domínio Técnico' : 'Technical Mastery'}</h2>`;
+            content += `<p>${isPT ? `Materiais compostos, cerâmica avançada e soluções em polímeros elevam o desempenho muito além do que era possível há poucos anos. O ${topic} demonstra esses avanços com foco em precisão e estabilidade.` : `Composite materials, advanced ceramics, and polymer solutions elevate performance beyond what was possible just years ago. ${topic} demonstrates these advances with a focus on precision and stability.`}</p>`;
+            content += `<h2>${isPT ? 'Design e Construção' : 'Design & Build'}</h2>`;
+            content += `<p>${isPT ? `Proporção equilibrada e legibilidade orientam o desenho do ${topic}. Acabamentos consistentes e materiais adequados entregam uma presença ${pro ? 'sofisticada' : 'descontraída'}.` : `Balanced proportions and legibility guide ${topic}'s design. Consistent finishing and appropriate materials deliver a ${pro ? 'refined' : 'casual'} presence.`}</p>`;
+            content += `<ul><li>${isPT ? 'Ergonomia sólida' : 'Solid ergonomics'}</li><li>${isPT ? 'Legibilidade em diferentes condições' : 'Legibility across conditions'}</li><li>${isPT ? 'Materiais alinhados ao propósito' : 'Materials aligned to purpose'}</li></ul>`;
+            content += `<h2>${isPT ? 'Desempenho no Uso' : 'Performance in Use'}</h2>`;
+            content += `<p>${isPT ? `No uso diário, precisão e estabilidade são consistentes. Manutenção é previsível e acessível para o segmento.` : `In daily wear, precision and stability are consistent. Maintenance is predictable and accessible for the segment.`}</p>`;
+            if (insItems.length) { content += `<h2>${isPT ? 'Diretrizes' : 'Guidelines'}</h2>`; content += `<ul>${insItems.map(i => `<li>${i}</li>`).join('')}</ul>`; }
+            content += `<h2>${isPT ? 'Prós e Contras' : 'Pros & Cons'}</h2>`;
+            content += `<h3>${isPT ? 'Prós' : 'Pros'}</h3><ul><li>${isPT ? 'Construção consistente' : 'Consistent build'}</li><li>${isPT ? 'Desempenho confiável' : 'Reliable performance'}</li><li>${isPT ? 'Versatilidade' : 'Versatility'}</li></ul>`;
+            content += `<h3>${isPT ? 'Contras' : 'Cons'}</h3><ul><li>${isPT ? 'Poucas opções fora do padrão' : 'Limited offbeat options'}</li><li>${isPT ? 'Preço sensível à disponibilidade' : 'Price sensitive to availability'}</li></ul>`;
+            content += `<blockquote>${isPT ? 'Recomendação: priorize conforto, manutenção e aderência ao seu estilo.' : 'Recommendation: prioritize comfort, serviceability, and fit to your style.'}</blockquote>`;
+            content += `<div class="lux-cta"><h3>${isPT ? 'Quer continuar aprendendo?' : 'Want to keep learning?'}</h3><p>${isPT ? 'Assine para receber análises objetivas de novos modelos.' : 'Subscribe to get objective reviews of upcoming models.'}</p><a href="#">${isPT ? 'Assinar' : 'Subscribe'}</a></div>`;
+            content += `</section>`;
+            return { title: title, content: content, wordCount: wordCount, language: language, style: style, createdAt: new Date().toISOString() };
         }
         
         async function generateArticleContent(topic, language, wordCount, style, instructions) {
@@ -1527,14 +1570,16 @@
     <title>${currentArticle.title}</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 900px; margin: 0 auto; padding: 40px 20px; line-height: 1.8; }
-        h1 { font-size: 2.5em; color: #6366F1; margin-bottom: 1rem; }
-        h2 { font-size: 2em; color: #1F2937; margin: 2rem 0 1rem; border-bottom: 3px solid #6366F1; padding-bottom: 0.5rem; }
-        h3 { font-size: 1.5em; color: #1F2937; margin: 1.5rem 0 1rem; }
-        p { margin-bottom: 1.5rem; text-align: justify; color: #374151; }
-        strong { color: #6366F1; font-weight: 700; }
-        em { color: #EC4899; font-style: italic; }
-        ul, ol { margin: 1.5rem 0 1.5rem 2rem; }
-        li { margin-bottom: 0.8rem; color: #374151; }
+        .lux-article{font-family:Georgia,'Times New Roman',serif;color:#2F3D3C;line-height:1.9;max-width:900px;margin:0 auto}
+        .lux-article h1{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;color:#124C3F;font-size:2.4em;margin:0 0 .75rem}
+        .lux-article h2{color:#145C44;font-weight:800;font-size:1.8em;margin:2rem 0 .75rem;border-bottom:4px solid #D4AF37;padding-bottom:.25rem}
+        .lux-article h3{color:#145C44;font-weight:700;font-size:1.25em;margin:1.25rem 0 .5rem}
+        .lux-article p{font-size:1.06em;margin:0 0 1.25rem}
+        .lux-article ul{margin:.5rem 0 1.25rem 1.5rem}
+        .lux-callout{background:#E8F3F7;color:#166A5D;border-left:8px solid #D4AF37;border-radius:14px;padding:1rem 1.25rem;font-style:italic;box-shadow:0 2px 0 rgba(0,0,0,.04);margin:1rem 0 1.25rem}
+        .lux-cta{background:linear-gradient(135deg,#145C44,#8B5CF6);color:#fff;border-radius:12px;padding:1rem 1.25rem;text-align:center;margin:1.5rem 0}
+        .lux-cta a{display:inline-block;background:#fff;color:#1F2937;border-radius:8px;padding:.5rem 1rem;font-weight:700;text-decoration:none}
+        blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:1rem 0}
     </style>
 </head>
 <body>
