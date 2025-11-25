@@ -1376,32 +1376,82 @@
         
         async function generateArticleContent(topic, language, wordCount, style, instructions) {
             await new Promise(resolve => setTimeout(resolve, 3000));
-            
-            const title = `${topic}: A Comprehensive Guide`;
-            const sections = Math.ceil(wordCount / 500);
-            
+            const isPT = language === 'pt';
+            const pro = style !== 'casual';
+            const title = isPT ? `${topic}: Guia Definitivo` : `${topic}: Definitive Guide`;
+            const lead = isPT ? `Uma visão clara e objetiva sobre ${topic}.` : `A clear, objective look at ${topic}.`;
             let content = `<h1>${title}</h1>`;
-            content += `<p><em>An in-depth exploration of ${topic}</em></p>`;
-            
-            for (let i = 0; i < sections; i++) {
-                content += `<h2>Section ${i + 1}: Understanding ${topic}</h2>`;
-                content += `<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. <strong>This is important</strong> information about ${topic}. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>`;
-                content += `<ul>`;
-                content += `<li>Key point about ${topic}</li>`;
-                content += `<li>Another crucial aspect to consider</li>`;
-                content += `<li>Best practices and recommendations</li>`;
-                content += `</ul>`;
-                content += `<p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris. <em>This demonstrates</em> the practical application of these concepts.</p>`;
+            content += `<p><em>${lead}</em></p>`;
+            const ins = (instructions || '').trim();
+            const insItems = ins ? ins.split(/[\n,;]+/).map(s => s.trim()).filter(Boolean) : [];
+            content += `<div style="background:#F3F4F6;border-left:4px solid #6366F1;padding:1rem;border-radius:10px;margin:1rem 0;">
+                <h3>${isPT ? 'Resumo Rápido' : 'Quick Summary'}</h3>
+                <ul>
+                    <li>${isPT ? 'Design' : 'Design'}: ${pro ? (isPT ? 'sofisticado e equilibrado' : 'refined and balanced') : (isPT ? 'bonito e versátil' : 'stylish and versatile')}</li>
+                    <li>${isPT ? 'Desempenho' : 'Performance'}: ${pro ? (isPT ? 'confiável no dia a dia' : 'reliable day-to-day') : (isPT ? 'ótimo para uso casual' : 'great for casual use')}</li>
+                    <li>${isPT ? 'Público' : 'Audience'}: ${pro ? (isPT ? 'entusiastas e profissionais' : 'enthusiasts and professionals') : (isPT ? 'usuários gerais' : 'general users')}</li>
+                </ul>
+            </div>`;
+            if (insItems.length) {
+                content += `<div style="background:#EEF2FF;border:1px solid #6366F1;padding:1rem;border-radius:10px;margin:1rem 0;">
+                    <h3>${isPT ? 'Diretrizes' : 'Guidelines'}</h3>
+                    <ul>${insItems.map(i => `<li>${i}</li>`).join('')}</ul>
+                </div>`;
             }
-            
-            return {
-                title: title,
-                content: content,
-                wordCount: wordCount,
-                language: language,
-                style: style,
-                createdAt: new Date().toISOString()
-            };
+            const depth = wordCount >= 1000 ? 2 : 1;
+            content += `<h2>${isPT ? 'Visão Geral' : 'Overview'}</h2>`;
+            content += `<p>${isPT ? `O ${topic} é analisado sob três pilares: design, desempenho e valor. Este guia oferece uma leitura objetiva para ajudar na decisão de compra e no entendimento do posicionamento do ${topic}.` : `${topic} is evaluated across design, performance, and value. This guide provides an objective read to support buying decisions and understanding how ${topic} is positioned.`}</p>`;
+            if (depth > 1) content += `<p>${isPT ? `Ao longo deste artigo você encontrará pontos práticos, prós e contras, e recomendações claras para diferentes perfis de uso.` : `Throughout the article you will find practical points, pros and cons, and clear recommendations for different use profiles.`}</p>`;
+            content += `<h2>${isPT ? 'Design e Construção' : 'Design & Build'}</h2>`;
+            content += `<p>${isPT ? `O design do ${topic} prioriza proporção e legibilidade. Acabamentos consistentes e escolhas de materiais reforçam uma presença ${pro ? 'sofisticada' : 'descontraída'}.` : `The design of ${topic} prioritizes proportion and legibility. Consistent finishing and material choices deliver a ${pro ? 'refined' : 'relaxed'} presence.`}</p>`;
+            content += `<ul>
+                <li>${isPT ? 'Proporção equilibrada e boa ergonomia' : 'Balanced proportions and solid ergonomics'}</li>
+                <li>${isPT ? 'Legibilidade em diferentes condições' : 'Legibility in varied conditions'}</li>
+                <li>${isPT ? 'Materiais e acabamentos alinhados ao propósito' : 'Materials and finishing aligned to purpose'}</li>
+            </ul>`;
+            content += `<h2>${isPT ? 'Movimento e Desempenho' : 'Movement & Performance'}</h2>`;
+            content += `<p>${isPT ? `No uso diário, o ${topic} mantém desempenho consistente, com manutenção acessível e previsível. A precisão é adequada ao segmento.` : `In daily use, ${topic} maintains consistent performance with accessible, predictable maintenance. Accuracy is appropriate for the segment.`}</p>`;
+            if (depth > 1) content += `<p>${isPT ? `Para uso prolongado, pontos como reserva de marcha e estabilidade são ${pro ? 'adequadamente resolvidos' : 'suficientes para o cotidiano'}.` : `For extended use, points like power reserve and stability are ${pro ? 'well accounted for' : 'sufficient for everyday wear'}.`}</p>`;
+            content += `<h2>${isPT ? 'No Pulso' : 'On the Wrist'}</h2>`;
+            content += `<p>${isPT ? `Conforto e presença fazem do ${topic} uma peça ${pro ? 'versátil para ambientes formais' : 'ideal para o dia a dia'}.` : `Comfort and presence make ${topic} ${pro ? 'versatile for formal settings' : 'ideal for everyday wear'}.`}</p>`;
+            content += `<h2>${isPT ? 'Prós e Contras' : 'Pros & Cons'}</h2>`;
+            content += `<div style="display:block;margin:1rem 0;">
+                <h3>${isPT ? 'Prós' : 'Pros'}</h3>
+                <ul>
+                    <li>${isPT ? 'Construção sólida e acabamento consistente' : 'Solid build and consistent finishing'}</li>
+                    <li>${isPT ? 'Desempenho confiável' : 'Reliable performance'}</li>
+                    <li>${isPT ? 'Versatilidade no uso' : 'Versatile wear'}</li>
+                </ul>
+                <h3>${isPT ? 'Contras' : 'Cons'}</h3>
+                <ul>
+                    <li>${isPT ? 'Poucas opções fora do padrão' : 'Limited offbeat options'}</li>
+                    <li>${isPT ? 'Preço pode variar conforme disponibilidade' : 'Price may vary with availability'}</li>
+                </ul>
+            </div>`;
+            content += `<h2>${isPT ? 'Alternativas e Comparações' : 'Alternatives & Comparisons'}</h2>`;
+            content += `<p>${isPT ? `Se ${topic} não atender ao perfil desejado, considere modelos com proposta similar, priorizando ergonomia e manutenção.` : `If ${topic} does not fit your profile, consider similar models prioritizing ergonomics and maintenance.`}</p>`;
+            content += `<h2>${isPT ? 'Dicas de Compra' : 'Buying Tips'}</h2>`;
+            content += `<div style="background:#FFFBEB;border:1px solid #F59E0B;padding:1rem;border-radius:10px;margin:1rem 0;">
+                <ul>
+                    <li>${isPT ? 'Verifique garantia e histórico de revisão' : 'Check warranty and service history'}</li>
+                    <li>${isPT ? 'Priorize ajuste no pulso e conforto' : 'Prioritize fit and comfort on wrist'}</li>
+                    <li>${isPT ? 'Compare preços entre canais confiáveis' : 'Compare pricing across trusted channels'}</li>
+                </ul>
+            </div>`;
+            content += `<h2>${isPT ? 'Perguntas Frequentes' : 'FAQs'}</h2>`;
+            content += `<p><strong>${isPT ? 'Para quem é?' : 'Who is it for?'}</strong> ${isPT ? `Para quem busca equilíbrio entre design, desempenho e uso diário.` : `For those seeking balance across design, performance, and daily wear.`}</p>`;
+            content += `<p><strong>${isPT ? 'Vale a pena?' : 'Is it worth it?'}</strong> ${isPT ? `Sim, desde que o perfil de uso esteja alinhado à proposta do ${topic}.` : `Yes, provided your use profile aligns with ${topic}'s intent.`}</p>`;
+            content += `<blockquote style="border-left:4px solid #6366F1;padding-left:1rem;color:#4B5563;margin:1rem 0;">
+                ${isPT ? 'Recomendação: priorize conforto, manutenção e aderência ao seu estilo.' : 'Recommendation: prioritize comfort, serviceability, and fit to your style.'}
+            </blockquote>`;
+            content += `<div style="background:linear-gradient(135deg,#6366F1,#EC4899);color:white;padding:1rem;border-radius:12px;margin:1.5rem 0;text-align:center;">
+                <h3 style="margin:0 0 .5rem 0;">${isPT ? 'Quer continuar aprendendo?' : 'Want to keep learning?'}</h3>
+                <p style="margin:0 0 .75rem 0;">${isPT ? 'Assine para receber análises claras e objetivas de novos modelos.' : 'Subscribe to get clear, objective reviews of new models.'}</p>
+                <a href="#" style="display:inline-block;background:white;color:#1F2937;padding:.6rem 1rem;border-radius:8px;font-weight:700;text-decoration:none;">${isPT ? 'Assinar' : 'Subscribe'}</a>
+            </div>`;
+            content += `<h2>${isPT ? 'Conclusão' : 'Conclusion'}</h2>`;
+            content += `<p>${isPT ? `O ${topic} entrega o essencial com consistência. Se os pontos destacados conversam com seu uso, é uma escolha segura.` : `${topic} delivers the essentials consistently. If the highlighted points match your use, it is a safe choice.`}</p>`;
+            return { title: title, content: content, wordCount: wordCount, language: language, style: style, createdAt: new Date().toISOString() };
         }
         
         function displayArticle(article) {
