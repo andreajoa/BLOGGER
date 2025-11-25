@@ -1473,12 +1473,29 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
             const rheEN = ['Put simply,', 'In clear terms,', 'The point is simple:', 'It’s worth noting'];
             const usedH = new Set();
             const usedP = new Set();
-            const headingsPT = ['No Pulso','Propriedade e Manutenção','Alternativas','Guia de Compra','Valor e Mercado','História e Origem','Aplicação Prática','Contexto e Valor'];
-            const headingsEN = ['On the Wrist','Ownership & Service','Alternatives','Buying Guide','Value & Market','History & Origin','Practical Application','Context & Value'];
-            const getH = () => {
-                const list = isPT ? headingsPT : headingsEN;
-                const pool = list.filter(h => !usedH.has(h));
-                const h = pool.length ? pool[Math.floor(Math.random()*pool.length)] : list[Math.floor(Math.random()*list.length)];
+            usedH.add(isPT ? 'Domínio Técnico' : 'Technical Mastery');
+            usedH.add(isPT ? 'Design e Construção' : 'Design & Build');
+            usedH.add(isPT ? 'Desempenho no Uso' : 'Performance in Use');
+            if (insItems.length) usedH.add(isPT ? 'Diretrizes' : 'Guidelines');
+            const headingsPTBase = ['No Pulso','Propriedade e Manutenção','Alternativas','Guia de Compra','Valor e Mercado','História e Origem','Aplicação Prática','Contexto e Valor','Precisão & Estabilidade','Disponibilidade & Oferta','Ergonomia & Conforto','Legibilidade & Proporção'];
+            const headingsENBase = ['On the Wrist','Ownership & Service','Alternatives','Buying Guide','Value & Market','History & Origin','Practical Application','Context & Value','Accuracy & Stability','Availability & Supply','Ergonomics & Comfort','Legibility & Proportion'];
+            const catsPT = ['Mercado','Valor','Pulso','Ergonomia','Legibilidade','Construção','Manutenção','Alternativas','Compra','História','Contexto','Uso'];
+            const modsPT = ['Panorama','Visão','Perspectiva','Análise','Essenciais','Detalhes','Foco','Guia','Notas','Tópicos'];
+            const catsEN = ['Market','Value','Wrist','Ergonomics','Legibility','Build','Service','Alternatives','Buying','History','Context','Use'];
+            const modsEN = ['Overview','Insight','Perspective','Analysis','Essentials','Details','Focus','Guide','Notes','Topics'];
+            const nextHeading = () => {
+                const base = isPT ? headingsPTBase : headingsENBase;
+                const pool = base.filter(h => !usedH.has(h));
+                if (pool.length) { const h = pool[Math.floor(Math.random()*pool.length)]; usedH.add(h); return h; }
+                const c = isPT ? catsPT : catsEN;
+                const m = isPT ? modsPT : modsEN;
+                let h = `${c[Math.floor(Math.random()*c.length)]} ${isPT ? '—' : '—'} ${m[Math.floor(Math.random()*m.length)]}`;
+                if (Math.random() < 0.5) h = `${h}: ${topic}`;
+                let guard = 0;
+                while (usedH.has(h) && guard < 10) {
+                    h = `${c[Math.floor(Math.random()*c.length)]} ${isPT ? '—' : '—'} ${m[Math.floor(Math.random()*m.length)]}: ${topic}`;
+                    guard++;
+                }
                 usedH.add(h); return h;
             };
             const paraGen = () => style === 'technical' ? (isPT ? makeTechPT() : makeTechEN()) : (isPT ? makeParaPT() : makeParaEN());
@@ -1491,7 +1508,7 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
                 usedP.add(p); return p;
             };
             while (count(content) < targetMin) {
-                const sectionTitle = getH();
+                const sectionTitle = nextHeading();
                 content += `<h2>${sectionTitle}</h2>`;
                 content += `<p>${uniquePara()}</p>`;
                 content += `<p>${uniquePara()}</p>`;
