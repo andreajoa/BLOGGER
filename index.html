@@ -1375,7 +1375,7 @@
         }
         
         async function generateLuxArticleContent(topic, language, wordCount, style, instructions) {
-            await new Promise(resolve => setTimeout(resolve, 3000));
+            await new Promise(resolve => setTimeout(resolve, 300));
             const isPT = language === 'pt';
             const pro = style !== 'casual';
             const year = new Date().getFullYear();
@@ -1392,29 +1392,107 @@
 .lux-cta a{display:inline-block;background:#fff;color:#1F2937;border-radius:8px;padding:.5rem 1rem;font-weight:700;text-decoration:none}
 blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:1rem 0}
 </style>`;
-            const title = isPT ? `Guia Definitivo: ${topic}` : `${topic}: Definitive Guide`;
+            const adjsPT = ['Elegância no Pulso','Guia do Colecionador','Mergulho Técnico','Manual Inteligente','Dominando o Tempo'];
+            const adjsEN = ['Elegance on the Wrist','Collector’s Guide','Technical Deep Dive','Smart Buyer Manual','Mastering Time'];
+            const leadsPT = ['Descubra o que realmente importa antes de comprar.','O que ninguém te conta sobre este modelo.','Como escolher bem e evitar arrependimentos.'];
+            const leadsEN = ['Discover what truly matters before buying.','What no one tells you about this model.','How to choose well and avoid regret.'];
+            const pick = a => a[Math.floor(Math.random() * a.length)];
+            const baseTitle = isPT ? pick(adjsPT) : pick(adjsEN);
+            let title = isPT ? `${baseTitle}: ${topic} ${year}` : `${baseTitle}: ${topic} ${year}`;
+            const prevTitle = localStorage.getItem('LAST_ARTICLE_TITLE') || '';
+            if (prevTitle === title) {
+                const n = Math.floor(Math.random() * 90) + 10;
+                title = isPT ? `${baseTitle} ${n}: ${topic} ${year}` : `${baseTitle} ${n}: ${topic} ${year}`;
+            }
             const callout = isPT
-                ? `A coleção de relógios de luxo mudou radicalmente em ${year}. Os compradores mais informados priorizam materiais e execução técnica acima do marketing ostensivo.`
-                : `Luxury watch collecting has shifted dramatically in ${year}. Informed buyers now prioritize materials and technical execution over flashy marketing.`;
+                ? `O cenário de colecionismo mudou em ${year}. Quem entende prioriza materiais e execução técnica acima do marketing.`
+                : `Collecting changed in ${year}. Informed buyers prioritize materials and technical execution over marketing.`;
+            const hooksPT = [
+                `Imagine usar ${topic} por uma semana inteira e perceber que ele desaparece no pulso — no melhor sentido: conforto total e presença elegante.`,
+                `Já pensou no que realmente prende a atenção? Não é brilho: é coerência de design, proporção e confiança no uso.`,
+                `Quando um relógio convence sem esforço, você sente antes de perceber: ergonomia e legibilidade trabalham a seu favor.`
+            ];
+            const hooksEN = [
+                `Imagine wearing ${topic} for an entire week and feeling it vanish on the wrist — in the best way: total comfort and elegant presence.`,
+                `What truly grabs attention? Not flash: coherence of design, proportion, and confident daily wear.`,
+                `When a watch convinces effortlessly, you sense it before you notice: ergonomics and legibility work in your favor.`
+            ];
+            const makeParaPT = () => {
+                const a = [
+                    `${topic} equilibra proporção, presença e utilidade. A experiência diária revela escolhas de materiais e acabamentos que favorecem conforto e longevidade, sem perder identidade.`,
+                    `Em ambientes formais ou casuais, ${topic} mantém leitura clara e sensação de controle. A construção evita brilhos excessivos, valorizando textura, profundidade e ergonomia.`,
+                    `Quando olhamos manutenção, ${topic} se destaca pela previsibilidade. Peças, revisão e ajustes seguem uma lógica acessível ao segmento, permitindo uso prolongado sem surpresas.`,
+                    `A narrativa visual de ${topic} conversa com entusiastas e usuários pragmáticos. O desenho evita exageros; o resultado é presença elegante e confiança no uso.`,
+                    `Comparando propostas, ${topic} entrega consistência. Se o objetivo é uso frequente, a soma de conforto, precisão e estabilidade oferece valor real.`
+                ];
+                return pick(a);
+            };
+            const makeParaEN = () => {
+                const a = [
+                    `${topic} balances proportion, presence, and utility. Daily wear reveals material choices and finishing that favor comfort and longevity while preserving identity.`,
+                    `In formal or casual contexts, ${topic} keeps clear readability and a sense of control. The build avoids unnecessary flash, favoring texture, depth, and ergonomics.`,
+                    `Looking at serviceability, ${topic} stands out for predictability. Parts, overhaul, and adjustments follow accessible logic for the segment, enabling extended use without surprises.`,
+                    `The visual narrative of ${topic} speaks to enthusiasts and pragmatic users. The design avoids excess; the result is elegant presence and confidence in wear.`,
+                    `Across alternatives, ${topic} delivers consistency. For frequent use, the sum of comfort, accuracy, and stability provides real value.`
+                ];
+                return pick(a);
+            };
+            const makeTechPT = () => {
+                const a = [
+                    `Precisão estável, reserva de marcha adequada e tolerâncias controladas colocam ${topic} em patamar seguro para uso contínuo. A resposta no pulso é previsível e agradável.`,
+                    `Materiais contemporâneos e processos refinados garantem superfície consistente e resistência a riscos, mantendo o caráter do ${topic} ao longo do tempo.`
+                ];
+                return pick(a);
+            };
+            const makeTechEN = () => {
+                const a = [
+                    `Stable accuracy, adequate power reserve, and controlled tolerances place ${topic} in a safe tier for continuous wear. Wrist feedback is predictable and pleasing.`,
+                    `Contemporary materials and refined processes ensure consistent surfaces and scratch resistance, preserving ${topic}'s character over time.`
+                ];
+                return pick(a);
+            };
+            const strip = s => s.replace(/<style[\s\S]*?<\/style>/gi,'').replace(/<[^>]+>/g, '');
+            const count = s => strip(s).trim().split(/\s+/).filter(Boolean).length;
+            const targetMin = Math.max(300, Math.floor(wordCount * 0.95));
+            let content = `${css}<section class="lux-article"><h1>${title}</h1>`;
+            const lead = isPT ? pick(leadsPT) : pick(leadsEN);
+            content += `<div class="lux-callout">${lead} ${callout}</div>`;
+            if (Math.random() < 0.85) content += `<p>${isPT ? pick(hooksPT) : pick(hooksEN)}</p>`;
+            content += `<h2>${isPT ? 'Domínio Técnico' : 'Technical Mastery'}</h2>`;
+            content += `<p>${isPT ? makeTechPT() : makeTechEN()}</p>`;
+            content += `<h2>${isPT ? 'Design e Construção' : 'Design & Build'}</h2>`;
+            content += `<p>${isPT ? makeParaPT() : makeParaEN()}</p>`;
+            content += `<h2>${isPT ? 'Desempenho no Uso' : 'Performance in Use'}</h2>`;
+            content += `<p>${isPT ? makeParaPT() : makeParaEN()}</p>`;
             const ins = (instructions || '').trim();
             const insItems = ins ? ins.split(/[\n,;]+/).map(s => s.trim()).filter(Boolean) : [];
-            let content = `${css}<section class="lux-article"><h1>${title}</h1>`;
-            content += `<div class="lux-callout">${callout}</div>`;
-            content += `<h2>${isPT ? 'Domínio Técnico' : 'Technical Mastery'}</h2>`;
-            content += `<p>${isPT ? `Materiais compostos, cerâmica avançada e soluções em polímeros elevam o desempenho muito além do que era possível há poucos anos. O ${topic} demonstra esses avanços com foco em precisão e estabilidade.` : `Composite materials, advanced ceramics, and polymer solutions elevate performance beyond what was possible just years ago. ${topic} demonstrates these advances with a focus on precision and stability.`}</p>`;
-            content += `<h2>${isPT ? 'Design e Construção' : 'Design & Build'}</h2>`;
-            content += `<p>${isPT ? `Proporção equilibrada e legibilidade orientam o desenho do ${topic}. Acabamentos consistentes e materiais adequados entregam uma presença ${pro ? 'sofisticada' : 'descontraída'}.` : `Balanced proportions and legibility guide ${topic}'s design. Consistent finishing and appropriate materials deliver a ${pro ? 'refined' : 'casual'} presence.`}</p>`;
-            content += `<ul><li>${isPT ? 'Ergonomia sólida' : 'Solid ergonomics'}</li><li>${isPT ? 'Legibilidade em diferentes condições' : 'Legibility across conditions'}</li><li>${isPT ? 'Materiais alinhados ao propósito' : 'Materials aligned to purpose'}</li></ul>`;
-            content += `<h2>${isPT ? 'Desempenho no Uso' : 'Performance in Use'}</h2>`;
-            content += `<p>${isPT ? `No uso diário, precisão e estabilidade são consistentes. Manutenção é previsível e acessível para o segmento.` : `In daily wear, precision and stability are consistent. Maintenance is predictable and accessible for the segment.`}</p>`;
             if (insItems.length) { content += `<h2>${isPT ? 'Diretrizes' : 'Guidelines'}</h2>`; content += `<ul>${insItems.map(i => `<li>${i}</li>`).join('')}</ul>`; }
-            content += `<h2>${isPT ? 'Prós e Contras' : 'Pros & Cons'}</h2>`;
-            content += `<h3>${isPT ? 'Prós' : 'Pros'}</h3><ul><li>${isPT ? 'Construção consistente' : 'Consistent build'}</li><li>${isPT ? 'Desempenho confiável' : 'Reliable performance'}</li><li>${isPT ? 'Versatilidade' : 'Versatility'}</li></ul>`;
-            content += `<h3>${isPT ? 'Contras' : 'Cons'}</h3><ul><li>${isPT ? 'Poucas opções fora do padrão' : 'Limited offbeat options'}</li><li>${isPT ? 'Preço sensível à disponibilidade' : 'Price sensitive to availability'}</li></ul>`;
+            while (count(content) < targetMin) {
+                const sectionTitle = isPT ? pick(['No Pulso','Aplicação Prática','Contexto e Valor']) : pick(['On the Wrist','Practical Use','Context & Value']);
+                content += `<h2>${sectionTitle}</h2>`;
+                const para = style === 'technical' ? (isPT ? makeTechPT() : makeTechEN()) : (isPT ? makeParaPT() : makeParaEN());
+                const para2 = isPT ? makeParaPT() : makeParaEN();
+                content += `<p>${para}</p>`;
+                content += `<p>${para2}</p>`;
+                if (Math.random() < 0.35) {
+                    const prosTitle = isPT ? 'Prós' : 'Pros';
+                    const consTitle = isPT ? 'Contras' : 'Cons';
+                    content += `<h3>${prosTitle}</h3><ul><li>${isPT ? 'Conforto consistente' : 'Consistent comfort'}</li><li>${isPT ? 'Manutenção previsível' : 'Predictable service'}</li><li>${isPT ? 'Legibilidade segura' : 'Secure legibility'}</li></ul>`;
+                    content += `<h3>${consTitle}</h3><ul><li>${isPT ? 'Poucas variações fora do padrão' : 'Limited offbeat variants'}</li><li>${isPT ? 'Preço sensível à oferta' : 'Price sensitive to supply'}</li></ul>`;
+                }
+            }
             content += `<blockquote>${isPT ? 'Recomendação: priorize conforto, manutenção e aderência ao seu estilo.' : 'Recommendation: prioritize comfort, serviceability, and fit to your style.'}</blockquote>`;
             content += `<div class="lux-cta"><h3>${isPT ? 'Quer continuar aprendendo?' : 'Want to keep learning?'}</h3><p>${isPT ? 'Assine para receber análises objetivas de novos modelos.' : 'Subscribe to get objective reviews of upcoming models.'}</p><a href="#">${isPT ? 'Assinar' : 'Subscribe'}</a></div>`;
             content += `</section>`;
-            return { title: title, content: content, wordCount: wordCount, language: language, style: style, createdAt: new Date().toISOString() };
+            const hash = await hashSHA256(content);
+            const last = localStorage.getItem('LAST_ARTICLE_HASH') || '';
+            if (hash === last) {
+                content += `<p>${isPT ? 'Nota exclusiva:' : 'Exclusive note:'} ${isPT ? 'Esta versão inclui observações adicionais de conforto no uso diário.' : 'This version includes additional comfort notes for daily wear.'}</p>`;
+            }
+            localStorage.setItem('LAST_ARTICLE_HASH', await hashSHA256(content));
+            localStorage.setItem('LAST_ARTICLE_TITLE', title);
+            const finalCount = count(content);
+            return { title: title, content: content, wordCount: finalCount, language: language, style: style, createdAt: new Date().toISOString() };
         }
         
         async function generateArticleContent(topic, language, wordCount, style, instructions) {
