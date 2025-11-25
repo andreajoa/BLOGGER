@@ -1511,8 +1511,53 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
             const endEN = `You saw a method that puts ${topic} on a proof cycle. Your choice: stay in improvisation or apply structure. Tangible benefit: clarity, cadence, progress.`;
             content += `<p>${isPT ? endPT : endEN}</p>`;
             content += `</section>`;
-            while (count(content) < targetMin) {
-                content += `<p>${isPT ? 'Em resumo, avance com clareza: uma alavanca por vez.' : 'In summary, move with clarity: one lever at a time.'}</p>`;
+            const fillersPT = [
+                'Em resumo: escolha uma alavanca e avance.',
+                'Evite dispersão: foque no que muda o resultado.',
+                'Valide com dados, não com opiniões.',
+                'Ciclos curtos criam tração sustentável.',
+                'Aprenda rápido, ajuste e repita.',
+                'Mais clareza, menos ruído.',
+                'Execute hoje; refine amanhã.',
+                'Uma hipótese por vez.',
+                'Reduza escopo; aumente velocidade.',
+                'Cadência semanal > projetos infinitos.',
+                'Evidência específica vence achismo.',
+                'Impacto desproporcional vem de poucas alavancas.'
+            ];
+            const fillersEN = [
+                'In summary: pick one lever and move.',
+                'Avoid scatter: focus on what changes outcomes.',
+                'Validate with data, not opinions.',
+                'Short cycles create sustainable traction.',
+                'Learn fast, adjust, and repeat.',
+                'More clarity, less noise.',
+                'Execute today; refine tomorrow.',
+                'One hypothesis at a time.',
+                'Reduce scope; increase speed.',
+                'Weekly cadence > endless projects.',
+                'Specific evidence beats guesswork.',
+                'Outsized impact comes from few levers.'
+            ];
+            const pool = isPT ? fillersPT : fillersEN;
+            const chosenFillers = new Set();
+            let topupGuard = 0;
+            while (count(content) < targetMin && topupGuard < 8) {
+                const deficit = targetMin - count(content);
+                if (deficit > 120) {
+                    const label = isPT ? 'Nota de Campo' : 'Field Note';
+                    content += `<h3>${label} ${topupGuard + 1}</h3>`;
+                    const line = pool[Math.floor(Math.random() * pool.length)];
+                    content += `<p>${line}</p>`;
+                    const bullets = isPT ? ['Defina uma hipótese','Colete evidências específicas','Itere em ciclos curtos'] : ['Define a hypothesis','Collect specific evidence','Iterate in short cycles'];
+                    content += `<ul>${bullets.map(b => `<li>${b}</li>`).join('')}</ul>`;
+                } else {
+                    const available = pool.filter(s => !chosenFillers.has(s));
+                    const line = (available.length ? available : pool)[Math.floor(Math.random() * (available.length ? available.length : pool.length))];
+                    chosenFillers.add(line);
+                    content += `<p>${line}</p>`;
+                }
+                topupGuard++;
             }
             const hash = await hashSHA256(content);
             const last = localStorage.getItem('LAST_ARTICLE_HASH') || '';
