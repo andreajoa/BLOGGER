@@ -706,6 +706,8 @@
             font-size: 0.9em;
             margin-top: 0.5rem;
         }
+        .trial-banner{background:#FFF8E1;border:1px solid #F59E0B;color:#7C3A00;border-radius:10px;padding:.75rem 1rem;margin:0 0 1rem 0;font-weight:600}
+        .trial-banner.warn{background:#FFE4E6;border-color:#EF4444;color:#7F1D1D}
         
         /* Install Button */
         .install-btn {
@@ -772,22 +774,22 @@
     <!-- Loading Screen -->
     <div class="loading" id="loadingScreen">
         <div class="spinner"></div>
-        <div class="loading-text">✍️ Initializing Blog Writer ULTRA...</div>
+        <div class="loading-text">✍️ Inicializando Blog Writer ULTRA...</div>
     </div>
 
     <!-- Auth Container -->
     <div class="auth-container" id="authContainer">
         <div class="auth-box">
-            <div class="auth-logo">
-                <div class="auth-logo-icon">✍️</div>
-                <h1>Blog Writer ULTRA</h1>
-                <div class="trial-badge">🎁 14 Days Free Trial</div>
-            </div>
-            
-            <div class="auth-tabs">
-                <button class="auth-tab active" onclick="showAuthTab('login')">Login</button>
-                <button class="auth-tab" onclick="showAuthTab('signup')">Sign Up</button>
-            </div>
+                <div class="auth-logo">
+                    <div class="auth-logo-icon">✍️</div>
+                    <h1>Blog Writer ULTRA</h1>
+                    <div id="trialBadge" class="trial-badge">🎁 14 Dias de Teste Grátis</div>
+                </div>
+                
+                <div class="auth-tabs">
+                    <button id="authTabLogin" class="auth-tab active" onclick="showAuthTab('login')">Entrar</button>
+                    <button id="authTabSignup" class="auth-tab" onclick="showAuthTab('signup')">Criar Conta</button>
+                </div>
             
             <div id="authError" class="auth-msg auth-error"></div>
             <div id="authSuccess" class="auth-msg auth-success"></div>
@@ -795,20 +797,20 @@
             <!-- Login Form -->
             <form id="loginForm" class="auth-form active" onsubmit="handleLogin(event)">
                 <div class="form-group">
-                    <label>Email</label>
+                    <label id="labelEmail">Email</label>
                     <input type="email" id="loginEmail" required>
                 </div>
                 <div class="form-group">
-                    <label>Password</label>
+                    <label id="labelPassword">Senha</label>
                     <input type="password" id="loginPassword" required>
                 </div>
-                <button type="submit" class="btn-auth">Login</button>
+                <button id="btnLogin" type="submit" class="btn-auth">Entrar</button>
             </form>
             
             <!-- Signup Form -->
             <form id="signupForm" class="auth-form" onsubmit="handleSignup(event)">
                 <div class="form-group">
-                    <label>Full Name</label>
+                    <label id="labelFullName">Nome Completo</label>
                     <input type="text" id="signupName" required>
                 </div>
                 <div class="form-group">
@@ -816,10 +818,10 @@
                     <input type="email" id="signupEmail" required>
                 </div>
                 <div class="form-group">
-                    <label>Password (min 6 characters)</label>
+                    <label id="labelPasswordMin">Senha (mín. 6 caracteres)</label>
                     <input type="password" id="signupPassword" minlength="6" required>
                 </div>
-                <button type="submit" class="btn-auth">🎁 Start Free Trial</button>
+                <button id="btnStartTrial" type="submit" class="btn-auth">🎁 Iniciar Teste Grátis</button>
             </form>
             <div style="margin-top:0.75rem; display:flex; gap:0.5rem;">
                 <button class="btn-action" style="flex:1" onclick="openAdminSetup()">Admin Setup</button>
@@ -828,21 +830,26 @@
     </div>
 
     <!-- Paywall -->
-    <div class="paywall-overlay" id="paywallOverlay">
-        <div class="paywall-box">
-            <div class="paywall-icon">🔒</div>
-            <h1 class="paywall-title">Trial Expired</h1>
-            <p style="color:#666; margin-bottom:1rem;">Subscribe to continue creating amazing content!</p>
-            <div class="price-box">
-                <div class="price-amount">
-                    <span class="price-currency" id="priceCurrency">$</span>
-                    <span id="priceAmount">19.99</span>
+            <div class="paywall-overlay" id="paywallOverlay">
+                <div class="paywall-box">
+                    <div class="paywall-icon">🔒</div>
+                    <h1 id="paywallTitle" class="paywall-title">Período de Teste Encerrado</h1>
+                    <p id="paywallDesc" style="color:#666; margin-bottom:1rem;">Assine para continuar criando conteúdos incríveis!</p>
+                    <div class="price-box">
+                        <div class="price-amount">
+                            <span class="price-currency" id="priceCurrency">R$</span>
+                            <span id="priceAmount">29.99</span>
+                        </div>
+                        <div id="perMonthText" style="color:#666; font-size:0.9em; margin-top:0.5rem;">por mês</div>
+                        <div id="priceConvert" style="color:#444; font-size:0.95em; margin-top:0.75rem;"></div>
+                        <div style="margin-top:0.75rem; font-size:0.9em; color:#444;">
+                            <button id="btnCheckout" class="btn-action" onclick="redirectToStripe()">💳 Ir para pagamento</button>
+                            <button id="btnUnlock" class="btn-action" onclick="unlockAfterPayment()">✅ Já paguei — Liberar</button>
+                        </div>
+                    </div>
+                    <button id="btnSubscribeNow" class="btn-subscribe" onclick="redirectToStripe()">💳 Assinar Agora</button>
                 </div>
-                <div style="color:#666; font-size:0.9em; margin-top:0.5rem;">per month</div>
             </div>
-            <button class="btn-subscribe" onclick="redirectToStripe()">💳 Subscribe Now</button>
-        </div>
-    </div>
 
     <!-- App Container -->
     <div class="app-container" id="appContainer">
@@ -861,41 +868,42 @@
                     <option value="de">🇩🇪 Deutsch</option>
                 </select>
                 <button class="btn-nav" id="adminBtn" onclick="openAdminPanel()" style="display:none">Admin</button>
-                <button class="btn-nav" onclick="logout()">Logout</button>
+                <button id="btnLogout" class="btn-nav" onclick="logout()">Sair</button>
             </div>
         </div>
 
         <div class="container">
+            <div id="trialBanner" class="trial-banner" style="display:none"></div>
             <!-- Stats -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-icon">📝</div>
                     <div class="stat-value" id="statArticles">0</div>
-                    <div class="stat-label">Articles Created</div>
+                    <div id="labelArticlesCreated" class="stat-label">Artigos Criados</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon">📊</div>
                     <div class="stat-value" id="statWords">0</div>
-                    <div class="stat-label">Total Words</div>
+                    <div id="labelTotalWords" class="stat-label">Total de Palavras</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon">🔥</div>
                     <div class="stat-value" id="statStreak">0</div>
-                    <div class="stat-label">Day Streak</div>
+                    <div id="labelDayStreak" class="stat-label">Dias Seguidos</div>
                 </div>
             </div>
 
             <!-- Generator Section -->
             <div class="generator-section">
-                <h2 class="section-title">✨ Create New Article</h2>
+                <h2 id="titleCreate" class="section-title">✨ Criar Novo Artigo</h2>
                 
                 <div class="form-row">
                     <div class="input-group">
-                        <label>📝 Topic</label>
+                        <label id="labelTopic">📝 Tópico</label>
                         <input type="text" id="articleTopic" placeholder="e.g., AI in Healthcare, Sustainable Living...">
                     </div>
                     <div class="input-group">
-                        <label>🌍 Language</label>
+                        <label id="labelLanguage">🌍 Idioma</label>
                         <select id="articleLanguage">
                             <option value="en">English</option>
                             <option value="pt">Português</option>
@@ -908,7 +916,7 @@
                 
                 <div class="form-row">
                     <div class="input-group">
-                        <label>📊 Word Count</label>
+                        <label id="labelWordCount">📊 Contagem de Palavras</label>
                         <select id="articleWordCount">
                             <option value="500">500 words</option>
                             <option value="1000">1,000 words</option>
@@ -921,7 +929,7 @@
                         </select>
                     </div>
                     <div class="input-group">
-                        <label>🎨 Style</label>
+                        <label id="labelStyle">🎨 Estilo</label>
                         <select id="articleStyle">
                             <option value="professional">Professional</option>
                             <option value="casual">Casual</option>
@@ -932,26 +940,26 @@
                 </div>
                 
                 <div class="input-group">
-                    <label>💡 Additional Instructions (optional)</label>
+                    <label id="labelInstructions">💡 Instruções Adicionais (opcional)</label>
                     <textarea id="articleInstructions" placeholder="Add specific requirements, keywords, or structure..."></textarea>
                 </div>
                 
                 <button class="btn-generate" id="generateBtn" onclick="generateArticle()">
-                    🚀 Generate Article
+                    🚀 Gerar Artigo
                 </button>
             </div>
 
             <!-- Article Preview -->
             <div class="article-preview" id="articlePreview">
                 <div class="preview-header">
-                    <div class="preview-title">📄 Your Article</div>
+                    <div id="previewTitle" class="preview-title">📄 Seu Artigo</div>
                     <div class="preview-actions">
-                        <button class="btn-action" onclick="openTitleOverlay()">🎲 Generate Titles</button>
-                        <button class="btn-action success" onclick="saveArticle()">💾 Save</button>
-                        <button class="btn-action" onclick="downloadPDF()">📥 PDF</button>
-                        <button class="btn-action" onclick="copyHTML()">📋 Copy HTML</button>
-                        <button class="btn-action" onclick="copyFormatted()">📄 Copy Formatted</button>
-                        <button class="btn-action" onclick="downloadMarkdown()">⬇️ Markdown</button>
+                        <button id="btnGenTitles" class="btn-action" onclick="openTitleOverlay()">🎲 Gerar Títulos</button>
+                        <button id="btnSave" class="btn-action success" onclick="saveArticle()">💾 Salvar</button>
+                        <button id="btnPDF" class="btn-action" onclick="downloadPDF()">📥 PDF</button>
+                        <button id="btnCopyHTML" class="btn-action" onclick="copyHTML()">📋 Copiar HTML</button>
+                        <button id="btnCopyFormatted" class="btn-action" onclick="copyFormatted()">📄 Copiar Formatado</button>
+                        <button id="btnDownloadMd" class="btn-action" onclick="downloadMarkdown()">⬇️ Markdown</button>
                     </div>
                 </div>
                 
@@ -975,33 +983,33 @@
 
             <div id="titleOverlay" class="title-overlay">
                 <div class="title-modal">
-                    <div class="title-header">Generate New Titles</div>
+                    <div id="titleHeader" class="title-header">Gerar Novos Títulos</div>
                     <div id="titleSuggestionList" class="title-list"></div>
                     <div class="title-actions">
-                        <button class="btn-action" onclick="refreshTitleSuggestions()">🔁 Regenerate</button>
-                        <button class="btn-action" onclick="closeTitleOverlay()">✖ Close</button>
+                        <button id="btnRegenerate" class="btn-action" onclick="refreshTitleSuggestions()">🔁 Regerar</button>
+                        <button id="btnCloseOverlay" class="btn-action" onclick="closeTitleOverlay()">✖ Fechar</button>
                     </div>
                 </div>
             </div>
 
             <!-- My Articles -->
             <div class="generator-section">
-                <h2 class="section-title">📚 My Articles</h2>
+                <h2 id="titleMyArticles" class="section-title">📚 Meus Artigos</h2>
                 <div class="articles-grid" id="articlesGrid">
-                    <p style="text-align:center;color:#999;">No articles yet. Create your first masterpiece!</p>
+                    <p style="text-align:center;color:#999;">Nenhum artigo ainda. Crie sua primeira obra-prima!</p>
                 </div>
             </div>
 
             <!-- Reviews Section -->
             <div class="generator-section">
-                <h2 class="section-title">⭐ Reviews</h2>
+                <h2 id="titleReviews" class="section-title">⭐ Avaliações</h2>
                 <div class="form-row">
                     <div class="input-group">
-                        <label>Name</label>
+                        <label id="labelReviewName">Nome</label>
                         <input type="text" id="reviewName" placeholder="Your name">
                     </div>
                     <div class="input-group">
-                        <label>Rating</label>
+                        <label id="labelReviewRating">Nota</label>
                         <select id="reviewRating">
                             <option value="5">5 ⭐</option>
                             <option value="4">4 ⭐</option>
@@ -1012,10 +1020,10 @@
                     </div>
                 </div>
                 <div class="input-group">
-                    <label>Comment</label>
+                    <label id="labelReviewComment">Comentário</label>
                     <textarea id="reviewComment" placeholder="Write your review..."></textarea>
                 </div>
-                <button class="btn-generate" onclick="submitReview()">Submit Review</button>
+                <button id="btnSubmitReview" class="btn-generate" onclick="submitReview()">Enviar Avaliação</button>
                 <div class="articles-grid" id="reviewsList"></div>
             </div>
         </div>
@@ -1075,7 +1083,26 @@
         // ==================== CONFIG ====================
         const SUPABASE_URL = 'YOUR_SUPABASE_URL';
         const SUPABASE_KEY = 'YOUR_SUPABASE_KEY';
-        const STRIPE_LINK = 'YOUR_STRIPE_LINK';
+        const STRIPE_LINK = 'https://buy.stripe.com/9B68wP4Qxb20cLI4Mu2VG01';
+        const BASE_PRICE_BRL = 29.99;
+        const PRODUCT_ID = 'prod_TUTj9iuvIwb96M';
+        const CURRENCY_RATES = {
+            BRL: 1,
+            USD: 0.18,
+            EUR: 0.17,
+            GBP: 0.14,
+            CAD: 0.24,
+            AUD: 0.28,
+            JPY: 27.0,
+            MXN: 3.2,
+            ARS: 160,
+            CLP: 170,
+            COP: 800,
+            CHF: 0.17
+        };
+        const CURRENCY_SYMBOL = {
+            BRL: 'R$', USD: '$', EUR: '€', GBP: '£', CAD: 'C$', AUD: 'A$', JPY: '¥', MXN: '$', ARS: 'ARS$', CLP: 'CLP$', COP: 'COL$', CHF: 'CHF'
+        };
         
         let supabase = null;
         let currentUser = null;
@@ -1085,14 +1112,25 @@
         let adminHash = null;
         
         const CURRENCY_BY_COUNTRY = {
-            'US': { symbol: '$', code: 'USD', price: 19.99 },
-            'BR': { symbol: 'R$', code: 'BRL', price: 99.90 },
-            'GB': { symbol: '£', code: 'GBP', price: 15.99 },
-            'EU': { symbol: '€', code: 'EUR', price: 17.99 },
-            'DE': { symbol: '€', code: 'EUR', price: 17.99 },
-            'FR': { symbol: '€', code: 'EUR', price: 17.99 },
-            'ES': { symbol: '€', code: 'EUR', price: 17.99 }
+            'US': { symbol: '$', code: 'USD' },
+            'BR': { symbol: 'R$', code: 'BRL' },
+            'GB': { symbol: '£', code: 'GBP' },
+            'EU': { symbol: '€', code: 'EUR' },
+            'DE': { symbol: '€', code: 'EUR' },
+            'FR': { symbol: '€', code: 'EUR' },
+            'ES': { symbol: '€', code: 'EUR' },
+            'CA': { symbol: 'C$', code: 'CAD' },
+            'AU': { symbol: 'A$', code: 'AUD' },
+            'JP': { symbol: '¥', code: 'JPY' },
+            'MX': { symbol: '$', code: 'MXN' },
+            'AR': { symbol: 'ARS$', code: 'ARS' },
+            'CL': { symbol: 'CLP$', code: 'CLP' },
+            'CO': { symbol: 'COL$', code: 'COP' },
+            'CH': { symbol: 'CHF', code: 'CHF' }
         };
+        function convertFromBRL(amount, code) { const rate = CURRENCY_RATES[code] || 1; return amount * rate; }
+        function formatPrice(code, amount) { const v = code === 'JPY' ? Math.round(amount) : amount.toFixed(2); return v; }
+        function getPriceForCountry(country) { const c = CURRENCY_BY_COUNTRY[country] || CURRENCY_BY_COUNTRY['US']; const price = convertFromBRL(BASE_PRICE_BRL, c.code); return { symbol: c.symbol, code: c.code, price }; }
         
         // ==================== INIT ====================
         async function init() {
@@ -1108,6 +1146,9 @@
                 detectUserLocation();
                 loadAdminConfig();
                 renderReviews();
+                changeLanguage('pt');
+                document.getElementById('langSelect').value = 'pt';
+                handleReturnParams();
             } catch (err) {
                 console.error('Init error:', err);
                 alert('Error initializing app');
@@ -1189,12 +1230,16 @@
             return email === adminEmail && h === adminHash;
         }
         
-        async function handleLogin(e) { e.preventDefault(); const email = document.getElementById('loginEmail').value.trim().toLowerCase(); const pass = document.getElementById('loginPassword').value; if (await isAdminCredentials(email, pass)) { loginUser({ email: email, name: 'Admin', role: 'admin', subscription_status: 'active', articles_count: 0, total_words: 0, streak: 0 }); return; } if (email === 'demo@demo.com' && pass === 'demo123') { loginUser({ email: email, name: 'Demo User', subscription_status: 'active', articles_count: 5, total_words: 12500, streak: 7 }); return; } if (!supabase) { const users = JSON.parse(localStorage.getItem('LOCAL_USERS') || '[]'); const hash = await hashSHA256(pass); const u = users.find(u => u.email === email && u.hash === hash); if (u) { loginUser({ email: email, name: u.name, subscription_status: 'active', articles_count: 0, total_words: 0, streak: 0 }); return; } showError('❌ Invalid credentials'); return; } showError('❌ Invalid credentials'); }
+        async function handleLogin(e) { e.preventDefault(); const email = document.getElementById('loginEmail').value.trim().toLowerCase(); const pass = document.getElementById('loginPassword').value; let user = null; if (await isAdminCredentials(email, pass)) { user = { email: email, name: 'Admin', role: 'admin', subscription_status: 'active', articles_count: 0, total_words: 0, streak: 0 }; user.email = (user.email || '').toLowerCase(); loginUser(user); return; } if (email === 'demo@demo.com' && pass === 'demo123') { user = { email: email, name: 'Demo User', subscription_status: 'active', articles_count: 5, total_words: 12500, streak: 7 }; user.email = (user.email || '').toLowerCase(); loginUser(user); return; } if (!supabase) { const users = JSON.parse(localStorage.getItem('LOCAL_USERS') || '[]'); const hash = await hashSHA256(pass); const u = users.find(u => u.email === email && u.hash === hash); if (u) { user = { email: email, name: u.name, subscription_status: 'active', articles_count: 0, total_words: 0, streak: 0 }; user.email = (user.email || '').toLowerCase(); loginUser(user); return; } showError('❌ Credenciais inválidas'); return; } showError('❌ Credenciais inválidas'); }
         
-        async function handleSignup(e) { e.preventDefault(); const name = document.getElementById('signupName').value.trim(); const email = document.getElementById('signupEmail').value.trim().toLowerCase(); const pass = document.getElementById('signupPassword').value; if (!name || !email || !pass) { showError('❌ Fill all fields'); return; } if (!supabase) { const users = JSON.parse(localStorage.getItem('LOCAL_USERS') || '[]'); const exists = users.find(u => u.email === email); if (exists) { showError('❌ Email already registered'); return; } const hash = await hashSHA256(pass); users.push({ name, email, hash }); localStorage.setItem('LOCAL_USERS', JSON.stringify(users)); showSuccess('✅ Account created! Please login.'); return; } showSuccess('✅ Account created! Please login.'); }
+        async function handleSignup(e) { e.preventDefault(); const name = document.getElementById('signupName').value.trim(); const email = document.getElementById('signupEmail').value.trim().toLowerCase(); const pass = document.getElementById('signupPassword').value; if (!name || !email || !pass) { showError('❌ Fill all fields'); return; } if (!supabase) { const users = JSON.parse(localStorage.getItem('LOCAL_USERS') || '[]'); const exists = users.find(u => u.email === email); if (exists) { showError('❌ Email already registered'); return; } const hash = await hashSHA256(pass); users.push({ name, email, hash }); localStorage.setItem('LOCAL_USERS', JSON.stringify(users)); localStorage.setItem(`TRIAL_START_${email}`, new Date().toISOString()); localStorage.setItem(`SUBSCRIPTION_STATUS_${email}`, 'trial_active'); showSuccess('✅ Account created! Please login.'); return; } showSuccess('✅ Account created! Please login.'); }
         
         function loginUser(user) {
             currentUser = user;
+            initializeTrialForUser();
+            renderTrialBanner();
+            maybeWarnTrialExpiring();
+            if (localStorage.getItem('PAID_FLAG') === '1') { localStorage.removeItem('PAID_FLAG'); unlockAfterPayment(); }
             checkSubscriptionStatus(user);
             document.getElementById('authContainer').style.display = 'none';
             document.getElementById('appContainer').classList.add('active');
@@ -1211,8 +1256,11 @@
         }
         
         function checkSubscriptionStatus(user) {
-            if (user.subscription_status === 'trial_expired') {
+            const status = getSubscriptionStatus();
+            if (status === 'trial_expired') {
                 document.getElementById('paywallOverlay').classList.add('active');
+            } else {
+                document.getElementById('paywallOverlay').classList.remove('active');
             }
         }
         
@@ -1225,22 +1273,42 @@
         
         // ==================== CURRENCY ====================
         async function detectUserLocation() {
+            let country = 'US';
             try {
                 const response = await fetch('https://ipapi.co/json/');
                 const data = await response.json();
-                const country = data.country_code;
-                
-                const currency = CURRENCY_BY_COUNTRY[country] || CURRENCY_BY_COUNTRY['US'];
-                document.getElementById('priceCurrency').textContent = currency.symbol;
-                document.getElementById('priceAmount').textContent = currency.price.toFixed(2);
-            } catch (err) {
-                console.error('Location detection failed:', err);
-            }
+                country = data.country_code || 'US';
+            } catch (err) { }
+            renderPaywallPrice(country);
+        }
+        function renderPaywallPrice(country) {
+            const data = getPriceForCountry(country);
+            document.getElementById('priceCurrency').textContent = data.symbol;
+            document.getElementById('priceAmount').textContent = formatPrice(data.code, data.price);
+            const usd = formatPrice('USD', convertFromBRL(BASE_PRICE_BRL, 'USD'));
+            const eur = formatPrice('EUR', convertFromBRL(BASE_PRICE_BRL, 'EUR'));
+            const gbp = formatPrice('GBP', convertFromBRL(BASE_PRICE_BRL, 'GBP'));
+            document.getElementById('priceConvert').textContent = `≈ R$ ${BASE_PRICE_BRL.toFixed(2)} | $ ${usd} | € ${eur} | £ ${gbp}`;
         }
         
         function redirectToStripe() {
-            window.open(STRIPE_LINK, '_blank');
+            if (!currentUser || !currentUser.email) {
+                alert('❌ Erro: usuário não identificado');
+                return;
+            }
+            const stripeUrl = `${STRIPE_LINK}?client_reference_id=${currentUser.email}&prefilled_email=${currentUser.email}`;
+            console.log('🔗 Redirecionando para Stripe:', stripeUrl);
+            window.open(stripeUrl, '_blank');
         }
+
+        function getUserKey() { return (currentUser && currentUser.email) ? currentUser.email.toLowerCase() : 'anon'; }
+        function initializeTrialForUser() { const key = getUserKey(); const startKey = `TRIAL_START_${key}`; const statusKey = `SUBSCRIPTION_STATUS_${key}`; if (!localStorage.getItem(startKey)) { localStorage.setItem(startKey, new Date().toISOString()); } const status = localStorage.getItem(statusKey) || (currentUser.subscription_status || 'trial_active'); localStorage.setItem(statusKey, status); }
+        function getRemainingTrialDays() { const key = getUserKey(); const startStr = localStorage.getItem(`TRIAL_START_${key}`); if (!startStr) return 14; const start = new Date(startStr); const now = new Date(); const days = Math.ceil((now - start) / (1000*60*60*24)); return Math.max(0, 14 - days); }
+        function getSubscriptionStatus() { const key = getUserKey(); const status = localStorage.getItem(`SUBSCRIPTION_STATUS_${key}`) || 'trial_active'; if (status === 'active') return 'active'; const left = getRemainingTrialDays(); return left > 0 ? 'trial_active' : 'trial_expired'; }
+        function renderTrialBanner() { const banner = document.getElementById('trialBanner'); if (!banner || !currentUser) return; const status = getSubscriptionStatus(); if (status === 'active') { banner.style.display='none'; return; } const left = getRemainingTrialDays(); banner.style.display='block'; banner.classList.toggle('warn', left <= 3); banner.textContent = `Seu teste gratuito termina em ${left} dia${left===1?'':'s'}. Assine por R$ ${BASE_PRICE_BRL.toFixed(2)}/mês.`; }
+        function maybeWarnTrialExpiring() { const left = getRemainingTrialDays(); const key = getUserKey(); const markKey = `TRIAL_WARN_${key}_${new Date().toDateString()}`; if (left <= 3 && !localStorage.getItem(markKey)) { alert(`⚠️ Seu teste gratuito termina em ${left} dia${left===1?'':'s'}.`); localStorage.setItem(markKey, '1'); } }
+        function unlockAfterPayment() { const key = getUserKey(); localStorage.setItem(`SUBSCRIPTION_STATUS_${key}`, 'active'); currentUser.subscription_status = 'active'; document.getElementById('paywallOverlay').classList.remove('active'); renderTrialBanner(); alert('✅ Assinatura ativada! Acesso liberado.'); }
+        function handleReturnParams() { const params = new URLSearchParams(window.location.search); if (params.get('unlock') === '1' || params.get('paid') === '1' || params.get('status') === 'active') { if (currentUser) { unlockAfterPayment(); } else { localStorage.setItem('PAID_FLAG', '1'); } } }
         
         function openAdminSetup() {
             document.getElementById('adminSetupOverlay').style.display = 'flex';
@@ -1489,7 +1557,11 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
                     content += `<p>${isPT ? `Foque em uma hipótese, valide, aprenda e avance.` : `Focus on one hypothesis, validate, learn, and move forward.`}</p>`;
                 }
                 if (i === Math.ceil(sectionsCount/2)-1) {
-                    content += `<div class="lux-cta"><h3>${isPT ? 'Pronto Para Aplicar?' : 'Ready To Apply?'}</h3><p>${isPT ? 'Selecione uma alavanca e inicie um teste hoje.' : 'Pick one lever and start a test today.'}</p><a href="#">${isPT ? 'Começar agora' : 'Start now'}</a></div>`;
+                    const usdMid = formatPrice('USD', convertFromBRL(BASE_PRICE_BRL, 'USD'));
+                    const eurMid = formatPrice('EUR', convertFromBRL(BASE_PRICE_BRL, 'EUR'));
+                    const gbpMid = formatPrice('GBP', convertFromBRL(BASE_PRICE_BRL, 'GBP'));
+                    const priceLineMid = isPT ? `Assine por R$${BASE_PRICE_BRL.toFixed(2)}/mês (≈ US$ ${usdMid} | € ${eurMid} | £ ${gbpMid})` : `Subscribe for R$${BASE_PRICE_BRL.toFixed(2)}/month (≈ $${usdMid} | € ${eurMid} | £ ${gbpMid})`;
+                    content += `<div class="lux-cta"><h3>${isPT ? 'Pronto Para Aplicar?' : 'Ready To Apply?'}</h3><p>${priceLineMid}</p><a href="#">${isPT ? 'Começar agora' : 'Start now'}</a></div>`;
                 }
             }
             content += `<blockquote>${isPT ? 'Escrever sem estrutura é como construir casa sem planta: paredes no lugar errado.' : 'Writing without structure is like building a house without a plan: walls in the wrong place.'}</blockquote>`;
@@ -1505,7 +1577,11 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
             const microPT = `Semana passada, um cliente disse: "${pick(['Nada funciona','É muita teoria','Não tenho tempo'])}". Respondi: "Escolha uma alavanca e execute em 7 dias". Ele aplicou e viu ${num(12,35)}% de ganho.`;
             const microEN = `Last week, a client said: "${pick(['Nothing works','Too much theory','No time'])}". I replied: "Pick one lever and execute in 7 days". They applied and saw a ${num(12,35)}% gain.`;
             content += `<p>${isPT ? microPT : microEN}</p>`;
-            content += `<div class="lux-cta"><h3>${isPT ? 'Pronto Para Aplicar?' : 'Ready To Apply?'}</h3><p>${isPT ? 'Escolha uma alavanca e rode um teste em 24h.' : 'Pick one lever and run a test in 24h.'}</p><a href="#">${isPT ? 'Implementar' : 'Implement'}</a></div>`;
+            const usdBot = formatPrice('USD', convertFromBRL(BASE_PRICE_BRL, 'USD'));
+            const eurBot = formatPrice('EUR', convertFromBRL(BASE_PRICE_BRL, 'EUR'));
+            const gbpBot = formatPrice('GBP', convertFromBRL(BASE_PRICE_BRL, 'GBP'));
+            const priceLineBot = isPT ? `Assine por R$${BASE_PRICE_BRL.toFixed(2)}/mês (≈ US$ ${usdBot} | € ${eurBot} | £ ${gbpBot})` : `Subscribe for R$${BASE_PRICE_BRL.toFixed(2)}/month (≈ $${usdBot} | € ${eurBot} | £ ${gbpBot})`;
+            content += `<div class="lux-cta"><h3>${isPT ? 'Pronto Para Aplicar?' : 'Ready To Apply?'}</h3><p>${priceLineBot}</p><a href="#">${isPT ? 'Implementar' : 'Implement'}</a></div>`;
             content += `<h2>${isPT ? 'Conclusão' : 'Conclusion'}</h2>`;
             const endPT = `Você viu um método que coloca ${topic} em ciclo de prova. A escolha é sua: seguir no improviso ou aplicar estrutura. Benefício tangível: clareza, cadência e avanço.`;
             const endEN = `You saw a method that puts ${topic} on a proof cycle. Your choice: stay in improvisation or apply structure. Tangible benefit: clarity, cadence, progress.`;
@@ -1843,11 +1919,56 @@ ${html}
         }
         
         function loadArticles() {
-            document.getElementById('articlesGrid').innerHTML = '<p style="text-align:center;color:#999;">No articles yet. Create your first masterpiece!</p>';
+            const isPT = (document.getElementById('langSelect').value || 'pt') === 'pt';
+            document.getElementById('articlesGrid').innerHTML = isPT ? '<p style="text-align:center;color:#999;">Nenhum artigo ainda. Crie sua primeira obra-prima!</p>' : '<p style="text-align:center;color:#999;">No articles yet. Create your first masterpiece!</p>';
         }
         
         function changeLanguage(lang) {
-            console.log('Language changed to:', lang);
+            const isPT = lang === 'pt';
+            document.getElementById('langSelect').value = lang;
+            const set = (id, pt, en) => { const el = document.getElementById(id); if (!el) return; el.textContent = isPT ? pt : en; };
+            set('trialBadge', '🎁 14 Dias de Teste Grátis', '🎁 14 Days Free Trial');
+            set('authTabLogin', 'Entrar', 'Login');
+            set('authTabSignup', 'Criar Conta', 'Sign Up');
+            set('labelEmail', 'Email', 'Email');
+            set('labelPassword', 'Senha', 'Password');
+            set('btnLogin', 'Entrar', 'Login');
+            set('labelFullName', 'Nome Completo', 'Full Name');
+            set('labelPasswordMin', 'Senha (mín. 6 caracteres)', 'Password (min 6 characters)');
+            set('btnStartTrial', '🎁 Iniciar Teste Grátis', '🎁 Start Free Trial');
+            set('paywallTitle', 'Período de Teste Encerrado', 'Trial Expired');
+            set('paywallDesc', 'Assine para continuar criando conteúdos incríveis!', 'Subscribe to continue creating amazing content!');
+            set('perMonthText', 'por mês', 'per month');
+            set('btnCheckout', '💳 Ir para pagamento', '💳 Go to Checkout');
+            set('btnSubscribeNow', '💳 Assinar Agora', '💳 Subscribe Now');
+            set('btnUnlock', '✅ Já paguei — Liberar', '✅ I Have Paid — Unlock');
+            set('btnLogout', 'Sair', 'Logout');
+            set('labelArticlesCreated', 'Artigos Criados', 'Articles Created');
+            set('labelTotalWords', 'Total de Palavras', 'Total Words');
+            set('labelDayStreak', 'Dias Seguidos', 'Day Streak');
+            set('titleCreate', '✨ Criar Novo Artigo', '✨ Create New Article');
+            set('labelTopic', '📝 Tópico', '📝 Topic');
+            set('labelLanguage', '🌍 Idioma', '🌍 Language');
+            set('labelWordCount', '📊 Contagem de Palavras', '📊 Word Count');
+            set('labelStyle', '🎨 Estilo', '🎨 Style');
+            set('labelInstructions', '💡 Instruções Adicionais (opcional)', '💡 Additional Instructions (optional)');
+            set('generateBtn', '🚀 Gerar Artigo', '🚀 Generate Article');
+            set('previewTitle', '📄 Seu Artigo', '📄 Your Article');
+            set('btnGenTitles', '🎲 Gerar Títulos', '🎲 Generate Titles');
+            set('btnSave', '💾 Salvar', '💾 Save');
+            set('btnCopyHTML', '📋 Copiar HTML', '📋 Copy HTML');
+            set('btnCopyFormatted', '📄 Copiar Formatado', '📄 Copy Formatted');
+            set('btnDownloadMd', '⬇️ Markdown', '⬇️ Markdown');
+            set('titleMyArticles', '📚 Meus Artigos', '📚 My Articles');
+            set('titleReviews', '⭐ Avaliações', '⭐ Reviews');
+            set('labelReviewName', 'Nome', 'Name');
+            set('labelReviewRating', 'Nota', 'Rating');
+            set('labelReviewComment', 'Comentário', 'Comment');
+            set('btnSubmitReview', 'Enviar Avaliação', 'Submit Review');
+            set('titleHeader', 'Gerar Novos Títulos', 'Generate New Titles');
+            set('btnRegenerate', '🔁 Regerar', '🔁 Regenerate');
+            set('btnCloseOverlay', '✖ Fechar', '✖ Close');
+            renderTrialBanner();
         }
     </script>
 </body>
