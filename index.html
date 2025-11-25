@@ -1467,19 +1467,34 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
             const ins = (instructions || '').trim();
             const insItems = ins ? ins.split(/[\n,;]+/).map(s => s.trim()).filter(Boolean) : [];
             if (insItems.length) { content += `<h2>${isPT ? 'Diretrizes' : 'Guidelines'}</h2>`; content += `<ul>${insItems.map(i => `<li>${i}</li>`).join('')}</ul>`; }
+            const connectorsPT = ['Além disso,','Na prática,','Por outro lado,','Em contraste,','Dito isso,','Em resumo,','No dia a dia,'];
+            const connectorsEN = ['Additionally,','In practice,','On the other hand,','By contrast,','That said,','In summary,','Day to day,'];
+            const rhePT = ['Em outras palavras,', 'Em linhas claras,', 'O ponto é simples:', 'Vale notar que'];
+            const rheEN = ['Put simply,', 'In clear terms,', 'The point is simple:', 'It’s worth noting'];
+            const usedH = new Set();
+            const usedP = new Set();
+            const headingsPT = ['No Pulso','Propriedade e Manutenção','Alternativas','Guia de Compra','Valor e Mercado','História e Origem','Aplicação Prática','Contexto e Valor'];
+            const headingsEN = ['On the Wrist','Ownership & Service','Alternatives','Buying Guide','Value & Market','History & Origin','Practical Application','Context & Value'];
+            const getH = () => {
+                const list = isPT ? headingsPT : headingsEN;
+                const pool = list.filter(h => !usedH.has(h));
+                const h = pool.length ? pool[Math.floor(Math.random()*pool.length)] : list[Math.floor(Math.random()*list.length)];
+                usedH.add(h); return h;
+            };
+            const paraGen = () => style === 'technical' ? (isPT ? makeTechPT() : makeTechEN()) : (isPT ? makeParaPT() : makeParaEN());
+            const trans = () => (isPT ? connectorsPT : connectorsEN)[Math.floor(Math.random()* (isPT ? connectorsPT.length : connectorsEN.length))];
+            const rhet = () => (isPT ? rhePT : rheEN)[Math.floor(Math.random()* (isPT ? rhePT.length : rheEN.length))];
+            const uniquePara = () => {
+                let p = `${trans()} ${paraGen()}`;
+                let guard = 0;
+                while (usedP.has(p) && guard < 5) { p = `${rhet()} ${paraGen()}`; guard++; }
+                usedP.add(p); return p;
+            };
             while (count(content) < targetMin) {
-                const sectionTitle = isPT ? pick(['No Pulso','Aplicação Prática','Contexto e Valor']) : pick(['On the Wrist','Practical Use','Context & Value']);
+                const sectionTitle = getH();
                 content += `<h2>${sectionTitle}</h2>`;
-                const para = style === 'technical' ? (isPT ? makeTechPT() : makeTechEN()) : (isPT ? makeParaPT() : makeParaEN());
-                const para2 = isPT ? makeParaPT() : makeParaEN();
-                content += `<p>${para}</p>`;
-                content += `<p>${para2}</p>`;
-                if (Math.random() < 0.35) {
-                    const prosTitle = isPT ? 'Prós' : 'Pros';
-                    const consTitle = isPT ? 'Contras' : 'Cons';
-                    content += `<h3>${prosTitle}</h3><ul><li>${isPT ? 'Conforto consistente' : 'Consistent comfort'}</li><li>${isPT ? 'Manutenção previsível' : 'Predictable service'}</li><li>${isPT ? 'Legibilidade segura' : 'Secure legibility'}</li></ul>`;
-                    content += `<h3>${consTitle}</h3><ul><li>${isPT ? 'Poucas variações fora do padrão' : 'Limited offbeat variants'}</li><li>${isPT ? 'Preço sensível à oferta' : 'Price sensitive to supply'}</li></ul>`;
-                }
+                content += `<p>${uniquePara()}</p>`;
+                content += `<p>${uniquePara()}</p>`;
             }
             content += `<blockquote>${isPT ? 'Recomendação: priorize conforto, manutenção e aderência ao seu estilo.' : 'Recommendation: prioritize comfort, serviceability, and fit to your style.'}</blockquote>`;
             content += `<div class="lux-cta"><h3>${isPT ? 'Quer continuar aprendendo?' : 'Want to keep learning?'}</h3><p>${isPT ? 'Assine para receber análises objetivas de novos modelos.' : 'Subscribe to get objective reviews of upcoming models.'}</p><a href="#">${isPT ? 'Assinar' : 'Subscribe'}</a></div>`;
