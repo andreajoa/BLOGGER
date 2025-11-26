@@ -1650,10 +1650,24 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
         const prevTitle = localStorage.getItem('LAST_ARTICLE_TITLE') || '';
         if (prevTitle === title) title = `${title} ${num(10,99)}`;
         let content = `${css}<section class="lux-article"><h1>${title}</h1>`;
-        const hook = lang==='pt'?`Estrutura rigorosa para pesquisas avançadas em ${year}.`:
-                       lang==='es'?`Estructura rigurosa para investigaciones avanzadas en ${year}.`:
-                       lang==='fr'?`Structure rigoureuse pour recherches avancées en ${year}.`:
-                       lang==='de'?`Strenge Struktur für fortgeschrittene Forschung im ${year}.`:`Rigorous structure for advanced research in ${year}.`;
+        const acaPool = [
+            lang==='pt'?`Estrutura rigorosa e replicável para ${topic} em ${year}.`:
+            lang==='es'?`Estructura rigurosa y replicable para ${topic} en ${year}.`:
+            lang==='fr'?`Structure rigoureuse et reproductible pour ${topic} en ${year}.`:
+            lang==='de'?`Strenge und reproduzierbare Struktur für ${topic} im ${year}.`:`A rigorous, reproducible structure for ${topic} in ${year}.`,
+            lang==='pt'?`${topic} exige método transparente, dados observáveis e validação em ${year}.`:
+            lang==='es'?`${topic} exige método transparente, datos observables y validación en ${year}.`:
+            lang==='fr'?`${topic} exige une méthode transparente, des données observables et une validation en ${year}.`:
+            lang==='de'?`${topic} verlangt transparente Methode, beobachtbare Daten und Validierung im ${year}.`:`${topic} demands transparent method, observable data and validation in ${year}.`,
+            lang==='pt'?`Roteiro acadêmico completo para ${topic}: problema, literatura, método, resultados e discussão.`:
+            lang==='es'?`Guía académica completa para ${topic}: problema, literatura, método, resultados y discusión.`:
+            lang==='fr'?`Parcours académique complet pour ${topic} : problématique, littérature, méthode, résultats et discussion.`:
+            lang==='de'?`Akademischer Leitfaden für ${topic}: Frage, Literatur, Methode, Ergebnisse und Diskussion.`:`Complete academic path for ${topic}: problem, literature, method, results and discussion.`
+        ];
+        const lastA = localStorage.getItem('LAST_HOOK_ACAD') || '';
+        const poolA = acaPool.filter(h => h !== lastA);
+        const hook = (poolA.length ? poolA : acaPool)[Math.floor(Math.random() * (poolA.length ? poolA.length : acaPool.length))];
+        localStorage.setItem('LAST_HOOK_ACAD', hook);
         content += `<div class="lux-callout">${hook}</div>`;
 
         const tocLabel = lang==='pt'? 'Sumário' : lang==='es'? 'Contenido' : lang==='fr'? 'Sommaire' : lang==='de'? 'Inhaltsverzeichnis' : 'Table of Contents';
@@ -1720,11 +1734,13 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
         content += `<h2 id="sec-abs">${H.abs}</h2><p>${L.abs}</p>`;
         content += `<h2 id="sec-intro">${H.intro}</h2><p>${L.intro}</p>`;
         content += `<h2 id="sec-rq">${H.rq}</h2><p>${L.rq}</p>`;
-        content += `<h2 id="sec-lit">${H.lit}</h2><p>${L.lit} ${cite(refsData[0], stylePref)}.</p>`;
+        const c0 = refsData[0] ? cite(refsData[0], stylePref) : '';
+        content += `<h2 id="sec-lit">${H.lit}</h2><p>${L.lit} ${c0}</p>`;
         content += `<h2 id="sec-meth">${H.meth}</h2><p>${L.meth}</p><ul><li>${lang==='pt'?'Amostra definida e critérios explícitos':'Defined sample and explicit criteria'}</li><li>${lang==='pt'?'Instrumentos validados':'Validated instruments'}</li><li>${lang==='pt'?'Procedimentos replicáveis':'Replicable procedures'}</li></ul>`;
         content += `<h2 id="sec-res">${H.res}</h2><p>${L.res}</p>`;
         const levelAdd = level==='phd'?(lang==='pt'?` Ênfase em contribuição original e robustez analítica.`:lang==='es'?` Énfasis en contribución original y robustez analítica.`:lang==='fr'?` Accent sur la contribution originale et la robustesse analytique.`:lang==='de'?` Fokus auf Originalbeitrag und analytische Robustheit.`:` Emphasis on original contribution and analytical robustness.`): level==='masters'?(lang==='pt'?` Foco em replicabilidade e consistência metodológica.`:lang==='es'?` Enfoque en replicabilidad y consistencia metodológica.`:lang==='fr'?` Accent sur la reproductibilité et la cohérence méthodologique.`:lang==='de'?` Schwerpunkt auf Replizierbarkeit und methodischer Konsistenz.`:` Focus on replicability and methodological consistency.`):(lang==='pt'?` Consolidação de fundamentos e aplicação prática.`:lang==='es'?` Consolidación de fundamentos y aplicación práctica.`:lang==='fr'?` Consolidation des fondamentaux et application pratique.`:lang==='de'?` Konsolidierung von Grundlagen und praktischer Anwendung.`:` Consolidation of fundamentals and practical application.`);
-        content += `<h2 id="sec-disc">${H.disc}</h2><p>${L.disc} ${cite(refsData[1], stylePref)}. ${levelAdd}</p>`;
+        const c1 = refsData[1] ? cite(refsData[1], stylePref) : '';
+        content += `<h2 id="sec-disc">${H.disc}</h2><p>${L.disc} ${c1} ${levelAdd}</p>`;
         content += `<h2 id="sec-lim">${H.lim}</h2><p>${L.lim}</p>`;
         content += `<h2 id="sec-fut">${H.fut}</h2><p>${L.fut}</p>`;
             const localSymMid = USER_CURRENCY.symbol;
@@ -1754,7 +1770,7 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
         const finalCount = count(content);
         return { title: title, content: content, wordCount: finalCount, language: language, style: style, createdAt: new Date().toISOString() };
     }
-    if (language === 'en' && wordCount >= 2000) {
+    if (language === 'en' && wordCount >= 2000 && false) {
         let title = `The D2 Method for predictable growth`;
         const prevTitle = localStorage.getItem('LAST_ARTICLE_TITLE') || '';
         if (prevTitle === title) title = `${title} ${num(10,99)}`;
@@ -2120,7 +2136,11 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
             const prevTitle = localStorage.getItem('LAST_ARTICLE_TITLE') || '';
             if (prevTitle === title) title = `${title} ${num(10,99)}`;
             let content = `${css}<section class="lux-article"><h1>${title}</h1>`;
-            const hook = pick(T[lang].hooks);
+            const hookPool = T[lang].hooks.filter(h => !/90%/.test(h));
+            const lastHook = localStorage.getItem('LAST_HOOK') || '';
+            const candidates = hookPool.filter(h => h !== lastHook);
+            const hook = (candidates.length ? candidates : hookPool)[Math.floor(Math.random() * (candidates.length ? candidates.length : hookPool.length))];
+            localStorage.setItem('LAST_HOOK', hook);
             content += `<div class="lux-callout">${hook}</div>`;
             content += `<h2>${T[lang].whyChanged}</h2>`;
             content += `<p>${T[lang].ctx}</p>`;
@@ -2131,7 +2151,7 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
             const connectors = T[lang].connectors;
             const trans = () => connectors[Math.floor(Math.random()* connectors.length)];
             const pillars = T[lang].pillars;
-            const sectionsCount = wordCount <= 600 ? 3 : (wordCount <= 1200 ? 5 : (wordCount <= 2200 ? 7 : (wordCount <= 3200 ? 10 : 15)));
+            const sectionsCount = wordCount <= 800 ? 2 : (wordCount <= 1600 ? 3 : 4);
             const usedH = new Set();
             const actions = T[lang].actions;
             const proof = T[lang].proof;
@@ -2150,7 +2170,7 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
                 const set = new Set();
                 while (set.size < pickN) set.add(pick(acts));
                 content += `<ul>${Array.from(set).map(a => `<li>${a}</li>`).join('')}</ul>`;
-                if (wordCount >= 3000) {
+                if (false) {
                     content += `<h3>${T[lang].sectionSummary}</h3>`;
                     content += `<p>${T[lang].summaryText}</p>`;
                 }
@@ -2162,7 +2182,7 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
                 }
             }
             content += `<blockquote>${T[lang].blockquote}</blockquote>`;
-            if (wordCount >= 2000) {
+            if (false) {
                 content += `<h2>${T[lang].altCompareTitle}</h2>`;
                 content += `<p>${T[lang].altComparePara}</p>`;
                 content += `<h2>${T[lang].mythsTitle}</h2>`;
