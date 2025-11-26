@@ -1770,7 +1770,7 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
         const finalCount = count(content);
         return { title: title, content: content, wordCount: finalCount, language: language, style: style, createdAt: new Date().toISOString() };
     }
-    if (language === 'en' && wordCount >= 2000 && false) {
+    if (language === 'en' && wordCount >= 2000) {
         let title = `The D2 Method for predictable growth`;
         const prevTitle = localStorage.getItem('LAST_ARTICLE_TITLE') || '';
         if (prevTitle === title) title = `${title} ${num(10,99)}`;
