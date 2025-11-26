@@ -2202,9 +2202,7 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
             const pool = T[lang].fillers;
             const chosenFillers = new Set();
             let topupGuard = 0;
-            const allowFillers = (!academic && wordCount < 1500);
-            while (allowFillers && count(content) < targetMin && topupGuard < 3) {
-                const deficit = targetMin - count(content);
+            while (count(content) < targetMin && topupGuard < 500) {
                 const available = pool.filter(s => !chosenFillers.has(s));
                 const line = (available.length ? available : pool)[Math.floor(Math.random() * (available.length ? available.length : pool.length))];
                 chosenFillers.add(line);
