@@ -1562,8 +1562,10 @@
 .lux-article p{font-family:'Reith Serif','BBC Reith Serif','Merriweather','Georgia','Times New Roman',serif;font-weight:400;font-size:1.06em;margin:0 0 1.25rem;text-align:justify}
 .lux-article ul{margin:.5rem 0 1.25rem 1.5rem}
 .lux-callout{background:#E8F3F7;color:#166A5D;border-left:8px solid #D4AF37;border-radius:14px;padding:1rem 1.25rem;font-style:italic;box-shadow:0 2px 0 rgba(0,0,0,.04);margin:1rem 0 1.25rem}
-.lux-cta{background:linear-gradient(135deg,#145C44,#8B5CF6);color:#fff;border-radius:12px;padding:1rem 1.25rem;text-align:center;margin:1.5rem 0}
-.lux-cta a{display:inline-block;background:#fff;color:#1F2937;border-radius:8px;padding:.5rem 1rem;font-weight:700;text-decoration:none}
+.lux-cta{background:#FFFFFF;border:2px solid #8B5CF6;color:#111;border-radius:12px;padding:1rem 1.25rem;text-align:center;margin:1.5rem 0}
+.lux-cta h3{color:#111}
+.lux-cta p{color:#111}
+.lux-cta a{display:inline-block;background:#fff;color:#111;border:2px solid #8B5CF6;border-radius:8px;padding:.5rem 1rem;font-weight:700;text-decoration:none}
 blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:1rem 0}
 </style>`;
     const strip = s => s.replace(/<style[\s\S]*?<\/style>/gi,'').replace(/<[^>]+>/g, '');
@@ -1840,21 +1842,20 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
         const finalCount = count(content);
         return { title: title, content: content, wordCount: finalCount, language: language, style: style, createdAt: new Date().toISOString() };
     }
-            const T = {
-                pt: {
+        const T = {
+            pt: {
                     titles: [
                         `${num(5,9)} passos para dominar ${topic} em ${year}`,
                         `Como multiplicar resultados com ${topic} em 30 dias`,
-                        `${num(5,9)} erros que travam ${topic} (e como evitar)`,
-                        `O Método ${topic.split(/\s+/).map(w => w[0].toUpperCase()).slice(0,4).join('.')} para crescer com previsibilidade`
+                        `${num(5,9)} erros que travam ${topic} (e como evitar)`
                     ],
                     hooks: [
                         `90% dos blogs sobre ${topic} repetem fórmulas mortas. Aqui, você aprende a aplicar ${topic} com impacto mensurável e sem desperdício.`,
                         `Se ${topic} fosse simples, todos teriam resultados consistentes. Você verá como construir um método que não depende de sorte.`
                     ],
                     whyChanged: `Por Que ${topic} Mudou em ${year}`,
-                    ctx: `Em ${year}, ${topic} saiu do improviso e entrou no ciclo de medição. Marcas como ${pick(['Nubank','Magazine Luiza','iFood','Hotmart','QuintoAndar'])} aplicam frameworks com cadência e escalam aprendizados. Em 24h, você consegue implementar um piloto que elimina ruído e cria tração.`,
-                    methodLabel: a => `Método ${a}`,
+                    ctx: `Em ${year}, ${topic} evoluiu para ciclos mensuráveis. Equipes profissionais aplicam frameworks com cadência e transformam aprendizado em progresso. Em 24h, você consegue implementar um piloto que elimina ruído e cria tração.`,
+                    methodLabel: a => `Guia essencial de ${topic}`,
                     overview: `Visão geral: mapear, testar, provar, escalar. Você foca em alavancas com impacto real, valida com dados e executa sem travar em debates sem fim.`,
                     connectors: ['Além disso,','Na prática,','Por outro lado,','Em contraste,','Dito isso,','Em resumo,','No dia a dia,'],
                     pillars: ['Diagnóstico','Estratégia','Execução','Prova','Otimização','Distribuição','Métricas','Diferenciação','Experiência','Confiança','Escala','Sustentação','Iteração','Comunicação','Reposicionamento'],
@@ -1898,21 +1899,20 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
                     ],
                     fieldNote: 'Nota de Campo',
                     bullets: ['Defina uma hipótese','Colete evidências específicas','Itere em ciclos curtos']
-                },
-                en: {
+            },
+            en: {
                     titles: [
                         `${num(5,9)} steps to master ${topic} in ${year}`,
                         `How to multiply results with ${topic} in 30 days`,
-                        `${num(5,9)} mistakes that stall ${topic} (and how to avoid them)`,
-                        `The ${topic.split(/\s+/).map(w => w[0].toUpperCase()).slice(0,4).join('.')} Method for predictable growth`
+                        `${num(5,9)} mistakes that stall ${topic} (and how to avoid them)`
                     ],
                     hooks: [
                         `90% of blogs on ${topic} repeat dead formulas. Here, you’ll learn how to apply ${topic} with measurable impact and zero waste.`,
                         `If ${topic} were simple, everyone would have consistent results. You’ll see how to build a method that doesn’t rely on luck.`
                     ],
                     whyChanged: `Why ${topic} Changed in ${year}`,
-                    ctx: `In ${year}, ${topic} moved from improvisation to measurable loops. Brands like ${pick(['Stripe','Shopify','Airbnb','Datadog','HubSpot'])} apply frameworks rhythmically and scale learnings. In 24h, you can launch a pilot that removes noise and creates traction.`,
-                    methodLabel: a => `${a} Method`,
+                    ctx: `In ${year}, ${topic} evolved into measurable loops. Professional teams apply frameworks rhythmically and turn learning into progress. In 24h, you can launch a pilot that removes noise and creates traction.`,
+                    methodLabel: a => `Core principles of ${topic}`,
                     overview: `Overview: map, test, prove, scale. You focus on levers with real impact, validate with data, and execute without getting stuck in endless debate.`,
                     connectors: ['Additionally,','In practice,','On the other hand,','By contrast,','That said,','In summary,','Day to day,'],
                     pillars: ['Diagnosis','Strategy','Execution','Proof','Optimization','Distribution','Metrics','Differentiation','Experience','Trust','Scale','Sustainment','Iteration','Communication','Repositioning'],
@@ -1956,8 +1956,8 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
                     ],
                     fieldNote: 'Field Note',
                     bullets: ['Define a hypothesis','Collect specific evidence','Iterate in short cycles']
-                },
-                es: {
+            },
+            es: {
                     titles: [
                         `${num(5,9)} pasos para dominar ${topic} en ${year}`,
                         `Cómo multiplicar resultados con ${topic} en 30 días`,
@@ -1969,8 +1969,8 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
                         `Si ${topic} fuera simple, todos tendrían resultados consistentes. Verás cómo construir un método que no depende de la suerte.`
                     ],
                     whyChanged: `Por qué ${topic} cambió en ${year}`,
-                    ctx: `En ${year}, ${topic} salió del improviso y entró en ciclos medibles. Marcas como ${pick(['Stripe','Shopify','Airbnb','Datadog','HubSpot'])} aplican frameworks con cadencia y escalan aprendizajes. En 24h puedes lanzar un piloto que elimina ruido y crea tracción.`,
-                    methodLabel: a => `Método ${a}`,
+                    ctx: `En ${year}, ${topic} evolucionó hacia ciclos medibles. Equipos profesionales aplican frameworks con cadencia y convierten el aprendizaje en progreso. En 24h puedes lanzar un piloto que elimina ruido y crea tracción.`,
+                    methodLabel: a => `Principios esenciales de ${topic}`,
                     overview: `Visión general: mapear, probar, demostrar, escalar. Te enfocas en palancas con impacto real, validas con datos y ejecutas sin debates interminables.`,
                     connectors: ['Además,','En la práctica,','Por otro lado,','En contraste,','Dicho esto,','En resumen,','En el día a día,'],
                     pillars: ['Diagnóstico','Estrategia','Ejecución','Prueba','Optimización','Distribución','Métricas','Diferenciación','Experiencia','Confianza','Escala','Sostenimiento','Iteración','Comunicación','Reposicionamiento'],
@@ -2014,8 +2014,8 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
                     ],
                     fieldNote: 'Nota de campo',
                     bullets: ['Define una hipótesis','Recoge evidencia específica','Itera en ciclos cortos']
-                },
-                fr: {
+            },
+            fr: {
                     titles: [
                         `${num(5,9)} étapes pour maîtriser ${topic} en ${year}`,
                         `Comment multiplier les résultats avec ${topic} en 30 jours`,
@@ -2027,8 +2027,8 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
                         `Si ${topic} était simple, tout le monde aurait des résultats constants. Vous verrez comment construire une méthode qui ne dépend pas de la chance.`
                     ],
                     whyChanged: `Pourquoi ${topic} a changé en ${year}`,
-                    ctx: `En ${year}, ${topic} est passé de l’improvisation à des boucles mesurables. Des marques comme ${pick(['Stripe','Shopify','Airbnb','Datadog','HubSpot'])} appliquent des frameworks avec cadence et multiplient les apprentissages. En 24h, vous pouvez lancer un pilote qui supprime le bruit et crée de la traction.`,
-                    methodLabel: a => `Méthode ${a}`,
+                    ctx: `En ${year}, ${topic} a évolué vers des boucles mesurables. Des équipes professionnelles appliquent des frameworks avec cadence et transforment l’apprentissage en progrès. En 24h, vous pouvez lancer un pilote qui supprime le bruit et crée de la traction.`,
+                    methodLabel: a => `Principes essentiels de ${topic}`,
                     overview: `Vue d’ensemble: cartographier, tester, prouver, scaler. Vous vous concentrez sur des leviers à fort impact, validez avec des données et exécutez sans débats sans fin.`,
                     connectors: ['De plus,','En pratique,','À l’inverse,','Par contraste,','Cela dit,','En résumé,','Au quotidien,'],
                     pillars: ['Diagnostic','Stratégie','Exécution','Preuve','Optimisation','Distribution','Métriques','Différenciation','Expérience','Confiance','Échelle','Soutien','Itération','Communication','Repositionnement'],
@@ -2072,8 +2072,8 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
                     ],
                     fieldNote: 'Note de terrain',
                     bullets: ['Définir une hypothèse','Recueillir des preuves spécifiques','Itérer en cycles courts']
-                },
-                de: {
+            },
+            de: {
                     titles: [
                         `${num(5,9)} Schritte, um ${topic} in ${year} zu meistern`,
                         `So vervielfachen Sie Ergebnisse mit ${topic} in 30 Tagen`,
@@ -2085,8 +2085,8 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
                         `Wäre ${topic} einfach, hätten alle konsistente Ergebnisse. Sie sehen, wie man eine Methode baut, die nicht vom Zufall abhängt.`
                     ],
                     whyChanged: `Warum ${topic} sich in ${year} verändert hat`,
-                    ctx: `Im Jahr ${year} wechselte ${topic} vom Improvisieren zu messbaren Schleifen. Marken wie ${pick(['Stripe','Shopify','Airbnb','Datadog','HubSpot'])} arbeiten mit klarer Kadenz und skalieren Lernen. In 24h können Sie einen Piloten starten, der Rauschen entfernt und Traktion schafft.`,
-                    methodLabel: a => `${a}‑Methode`,
+                    ctx: `Im Jahr ${year} entwickelte sich ${topic} zu messbaren Schleifen. Professionelle Teams arbeiten mit klarer Kadenz und verwandeln Lernen in Fortschritt. In 24h können Sie einen Piloten starten, der Rauschen entfernt und Traktion schafft.`,
+                    methodLabel: a => `Kernprinzipien von ${topic}`,
                     overview: `Überblick: kartieren, testen, beweisen, skalieren. Fokus auf Hebel mit echtem Impact, validiert mit Daten, ausgeführt ohne endlose Debatten.`,
                     connectors: ['Außerdem,','In der Praxis,','Auf der anderen Seite,','Im Gegensatz dazu,','Das gesagt,','Zusammengefasst,','Im Alltag,'],
                     pillars: ['Diagnose','Strategie','Ausführung','Beweis','Optimierung','Distribution','Metriken','Differenzierung','Erfahrung','Vertrauen','Skalierung','Nachhaltigkeit','Iteration','Kommunikation','Neupositionierung'],
@@ -2130,8 +2130,45 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
                     ],
                     fieldNote: 'Feldnotiz',
                     bullets: ['Eine Hypothese definieren','Spezifische Evidenz sammeln','In kurzen Zyklen iterieren']
-                }
-            };
+            }
+        };
+        const isWatch = /watch(es)?|relogi[óo]s?|reloj(es)?|montre(s)?|uhr(en)?/i.test(topic);
+        if (isWatch) {
+            T.pt.pillars = ['Design','Movimento','Materiais','Complicações','Precisão','Durabilidade'];
+            T.pt.whyBase = `${topic} impacta quando você prioriza movimento, materiais e ergonomia; marca é secundária.`;
+            T.pt.how = `Defina uso (casual, mergulho, dress), escolha movimento (mecânico, automático, quartzo), avalie materiais (aço, titânio, safira) e teste conforto.`;
+            T.pt.actions = ['Avalie tamanho e lug‑to‑lug','Verifique calibre e reserva de marcha','Teste resistência à água','Compare pulseiras e fechos','Inspecione acabamento e lume'];
+            T.pt.proof = i => `Em testes cegos com ${topic}, satisfação subiu ${i}% ao priorizar movimento e materiais.`;
+            T.pt.blockquote = 'Relógios de impacto começam no movimento e nos materiais — não no hype.';
+
+            T.en.pillars = ['Design','Movement','Materials','Complications','Accuracy','Durability'];
+            T.en.whyBase = `${topic} has impact when you prioritize movement, materials, and ergonomics; brand is secondary.`;
+            T.en.how = `Define use (casual, dive, dress), choose movement (mechanical, automatic, quartz), assess materials (steel, titanium, sapphire), and test comfort.`;
+            T.en.actions = ['Check case size and lug‑to‑lug','Verify calibre and power reserve','Test water resistance','Compare straps and clasps','Inspect finishing and lume'];
+            T.en.proof = i => `In blind tests with ${topic}, satisfaction increased ${i}% when movement and materials were prioritized.`;
+            T.en.blockquote = 'Impactful watches start with movement and materials — not hype.';
+
+            T.es.pillars = ['Diseño','Movimiento','Materiales','Complicaciones','Precisión','Durabilidad'];
+            T.es.whyBase = `${topic} impacta cuando priorizas movimiento, materiales y ergonomía; la marca es secundaria.`;
+            T.es.how = `Define uso (casual, buceo, dress), elige movimiento (mecánico, automático, cuarzo), evalúa materiales (acero, titanio, zafiro) y prueba confort.`;
+            T.es.actions = ['Revisa tamaño y lug‑to‑lug','Verifica calibre y reserva de marcha','Prueba resistencia al agua','Compara correas y cierres','Inspecciona acabado y lume'];
+            T.es.proof = i => `En pruebas ciegas con ${topic}, la satisfacción subió ${i}% al priorizar movimiento y materiales.`;
+            T.es.blockquote = 'Relojes de impacto empiezan en movimiento y materiales — no en el hype.';
+
+            T.fr.pillars = ['Design','Mouvement','Matériaux','Complications','Précision','Durabilité'];
+            T.fr.whyBase = `${topic} a de l’impact quand on priorise le mouvement, les matériaux et l’ergonomie; la marque est secondaire.`;
+            T.fr.how = `Définissez l’usage (casual, plongée, habillé), choisissez le mouvement (mécanique, automatique, quartz), évaluez les matériaux (acier, titane, saphir) et testez le confort.`;
+            T.fr.actions = ['Vérifiez la taille et le lug‑to‑lug','Vérifiez le calibre et la réserve de marche','Testez l’étanchéité','Comparez les bracelets et boucles','Inspectez les finitions et le lume'];
+            T.fr.proof = i => `En tests à l’aveugle avec ${topic}, la satisfaction a augmenté de ${i}% en priorisant mouvement et matériaux.`;
+            T.fr.blockquote = 'Les montres à impact commencent par le mouvement et les matériaux — pas par le buzz.';
+
+            T.de.pillars = ['Design','Werk','Materialien','Komplikationen','Genauigkeit','Haltbarkeit'];
+            T.de.whyBase = `${topic} hat Wirkung, wenn Werk, Materialien und Ergonomie priorisiert werden; die Marke ist sekundär.`;
+            T.de.how = `Definieren Sie den Einsatz (casual, Tauchen, Dress), wählen Sie das Werk (mechanisch, automatisch, Quarz), bewerten Sie Materialien (Stahl, Titan, Saphir) und testen Sie den Komfort.`;
+            T.de.actions = ['Prüfen Sie Größe und Lug‑to‑Lug','Werk und Gangreserve verifizieren','Wasserfestigkeit testen','Armbänder und Schließen vergleichen','Finish und Lume inspizieren'];
+            T.de.proof = i => `In Blindtests mit ${topic} stieg die Zufriedenheit um ${i}%, wenn Werk und Materialien priorisiert wurden.`;
+            T.de.blockquote = 'Wirkungsvolle Uhren beginnen bei Werk und Materialien — nicht beim Hype.';
+        }
             let title = pick(T[lang].titles);
             const prevTitle = localStorage.getItem('LAST_ARTICLE_TITLE') || '';
             if (prevTitle === title) title = `${title} ${num(10,99)}`;
@@ -2146,7 +2183,7 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
             content += `<p>${T[lang].ctx}</p>`;
             const acro = topic.split(/\s+/).map(w => w[0].toUpperCase()).filter(Boolean).slice(0,4).join('.');
             const methodLabel = T[lang].methodLabel(acro);
-            content += `<h2>${lang==='pt' ? `O ${methodLabel}` : (lang==='es' ? `El ${methodLabel}` : (lang==='fr' ? `La ${methodLabel}` : (lang==='de' ? `${methodLabel}` : `The ${methodLabel}`)))}</h2>`;
+            content += `<h2>${methodLabel}</h2>`;
             content += `<p>${T[lang].overview}</p>`;
             const connectors = T[lang].connectors;
             const trans = () => connectors[Math.floor(Math.random()* connectors.length)];
@@ -2434,8 +2471,10 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
         .lux-article p{font-family:'Reith Serif','BBC Reith Serif','Merriweather','Georgia','Times New Roman',serif;font-weight:400;font-size:1.06em;margin:0 0 1.25rem;text-align:justify}
         .lux-article ul{margin:.5rem 0 1.25rem 1.5rem}
         .lux-callout{background:#E8F3F7;color:#166A5D;border-left:8px solid #D4AF37;border-radius:14px;padding:1rem 1.25rem;font-style:italic;box-shadow:0 2px 0 rgba(0,0,0,.04);margin:1rem 0 1.25rem}
-        .lux-cta{background:linear-gradient(135deg,#145C44,#8B5CF6);color:#fff;border-radius:12px;padding:1rem 1.25rem;text-align:center;margin:1.5rem 0}
-        .lux-cta a{display:inline-block;background:#fff;color:#1F2937;border-radius:8px;padding:.5rem 1rem;font-weight:700;text-decoration:none}
+        .lux-cta{background:#FFFFFF;border:2px solid #8B5CF6;color:#111;border-radius:12px;padding:1rem 1.25rem;text-align:center;margin:1.5rem 0}
+        .lux-cta h3{color:#111}
+        .lux-cta p{color:#111}
+        .lux-cta a{display:inline-block;background:#fff;color:#111;border:2px solid #8B5CF6;border-radius:8px;padding:.5rem 1rem;font-weight:700;text-decoration:none}
         blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:1rem 0}
     </style>
 </head>
