@@ -1562,9 +1562,9 @@
 .lux-article p{font-family:'Reith Serif','BBC Reith Serif','Merriweather','Georgia','Times New Roman',serif;font-weight:400;font-size:1.06em;margin:0 0 1.25rem;text-align:justify}
 .lux-article ul{margin:.5rem 0 1.25rem 1.5rem}
 .lux-callout{background:#E8F3F7;color:#166A5D;border-left:8px solid #D4AF37;border-radius:14px;padding:1rem 1.25rem;font-style:italic;box-shadow:0 2px 0 rgba(0,0,0,.04);margin:1rem 0 1.25rem}
-.lux-cta{background:#FFFFFF;border:2px solid #8B5CF6;color:#111;border-radius:12px;padding:1rem 1.25rem;text-align:center;margin:1.5rem 0}
-.lux-cta h3{color:#111}
-.lux-cta p{color:#111}
+.lux-cta{background:#FFFFFF;border:2px solid #8B5CF6;color:#111;border-radius:12px;padding:1rem 1.25rem;text-align:center;margin:1.5rem 0;display:flex;flex-direction:column;align-items:center;gap:.5rem}
+.lux-cta h3{color:#111;margin:0}
+.lux-cta p{color:#111;text-align:center;margin:0}
 .lux-cta a{display:inline-block;background:#fff;color:#111;border:2px solid #8B5CF6;border-radius:8px;padding:.5rem 1rem;font-weight:700;text-decoration:none}
 blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:1rem 0}
 </style>`;
@@ -1672,10 +1672,6 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
         localStorage.setItem('LAST_HOOK_ACAD', hook);
         content += `<div class="lux-callout">${hook}</div>`;
 
-        const tocLabel = lang==='pt'? 'Sumário' : lang==='es'? 'Contenido' : lang==='fr'? 'Sommaire' : lang==='de'? 'Inhaltsverzeichnis' : 'Table of Contents';
-        content += `<h2>${tocLabel}</h2>`;
-        content += `<ul><li><a href="#sec-abs">${H.abs}</a></li><li><a href="#sec-intro">${H.intro}</a></li><li><a href="#sec-rq">${H.rq}</a></li><li><a href="#sec-lit">${H.lit}</a></li><li><a href="#sec-meth">${H.meth}</a></li><li><a href="#sec-res">${H.res}</a></li><li><a href="#sec-disc">${H.disc}</a></li><li><a href="#sec-lim">${H.lim}</a></li><li><a href="#sec-fut">${H.fut}</a></li><li><a href="#sec-concl">${H.concl}</a></li><li><a href="#sec-refs">${H.refs}</a></li></ul>`;
-
         const H = {
             abs: lang==='pt'?'Resumo':lang==='es'?'Resumen':lang==='fr'?'Résumé':lang==='de'?'Abstract':'Abstract',
             intro: lang==='pt'?'Introdução':lang==='es'?'Introducción':lang==='fr'?'Introduction':lang==='de'?'Einleitung':'Introduction',
@@ -1689,6 +1685,10 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
             concl: lang==='pt'?'Conclusão':lang==='es'?'Conclusión':lang==='fr'?'Conclusion':lang==='de'?'Fazit':'Conclusion',
             refs: lang==='pt'?'Referências':lang==='es'?'Referencias':lang==='fr'?'Références':lang==='de'?'Referenzen':'References'
         };
+
+        const tocLabel = lang==='pt'? 'Sumário' : lang==='es'? 'Contenido' : lang==='fr'? 'Sommaire' : lang==='de'? 'Inhaltsverzeichnis' : 'Table of Contents';
+        content += `<h2>${tocLabel}</h2>`;
+        content += `<ul><li><a href="#sec-abs">${H.abs}</a></li><li><a href="#sec-intro">${H.intro}</a></li><li><a href="#sec-rq">${H.rq}</a></li><li><a href="#sec-lit">${H.lit}</a></li><li><a href="#sec-meth">${H.meth}</a></li><li><a href="#sec-res">${H.res}</a></li><li><a href="#sec-disc">${H.disc}</a></li><li><a href="#sec-lim">${H.lim}</a></li><li><a href="#sec-fut">${H.fut}</a></li><li><a href="#sec-concl">${H.concl}</a></li><li><a href="#sec-refs">${H.refs}</a></li></ul>`;
         const L = {
             abs: lang==='pt'?`Este trabalho sobre ${topic} apresenta objetivo, método e principais achados em linguagem clara para facilitar avaliação e replicação.`:
                  lang==='es'?`Este trabajo sobre ${topic} expone objetivo, método y hallazgos principales en lenguaje claro para facilitar evaluación y réplica.`:
@@ -1753,7 +1753,8 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
                               lang==='de'?`Abonnieren für ${localSymMid}${localAmtMid}/Monat`:`Subscribe for ${localSymMid}${localAmtMid}/month`;
         const ctaHead = lang==='pt'?'Modo Acadêmico Ativo':'Academic Mode Enabled';
         const ctaLink = lang==='pt'?'Assinar':'Subscribe';
-        content += `<div class="lux-cta"><h3>${ctaHead}</h3><p>${priceLineMid}</p><a href="#" onclick="redirectToStripe()">${ctaLink}</a></div>`;
+        const payHref = `${STRIPE_LINK}?client_reference_id=${currentUser?currentUser.email:''}&prefilled_email=${currentUser?currentUser.email:''}`;
+        content += `<div class="lux-cta"><h3>${ctaHead}</h3><p>${priceLineMid}</p><a href="${payHref}" target="_blank" rel="noopener">${ctaLink}</a></div>`;
 
         content += `<h2 id="sec-concl">${H.concl}</h2><p>${L.concl}</p>`;
         content += `<h2 id="sec-refs">${H.refs}</h2><p>${L.refsIntro}</p><ul>`;
@@ -2216,7 +2217,8 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
             const localSymMid = USER_CURRENCY.symbol;
             const localAmtMid = formatPrice(USER_CURRENCY.code, USER_CURRENCY.price);
             const priceLineMid = T[lang].priceLine(localSymMid, localAmtMid);
-                    content += `<div class="lux-cta"><h3>${T[lang].ctaHead}</h3><p>${priceLineMid}</p><a href="#">${T[lang].ctaLink}</a></div>`;
+                const payHrefMid = `${STRIPE_LINK}?client_reference_id=${currentUser?currentUser.email:''}&prefilled_email=${currentUser?currentUser.email:''}`;
+                content += `<div class="lux-cta"><h3>${T[lang].ctaHead}</h3><p>${priceLineMid}</p><a href="${payHrefMid}" target="_blank" rel="noopener">${T[lang].ctaLink}</a></div>`;
                 }
             }
             content += `<blockquote>${T[lang].blockquote}</blockquote>`;
@@ -2234,7 +2236,8 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
             const localSymBot = USER_CURRENCY.symbol;
             const localAmtBot = formatPrice(USER_CURRENCY.code, USER_CURRENCY.price);
             const priceLineBot = T[lang].priceLine(localSymBot, localAmtBot);
-                content += `<div class="lux-cta"><h3>${T[lang].ctaHead}</h3><p>${priceLineBot}</p><a href="#">${T[lang].bottomCtaLink}</a></div>`;
+                const payHrefBot = `${STRIPE_LINK}?client_reference_id=${currentUser?currentUser.email:''}&prefilled_email=${currentUser?currentUser.email:''}`;
+                content += `<div class="lux-cta"><h3>${T[lang].ctaHead}</h3><p>${priceLineBot}</p><a href="${payHrefBot}" target="_blank" rel="noopener">${T[lang].bottomCtaLink}</a></div>`;
             content += `<h2>${T[lang].conclusionTitle}</h2>`;
             const concl = academic ? (lang==='pt' ? `Para trabalhos acadêmicos, estruture ${topic} com problema de pesquisa, revisão de literatura, método, resultados e discussão, concluindo com limitações e próximos passos.` : lang==='es' ? `Para trabajos académicos, estructura ${topic} con problema de investigación, revisión de literatura, método, resultados y discusión, cerrando con limitaciones y próximos pasos.` : lang==='fr' ? `Pour les travaux académiques, structurez ${topic} avec problématique, revue de littérature, méthode, résultats et discussion, en terminant par limites et prochaines étapes.` : lang==='de' ? `Für akademische Arbeiten strukturieren Sie ${topic} mit Forschungsfrage, Literaturüberblick, Methode, Ergebnissen und Diskussion und schließen mit Grenzen und nächsten Schritten.` : `For academic work, structure ${topic} with research problem, literature review, method, results and discussion, closing with limitations and next steps.`) : T[lang].conclusionText;
             content += `<p>${concl}</p>`;
@@ -2471,9 +2474,9 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
         .lux-article p{font-family:'Reith Serif','BBC Reith Serif','Merriweather','Georgia','Times New Roman',serif;font-weight:400;font-size:1.06em;margin:0 0 1.25rem;text-align:justify}
         .lux-article ul{margin:.5rem 0 1.25rem 1.5rem}
         .lux-callout{background:#E8F3F7;color:#166A5D;border-left:8px solid #D4AF37;border-radius:14px;padding:1rem 1.25rem;font-style:italic;box-shadow:0 2px 0 rgba(0,0,0,.04);margin:1rem 0 1.25rem}
-        .lux-cta{background:#FFFFFF;border:2px solid #8B5CF6;color:#111;border-radius:12px;padding:1rem 1.25rem;text-align:center;margin:1.5rem 0}
-        .lux-cta h3{color:#111}
-        .lux-cta p{color:#111}
+        .lux-cta{background:#FFFFFF;border:2px solid #8B5CF6;color:#111;border-radius:12px;padding:1rem 1.25rem;text-align:center;margin:1.5rem 0;display:flex;flex-direction:column;align-items:center;gap:.5rem}
+        .lux-cta h3{color:#111;margin:0}
+        .lux-cta p{color:#111;text-align:center;margin:0}
         .lux-cta a{display:inline-block;background:#fff;color:#111;border:2px solid #8B5CF6;border-radius:8px;padding:.5rem 1rem;font-weight:700;text-decoration:none}
         blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:1rem 0}
     </style>
