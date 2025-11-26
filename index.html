@@ -1559,7 +1559,7 @@
 .lux-article h1{font-family:'Times New Roman',Times,serif;font-weight:400;color:#124C3F;font-size:2.4em;margin:0 0 .75rem}
 .lux-article h2{font-family:'Reith Serif','BBC Reith Serif','Merriweather','Georgia',serif;font-weight:500;color:#145C44;font-size:1.8em;margin:2rem 0 .75rem;border-bottom:4px solid #D4AF37;padding-bottom:.25rem}
 .lux-article h3{font-family:'Reith Serif','BBC Reith Serif','Merriweather','Georgia',serif;font-weight:400;color:#145C44;font-size:1.25em;margin:1.25rem 0 .5rem}
-.lux-article p{font-family:'Reith Serif','BBC Reith Serif','Merriweather','Georgia','Times New Roman',serif;font-weight:400;font-size:1.06em;margin:0 0 1.25rem}
+.lux-article p{font-family:'Reith Serif','BBC Reith Serif','Merriweather','Georgia','Times New Roman',serif;font-weight:400;font-size:1.06em;margin:0 0 1.25rem;text-align:justify}
 .lux-article ul{margin:.5rem 0 1.25rem 1.5rem}
 .lux-callout{background:#E8F3F7;color:#166A5D;border-left:8px solid #D4AF37;border-radius:14px;padding:1rem 1.25rem;font-style:italic;box-shadow:0 2px 0 rgba(0,0,0,.04);margin:1rem 0 1.25rem}
 .lux-cta{background:linear-gradient(135deg,#145C44,#8B5CF6);color:#fff;border-radius:12px;padding:1rem 1.25rem;text-align:center;margin:1.5rem 0}
@@ -2150,6 +2150,7 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
             content += `<p>${T[lang].overview}</p>`;
             const connectors = T[lang].connectors;
             const trans = () => connectors[Math.floor(Math.random()* connectors.length)];
+            const genPara = () => { const pct = num(8,35); return `${trans()} ${T[lang].whyBase} ${T[lang].how} ${T[lang].proof(pct)}`; };
             const pillars = T[lang].pillars;
             const sectionsCount = wordCount <= 800 ? 2 : (wordCount <= 1600 ? 3 : 4);
             const usedH = new Set();
@@ -2182,6 +2183,8 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
                 }
             }
             content += `<blockquote>${T[lang].blockquote}</blockquote>`;
+            let fillerGuard = 0;
+            while (count(content) < targetMin && fillerGuard < 200) { content += `<p>${genPara()}</p>`; fillerGuard++; }
             if (false) {
                 content += `<h2>${T[lang].altCompareTitle}</h2>`;
                 content += `<p>${T[lang].altComparePara}</p>`;
@@ -2199,16 +2202,7 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
             const concl = academic ? (lang==='pt' ? `Para trabalhos acadêmicos, estruture ${topic} com problema de pesquisa, revisão de literatura, método, resultados e discussão, concluindo com limitações e próximos passos.` : lang==='es' ? `Para trabajos académicos, estructura ${topic} con problema de investigación, revisión de literatura, método, resultados y discusión, cerrando con limitaciones y próximos pasos.` : lang==='fr' ? `Pour les travaux académiques, structurez ${topic} avec problématique, revue de littérature, méthode, résultats et discussion, en terminant par limites et prochaines étapes.` : lang==='de' ? `Für akademische Arbeiten strukturieren Sie ${topic} mit Forschungsfrage, Literaturüberblick, Methode, Ergebnissen und Diskussion und schließen mit Grenzen und nächsten Schritten.` : `For academic work, structure ${topic} with research problem, literature review, method, results and discussion, closing with limitations and next steps.`) : T[lang].conclusionText;
             content += `<p>${concl}</p>`;
             content += `</section>`;
-            const pool = T[lang].fillers;
-            const chosenFillers = new Set();
-            let topupGuard = 0;
-            while (count(content) < targetMin && topupGuard < 500) {
-                const available = pool.filter(s => !chosenFillers.has(s));
-                const line = (available.length ? available : pool)[Math.floor(Math.random() * (available.length ? available.length : pool.length))];
-                chosenFillers.add(line);
-                content += `<p>${line}</p>`;
-                topupGuard++;
-            }
+            
             const hash = await hashSHA256(content);
             const last = localStorage.getItem('LAST_ARTICLE_HASH') || '';
             if (hash === last) {
@@ -2437,7 +2431,7 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
         .lux-article h1{font-family:'Times New Roman',Times,serif;font-weight:400;color:#124C3F;font-size:2.4em;margin:0 0 .75rem}
         .lux-article h2{font-family:'Reith Serif','BBC Reith Serif','Merriweather','Georgia',serif;font-weight:500;color:#145C44;font-size:1.8em;margin:2rem 0 .75rem;border-bottom:4px solid #D4AF37;padding-bottom:.25rem}
         .lux-article h3{font-family:'Reith Serif','BBC Reith Serif','Merriweather','Georgia',serif;font-weight:400;color:#145C44;font-size:1.25em;margin:1.25rem 0 .5rem}
-        .lux-article p{font-family:'Reith Serif','BBC Reith Serif','Merriweather','Georgia','Times New Roman',serif;font-weight:400;font-size:1.06em;margin:0 0 1.25rem}
+        .lux-article p{font-family:'Reith Serif','BBC Reith Serif','Merriweather','Georgia','Times New Roman',serif;font-weight:400;font-size:1.06em;margin:0 0 1.25rem;text-align:justify}
         .lux-article ul{margin:.5rem 0 1.25rem 1.5rem}
         .lux-callout{background:#E8F3F7;color:#166A5D;border-left:8px solid #D4AF37;border-radius:14px;padding:1rem 1.25rem;font-style:italic;box-shadow:0 2px 0 rgba(0,0,0,.04);margin:1rem 0 1.25rem}
         .lux-cta{background:linear-gradient(135deg,#145C44,#8B5CF6);color:#fff;border-radius:12px;padding:1rem 1.25rem;text-align:center;margin:1.5rem 0}
