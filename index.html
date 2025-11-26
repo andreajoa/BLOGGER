@@ -323,6 +323,12 @@
             flex-wrap: wrap;
             gap: 1rem;
         }
+        .ticker{position:sticky;top:0;z-index:1000;background:linear-gradient(90deg,#0F172A,#1E293B);color:#FFFFFF;border-bottom:1px solid rgba(255,255,255,.15)}
+        .ticker-inner{display:flex;align-items:center;gap:.75rem;overflow:hidden;padding:.4rem .75rem}
+        .ticker-track{display:inline-block;white-space:nowrap;animation:ticker-scroll 28s linear infinite;opacity:.92}
+        .ticker-item{display:inline-block;margin-right:2rem;font-weight:600}
+        .ticker-cta{margin-left:auto;background:#FFFFFF;color:#0F172A;border:1px solid #FFFFFF;border-radius:6px;padding:.35rem .7rem;font-weight:700;cursor:pointer}
+        @keyframes ticker-scroll{0%{transform:translateX(0%)}100%{transform:translateX(-50%)}}
         
         .navbar-title {
             font-size: 1.4em;
@@ -771,6 +777,12 @@
     </style>
 </head>
 <body>
+    <div class="ticker" id="benefitsTicker" style="display:none">
+        <div class="ticker-inner">
+            <div class="ticker-track" id="benefitsTrack"></div>
+            <button class="ticker-cta" onclick="redirectToStripe()" id="tickerCta">Assinar</button>
+        </div>
+    </div>
     <!-- Loading Screen -->
     <div class="loading" id="loadingScreen">
         <div class="spinner"></div>
@@ -868,6 +880,7 @@
                     <option value="de">🇩🇪 Deutsch</option>
                 </select>
                 <button class="btn-nav" id="adminBtn" onclick="openAdminPanel()" style="display:none">Admin</button>
+                <button id="btnSubscribeTop" class="btn-nav" onclick="redirectToStripe()">Assinar</button>
                 <button id="btnLogout" class="btn-nav" onclick="logout()">Sair</button>
             </div>
         </div>
@@ -937,11 +950,44 @@
                             <option value="creative">Creative</option>
                         </select>
                     </div>
+                    <div class="input-group">
+                        <label id="labelAcademic">🎓 Modo Acadêmico (tese/doutorado)</label>
+                        <select id="academicMode"><option value="off">Off</option><option value="on">On</option></select>
+                    </div>
+                    <div class="input-group">
+                        <label id="labelSourceType">📚 Tipo de Fonte</label>
+                        <select id="sourceType">
+                            <option value="book">Livro</option>
+                            <option value="article">Artigo</option>
+                            <option value="conference">Conferência</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label id="labelCitationStyle">📝 Estilo de Citação</label>
+                        <select id="citationStyle">
+                            <option value="abnt">ABNT</option>
+                            <option value="apa">APA</option>
+                            <option value="mla">MLA</option>
+                            <option value="chicago">Chicago</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label id="labelAcademicLevel">🏷️ Nível Acadêmico</label>
+                        <select id="academicLevel">
+                            <option value="undergrad">Graduação</option>
+                            <option value="masters">Mestrado</option>
+                            <option value="phd">Doutorado</option>
+                        </select>
+                    </div>
                 </div>
                 
                 <div class="input-group">
                     <label id="labelInstructions">💡 Instruções Adicionais (opcional)</label>
                     <textarea id="articleInstructions" placeholder="Add specific requirements, keywords, or structure..."></textarea>
+                </div>
+                <div class="input-group">
+                    <label id="labelReferences">📑 Bibliografia (opcional)</label>
+                    <textarea id="referencesInput" placeholder="Autor; Ano; Título; Cidade; Editora; Revista; Volume; Número; Páginas; DOI/Link\nUm por linha"></textarea>
                 </div>
                 
                 <button class="btn-generate" id="generateBtn" onclick="generateArticle()">
@@ -1072,6 +1118,27 @@
                     <div class="stat-label">Reviews</div>
                 </div>
             </div>
+            <div class="generator-section" style="margin-top:1rem;">
+                <h2 id="adminAccessTitle" class="section-title">Access Control</h2>
+                <div class="form-row">
+                    <div class="form-group" style="flex:1;">
+                        <label id="adminAccessEmailLabel">User Email</label>
+                        <input type="email" id="adminAccessEmail" placeholder="user@example.com">
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label id="adminAccessDaysLabel">Access Days</label>
+                        <input type="number" id="adminAccessDays" min="1" placeholder="30">
+                    </div>
+                    <div class="form-group" style="flex:1; display:flex; align-items:center; gap:.5rem;">
+                        <input type="checkbox" id="adminAccessIndef">
+                        <span id="adminAccessIndefLabel">Indefinite Access</span>
+                    </div>
+                </div>
+                <div style="display:flex; gap:0.5rem; justify-content:flex-end; margin-top:0.5rem;">
+                    <button id="adminAccessGrantBtn" class="btn-action" onclick="grantAccess()">Grant Access</button>
+                    <button id="adminAccessRemoveBtn" class="btn-action" onclick="removeAccess()">Remove Override</button>
+                </div>
+            </div>
             <div style="display:flex; gap:0.5rem; justify-content:flex-end; margin-top:0.5rem;">
                 <button class="btn-action" onclick="exportReviews()">Export Reviews</button>
                 <button class="btn-action" onclick="closeAdminPanel()">Close</button>
@@ -1110,6 +1177,18 @@
         let deferredPrompt = null;
         let adminEmail = null;
         let adminHash = null;
+        let USER_COUNTRY = 'US';
+        let USER_CURRENCY = { symbol: '$', code: 'USD', price: convertFromBRL(BASE_PRICE_BRL, 'USD') };
+        function getUILangFromCountry(country) {
+            const map = {
+                BR: 'pt', PT: 'pt', AO: 'pt', MZ: 'pt', CV: 'pt',
+                US: 'en', GB: 'en', IE: 'en', AU: 'en', NZ: 'en', CA: 'en',
+                ES: 'es', MX: 'es', AR: 'es', CO: 'es', CL: 'es', PE: 'es', UY: 'es', VE: 'es', EC: 'es',
+                FR: 'fr', BE: 'fr', CH: 'fr', LU: 'fr',
+                DE: 'de', AT: 'de', CH_DE: 'de'
+            };
+            return map[country] || (navigator.language && navigator.language.startsWith('pt') ? 'pt' : (navigator.language && navigator.language.startsWith('es') ? 'es' : (navigator.language && navigator.language.startsWith('fr') ? 'fr' : (navigator.language && navigator.language.startsWith('de') ? 'de' : 'en'))));
+        }
         
         const CURRENCY_BY_COUNTRY = {
             'US': { symbol: '$', code: 'USD' },
@@ -1143,11 +1222,10 @@
                     document.getElementById('authContainer').style.display = 'flex';
                 }, 1500);
                 setupPWA();
-                detectUserLocation();
+                await detectUserLocation();
+                renderBenefitsTicker();
                 loadAdminConfig();
                 renderReviews();
-                changeLanguage('pt');
-                document.getElementById('langSelect').value = 'pt';
                 handleReturnParams();
             } catch (err) {
                 console.error('Init error:', err);
@@ -1279,10 +1357,17 @@
                 const data = await response.json();
                 country = data.country_code || 'US';
             } catch (err) { }
+            USER_COUNTRY = country;
             renderPaywallPrice(country);
+            const lang = getUILangFromCountry(country);
+            changeLanguage(lang);
+            document.getElementById('langSelect').value = lang;
+            renderBenefitsTicker();
         }
+        function renderBenefitsTicker() { const bar = document.getElementById('benefitsTicker'); const track = document.getElementById('benefitsTrack'); const btn = document.getElementById('tickerCta'); if (!bar || !track || !btn) return; const lang = (document.getElementById('langSelect').value || 'pt'); const sym = USER_CURRENCY.symbol; const amt = formatPrice(USER_CURRENCY.code, USER_CURRENCY.price); const pt = [`Assine por ${sym}${amt}/mês`,`Gere artigos profissionais com poucos cliques`,`Módulo acadêmico: TCC, tese e doutorado`,`Estrutura avançada com seções e exemplos reais`,`Ferramentas de citação: ABNT/APA/MLA/Chicago`,`Acesso imediato — sem limitações`,`Suporte e atualizações constantes`]; const en = [`Subscribe for ${sym}${amt}/month`,`Create professional articles in minutes`,`Academic module: thesis and PhD writing`,`Advanced structure with real examples`,`Citation tools: ABNT/APA/MLA/Chicago`,`Immediate access — no limits`,`Support and ongoing updates`]; const es = [`Suscríbete por ${sym}${amt}/mes`,`Crea artículos profesionales en minutos`,`Módulo académico: tesis y doctorado`,`Estructura avanzada con ejemplos reales`,`Herramientas de citación: ABNT/APA/MLA/Chicago`,`Acceso inmediato — sin límites`,`Soporte y actualizaciones continuas`]; const fr = [`Abonnez‑vous pour ${sym}${amt}/mois`,`Rédigez des articles professionnels en minutes`,`Module académique : thèse et doctorat`,`Structure avancée avec exemples réels`,`Outils de citation : ABNT/APA/MLA/Chicago`,`Accès immédiat — sans limites`,`Support et mises à jour continues`]; const de = [`Abonnieren für ${sym}${amt}/Monat`,`Professionelle Artikel in Minuten erstellen`,`Akademisches Modul: Thesis und Promotion`,`Erweiterte Struktur mit echten Beispielen`,`Zitations‑Tools: ABNT/APA/MLA/Chicago`,`Sofortiger Zugang — ohne Limits`,`Support und laufende Updates`]; const pool = lang==='pt'?pt:lang==='es'?es:lang==='fr'?fr:lang==='de'?de:en; track.innerHTML = `${pool.concat(pool).map(t=>`<span class="ticker-item">${t}</span>`).join('')}`; btn.textContent = lang==='pt'?'Assinar':lang==='es'?'Suscribirse':lang==='fr'?'S’abonner':lang==='de'?'Abonnieren':'Subscribe'; bar.style.display = 'block'; }
         function renderPaywallPrice(country) {
             const data = getPriceForCountry(country);
+            USER_CURRENCY = data;
             document.getElementById('priceCurrency').textContent = data.symbol;
             document.getElementById('priceAmount').textContent = formatPrice(data.code, data.price);
             const usd = formatPrice('USD', convertFromBRL(BASE_PRICE_BRL, 'USD'));
@@ -1302,10 +1387,10 @@
         }
 
         function getUserKey() { return (currentUser && currentUser.email) ? currentUser.email.toLowerCase() : 'anon'; }
-        function initializeTrialForUser() { const key = getUserKey(); const startKey = `TRIAL_START_${key}`; const statusKey = `SUBSCRIPTION_STATUS_${key}`; if (!localStorage.getItem(startKey)) { localStorage.setItem(startKey, new Date().toISOString()); } const status = localStorage.getItem(statusKey) || (currentUser.subscription_status || 'trial_active'); localStorage.setItem(statusKey, status); }
-        function getRemainingTrialDays() { const key = getUserKey(); const startStr = localStorage.getItem(`TRIAL_START_${key}`); if (!startStr) return 14; const start = new Date(startStr); const now = new Date(); const days = Math.ceil((now - start) / (1000*60*60*24)); return Math.max(0, 14 - days); }
+        function initializeTrialForUser() { const key = getUserKey(); const startKey = `TRIAL_START_${key}`; const statusKey = `SUBSCRIPTION_STATUS_${key}`; if (!localStorage.getItem(startKey)) { localStorage.setItem(startKey, new Date().toISOString()); } const status = localStorage.getItem(statusKey) || (currentUser.subscription_status || 'trial_active'); localStorage.setItem(statusKey, status); const overrideStr = localStorage.getItem(`ADMIN_ACCESS_${key}`); if (overrideStr) { try { const o = JSON.parse(overrideStr); if (o && o.indefinite) { localStorage.setItem(statusKey, 'active'); } else if (o && o.days && o.days > 0) { const grantStartKey = `GRANT_START_${key}`; if (!localStorage.getItem(grantStartKey)) { const now = new Date().toISOString(); localStorage.setItem(grantStartKey, now); localStorage.setItem(startKey, now); } localStorage.setItem(`TRIAL_LENGTH_${key}`, String(o.days)); localStorage.setItem(statusKey, 'trial_active'); } } catch (e) {} } }
+        function getRemainingTrialDays() { const key = getUserKey(); const startStr = localStorage.getItem(`TRIAL_START_${key}`); const lenStr = localStorage.getItem(`TRIAL_LENGTH_${key}`); const length = lenStr ? (parseInt(lenStr) || 14) : 14; if (!startStr) return length; const start = new Date(startStr); const now = new Date(); const days = Math.ceil((now - start) / (1000*60*60*24)); return Math.max(0, length - days); }
         function getSubscriptionStatus() { const key = getUserKey(); const status = localStorage.getItem(`SUBSCRIPTION_STATUS_${key}`) || 'trial_active'; if (status === 'active') return 'active'; const left = getRemainingTrialDays(); return left > 0 ? 'trial_active' : 'trial_expired'; }
-        function renderTrialBanner() { const banner = document.getElementById('trialBanner'); if (!banner || !currentUser) return; const status = getSubscriptionStatus(); if (status === 'active') { banner.style.display='none'; return; } const left = getRemainingTrialDays(); banner.style.display='block'; banner.classList.toggle('warn', left <= 3); banner.textContent = `Seu teste gratuito termina em ${left} dia${left===1?'':'s'}. Assine por R$ ${BASE_PRICE_BRL.toFixed(2)}/mês.`; }
+        function renderTrialBanner() { const banner = document.getElementById('trialBanner'); if (!banner || !currentUser) return; const status = getSubscriptionStatus(); if (status === 'active') { banner.style.display='none'; return; } const left = getRemainingTrialDays(); const lang = (document.getElementById('langSelect').value || 'pt'); const isPT = lang === 'pt'; const isEN = lang === 'en'; const isES = lang === 'es'; const isFR = lang === 'fr'; const isDE = lang === 'de'; const usd = formatPrice('USD', convertFromBRL(BASE_PRICE_BRL, 'USD')); const eur = formatPrice('EUR', convertFromBRL(BASE_PRICE_BRL, 'EUR')); const gbp = formatPrice('GBP', convertFromBRL(BASE_PRICE_BRL, 'GBP')); const localSym = USER_CURRENCY.symbol; const localAmt = formatPrice(USER_CURRENCY.code, USER_CURRENCY.price); const priceLine = isPT ? `Assine por ${localSym}${localAmt}/mês (≈ R$ ${BASE_PRICE_BRL.toFixed(2)} | US$ ${usd} | € ${eur} | £ ${gbp})` : (isEN ? `Subscribe for ${localSym}${localAmt}/month (≈ R$ ${BASE_PRICE_BRL.toFixed(2)} | $${usd} | € ${eur} | £ ${gbp})` : (isES ? `Suscríbete por ${localSym}${localAmt}/mes (≈ R$ ${BASE_PRICE_BRL.toFixed(2)} | US$ ${usd} | € ${eur} | £ ${gbp})` : (isFR ? `Abonnez‑vous pour ${localSym}${localAmt}/mois (≈ R$ ${BASE_PRICE_BRL.toFixed(2)} | $${usd} | € ${eur} | £ ${gbp})` : `Abonnieren für ${localSym}${localAmt}/Monat (≈ R$ ${BASE_PRICE_BRL.toFixed(2)} | $${usd} | € ${eur} | £ ${gbp})`))); const msg = isPT ? `Seu teste gratuito termina em ${left} dia${left===1?'':'s'}.` : (isEN ? `Your free trial ends in ${left} day${left===1?'':'s'}.` : (isES ? `Tu prueba gratuita termina en ${left} día${left===1?'':'s'}.` : (isFR ? `Votre essai gratuit se termine dans ${left} jour${left===1?'':'s'}.` : `Ihre kostenlose Testphase endet in ${left} Tag${left===1?'':'en'}.`))); const nudge = isPT ? `Crie um artigo hoje — pequenos ciclos geram resultados.` : (isEN ? `Create an article today — short cycles compound results.` : (isES ? `Crea un artículo hoy — ciclos cortos generan resultados.` : (isFR ? `Créez un article aujourd’hui — les cycles courts composent les résultats.` : `Erstellen Sie heute einen Artikel — kurze Zyklen verstärken die Ergebnisse.`))); banner.style.display='block'; banner.classList.toggle('warn', left <= 3); const btnText = isPT ? 'Assinar Agora' : (isEN ? 'Subscribe Now' : (isES ? 'Suscribirse' : (isFR ? 'S’abonner' : 'Jetzt abonnieren'))); banner.innerHTML = `<span>${msg}</span> <span style="margin-left:.5rem;color:#444;font-weight:500">${priceLine}</span> <button class="btn-action" onclick="redirectToStripe()" style="margin-left:.5rem;padding:.35rem .7rem">${btnText}</button> <span style="margin-left:.5rem;color:#6B7280;font-weight:500">${nudge}</span>`; }
         function maybeWarnTrialExpiring() { const left = getRemainingTrialDays(); const key = getUserKey(); const markKey = `TRIAL_WARN_${key}_${new Date().toDateString()}`; if (left <= 3 && !localStorage.getItem(markKey)) { alert(`⚠️ Seu teste gratuito termina em ${left} dia${left===1?'':'s'}.`); localStorage.setItem(markKey, '1'); } }
         function unlockAfterPayment() { const key = getUserKey(); localStorage.setItem(`SUBSCRIPTION_STATUS_${key}`, 'active'); currentUser.subscription_status = 'active'; document.getElementById('paywallOverlay').classList.remove('active'); renderTrialBanner(); alert('✅ Assinatura ativada! Acesso liberado.'); }
         function handleReturnParams() { const params = new URLSearchParams(window.location.search); if (params.get('unlock') === '1' || params.get('paid') === '1' || params.get('status') === 'active') { if (currentUser) { unlockAfterPayment(); } else { localStorage.setItem('PAID_FLAG', '1'); } } }
@@ -1364,6 +1449,8 @@
                 document.getElementById('adminActiveCount').textContent = 'N/A';
             }
         }
+        function grantAccess(){ const email=(document.getElementById('adminAccessEmail').value||'').trim().toLowerCase(); const days=parseInt(document.getElementById('adminAccessDays').value||'0'); const indef=document.getElementById('adminAccessIndef').checked; if(!email){ alert('Informe o email'); return; } if(indef){ const data={indefinite:true, createdAt:new Date().toISOString()}; localStorage.setItem(`ADMIN_ACCESS_${email}`, JSON.stringify(data)); alert('Acesso indeterminado concedido'); return; } const d=Math.max(1, days); const data={indefinite:false, days:d, createdAt:new Date().toISOString(), startAt:null}; localStorage.setItem(`ADMIN_ACCESS_${email}`, JSON.stringify(data)); alert(`Acesso por ${d} dias concedido`); }
+        function removeAccess(){ const email=(document.getElementById('adminAccessEmail').value||'').trim().toLowerCase(); if(!email){ alert('Informe o email'); return; } localStorage.removeItem(`ADMIN_ACCESS_${email}`); alert('Override removido'); }
         
         function exportReviews() {
             const reviews = localStorage.getItem('REVIEWS') || '[]';
@@ -1467,7 +1554,8 @@
             const isPT = language === 'pt';
             const pro = style !== 'casual';
             const year = new Date().getFullYear();
-            const css = `
+            const academic = (document.getElementById('academicMode') && document.getElementById('academicMode').value === 'on');
+    const css = `
 <style>
 .lux-article{font-family:Georgia,'Times New Roman',serif;color:#2F3D3C;line-height:1.9;max-width:900px;margin:0 auto}
 .lux-article h1{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;color:#124C3F;font-size:2.4em;margin:0 0 .75rem}
@@ -1480,165 +1568,643 @@
 .lux-cta a{display:inline-block;background:#fff;color:#1F2937;border-radius:8px;padding:.5rem 1rem;font-weight:700;text-decoration:none}
 blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:1rem 0}
 </style>`;
-            const strip = s => s.replace(/<style[\s\S]*?<\/style>/gi,'').replace(/<[^>]+>/g, '');
-            const count = s => strip(s).trim().split(/\s+/).filter(Boolean).length;
-            const targetMin = Math.max(300, Math.floor(wordCount * 0.95));
-            const pick = a => a[Math.floor(Math.random() * a.length)];
-            const num = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-            const titlePT = [
-                `${num(5,9)} passos para dominar ${topic} em ${year}`,
-                `Como multiplicar resultados com ${topic} em 30 dias`,
-                `${num(5,9)} erros que travam ${topic} (e como evitar)`,
-                `O Método ${topic.split(/\s+/).map(w => w[0].toUpperCase()).slice(0,4).join('.')} para crescer com previsibilidade`
-            ];
-            const titleEN = [
-                `${num(5,9)} steps to master ${topic} in ${year}`,
-                `How to multiply results with ${topic} in 30 days`,
-                `${num(5,9)} mistakes that stall ${topic} (and how to avoid them)`,
-                `The ${topic.split(/\s+/).map(w => w[0].toUpperCase()).slice(0,4).join('.')} Method for predictable growth`
-            ];
-            let title = isPT ? pick(titlePT) : pick(titleEN);
+    const strip = s => s.replace(/<style[\s\S]*?<\/style>/gi,'').replace(/<[^>]+>/g, '');
+    const count = s => strip(s).trim().split(/\s+/).filter(Boolean).length;
+    const targetMin = Math.max(300, Math.floor(wordCount * 0.95));
+    const pick = a => a[Math.floor(Math.random() * a.length)];
+    const num = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+    const lang = ['pt','en','es','fr','de'].includes(language) ? language : 'en';
+    if (academic) {
+        const stylePref = (document.getElementById('citationStyle') && document.getElementById('citationStyle').value) || 'abnt';
+        const level = (document.getElementById('academicLevel') && document.getElementById('academicLevel').value) || 'masters';
+        const sourceType = (document.getElementById('sourceType') && document.getElementById('sourceType').value) || 'article';
+        const refsInputTxt = (document.getElementById('referencesInput') && document.getElementById('referencesInput').value.trim()) || '';
+        function makeRefs(lang){
+            const y1 = year-3, y2 = year-2, y3 = year-1;
+            const base = lang==='pt'?
+                [
+                    {author:'Silva, A.', year:y1, title:`Fundamentos de ${topic}`, city:'São Paulo', publisher:'Editora X', journal:'', volume:'', number:'', pages:'', conference:'', doi:''},
+                    {author:'Pereira, M.', year:y2, title:`Métodos aplicados em ${topic}`, city:'Rio de Janeiro', publisher:'Revista Y', journal:'Revista Y', volume:'12', number:'2', pages:'45-67', conference:'', doi:'https://doi.org/10.0000/xyz'},
+                    {author:'Souza, R.', year:y3, title:`Debates contemporâneos sobre ${topic}`, city:'Belo Horizonte', publisher:'Congresso Z', journal:'', volume:'', number:'', pages:'123-129', conference:'Congresso Z', doi:''}
+                ]:
+                lang==='es'?
+                [
+                    {author:'Pérez, M.', year:y1, title:`Fundamentos de ${topic}`, city:'Madrid', publisher:'Editorial X', journal:'', volume:'', number:'', pages:'', conference:'', doi:''},
+                    {author:'García, L.', year:y2, title:`Métodos aplicados en ${topic}`, city:'Ciudad de México', publisher:'Revista Y', journal:'Revista Y', volume:'8', number:'1', pages:'15-32', conference:'', doi:'https://doi.org/10.0000/abc'},
+                    {author:'Rodríguez, A.', year:y3, title:`Debates contemporáneos sobre ${topic}`, city:'Buenos Aires', publisher:'Congreso Z', journal:'', volume:'', number:'', pages:'77-82', conference:'Congreso Z', doi:''}
+                ]:
+                lang==='fr'?
+                [
+                    {author:'Dupont, C.', year:y1, title:`Fondements de ${topic}`, city:'Paris', publisher:'Éditions X', journal:'', volume:'', number:'', pages:'', conference:'', doi:''},
+                    {author:'Martin, L.', year:y2, title:`Méthodes appliquées à ${topic}`, city:'Lyon', publisher:'Revue Y', journal:'Revue Y', volume:'21', number:'3', pages:'201-223', conference:'', doi:'https://doi.org/10.0000/fr1'},
+                    {author:'Bernard, S.', year:y3, title:`Débats contemporains sur ${topic}`, city:'Marseille', publisher:'Conférence Z', journal:'', volume:'', number:'', pages:'55-60', conference:'Conférence Z', doi:''}
+                ]:
+                lang==='de'?
+                [
+                    {author:'Müller, T.', year:y1, title:`Grundlagen von ${topic}`, city:'Berlin', publisher:'Verlag X', journal:'', volume:'', number:'', pages:'', conference:'', doi:''},
+                    {author:'Schmidt, K.', year:y2, title:`Angewandte Methoden in ${topic}`, city:'München', publisher:'Zeitschrift Y', journal:'Zeitschrift Y', volume:'5', number:'4', pages:'301-318', conference:'', doi:'https://doi.org/10.0000/de1'},
+                    {author:'Schneider, P.', year:y3, title:`Zeitgenössische Debatten über ${topic}`, city:'Hamburg', publisher:'Konferenz Z', journal:'', volume:'', number:'', pages:'90-96', conference:'Konferenz Z', doi:''}
+                ]:
+                [
+                    {author:'Smith, J.', year:y1, title:`Fundamentals of ${topic}`, city:'New York', publisher:'Press X', journal:'', volume:'', number:'', pages:'', conference:'', doi:''},
+                    {author:'Johnson, L.', year:y2, title:`Applied Methods in ${topic}`, city:'San Francisco', publisher:'Journal Y', journal:'Journal Y', volume:'14', number:'2', pages:'101-120', conference:'', doi:'https://doi.org/10.0000/en1'},
+                    {author:'Chen, K.', year:y3, title:`Contemporary Debates on ${topic}`, city:'Boston', publisher:'Conference Z', journal:'', volume:'', number:'', pages:'33-39', conference:'Conference Z', doi:''}
+                ];
+            return base;
+        }
+        function surname(a){ return (a.split(',')[0]||a).trim(); }
+        function fmtRef(ref, style, type){
+            const s = surname(ref.author);
+            if (style==='abnt') {
+                if (type==='article') return `${s.toUpperCase()}, ${ref.author.split(',')[1]?.trim()||''}. ${ref.title}. ${ref.journal}, v. ${ref.volume}, n. ${ref.number}, p. ${ref.pages}, ${ref.year}. ${ref.doi||''}`.trim();
+                if (type==='conference') return `${s.toUpperCase()}, ${ref.author.split(',')[1]?.trim()||''}. ${ref.title}. In: ${ref.conference}. ${ref.city}, ${ref.year}. p. ${ref.pages}.`;
+                return `${s.toUpperCase()}, ${ref.author.split(',')[1]?.trim()||''}. ${ref.title}. ${ref.city}: ${ref.publisher}, ${ref.year}.`;
+            }
+            if (style==='apa') {
+                if (type==='article') return `${s}, ${ref.author.split(',')[1]?.trim()||''}. (${ref.year}). ${ref.title}. ${ref.journal}, ${ref.volume}(${ref.number}), ${ref.pages}. ${ref.doi||''}`.trim();
+                if (type==='conference') return `${s}, ${ref.author.split(',')[1]?.trim()||''}. (${ref.year}). ${ref.title}. In ${ref.conference} (pp. ${ref.pages}). ${ref.city}.`;
+                return `${s}, ${ref.author.split(',')[1]?.trim()||''}. (${ref.year}). ${ref.title}. ${ref.publisher}.`;
+            }
+            if (style==='mla') {
+                if (type==='article') return `${ref.author}. "${ref.title}." ${ref.journal}, vol. ${ref.volume}, no. ${ref.number}, ${ref.year}, pp. ${ref.pages}. ${ref.doi||''}`.trim();
+                if (type==='conference') return `${ref.author}. "${ref.title}." ${ref.conference}, ${ref.year}, ${ref.city}, pp. ${ref.pages}.`;
+                return `${ref.author}. ${ref.title}. ${ref.publisher}, ${ref.year}.`;
+            }
+            // Chicago author-date (simplified)
+            if (type==='article') return `${ref.author}. ${ref.year}. "${ref.title}." ${ref.journal} ${ref.volume}(${ref.number}): ${ref.pages}. ${ref.doi?`doi:${ref.doi}`:''}`.trim();
+            if (type==='conference') return `${ref.author}. ${ref.year}. "${ref.title}." In ${ref.conference}, ${ref.city}, ${ref.pages}.`;
+            return `${ref.author}. ${ref.year}. ${ref.title}. ${ref.publisher}.`;
+        }
+        function cite(ref, style){ const s = surname(ref.author); return style==='abnt'?`(${s.toUpperCase()}, ${ref.year})`:style==='mla'?`(${s} ${ref.year})`:`(${s}, ${ref.year})`; }
+        function parseRefsFromInput(txt){
+            const lines = txt.split(/\n+/).map(l=>l.trim()).filter(Boolean);
+            const arr = [];
+            for (const l of lines){
+                const parts = l.split(';').map(p=>p.trim());
+                const [author, year, title, city, publisher, journal, volume, number, pages, doi] = parts;
+                arr.push({author:author||'Anon', year:Number(year)||year||year, title:title||'Untitled', city:city||'', publisher:publisher||'', journal:journal||'', volume:volume||'', number:number||'', pages:pages||'', conference:publisher||'', doi:doi||''});
+            }
+            return arr.length?arr:null;
+        }
+        const refsData = refsInputTxt ? (parseRefsFromInput(refsInputTxt) || makeRefs(lang)) : makeRefs(lang);
+        let title = lang==='pt'?`Proposta Acadêmica: ${topic}`:lang==='es'?`Propuesta Académica: ${topic}`:lang==='fr'?`Proposition Académique : ${topic}`:lang==='de'?`Akademische Vorlage: ${topic}`:`Academic Proposal: ${topic}`;
+        const prevTitle = localStorage.getItem('LAST_ARTICLE_TITLE') || '';
+        if (prevTitle === title) title = `${title} ${num(10,99)}`;
+        let content = `${css}<section class="lux-article"><h1>${title}</h1>`;
+        const hook = lang==='pt'?`Estrutura rigorosa para pesquisas avançadas em ${year}.`:
+                       lang==='es'?`Estructura rigurosa para investigaciones avanzadas en ${year}.`:
+                       lang==='fr'?`Structure rigoureuse pour recherches avancées en ${year}.`:
+                       lang==='de'?`Strenge Struktur für fortgeschrittene Forschung im ${year}.`:`Rigorous structure for advanced research in ${year}.`;
+        content += `<div class="lux-callout">${hook}</div>`;
+
+        const tocLabel = lang==='pt'? 'Sumário' : lang==='es'? 'Contenido' : lang==='fr'? 'Sommaire' : lang==='de'? 'Inhaltsverzeichnis' : 'Table of Contents';
+        content += `<h2>${tocLabel}</h2>`;
+        content += `<ul><li><a href="#sec-abs">${H.abs}</a></li><li><a href="#sec-intro">${H.intro}</a></li><li><a href="#sec-rq">${H.rq}</a></li><li><a href="#sec-lit">${H.lit}</a></li><li><a href="#sec-meth">${H.meth}</a></li><li><a href="#sec-res">${H.res}</a></li><li><a href="#sec-disc">${H.disc}</a></li><li><a href="#sec-lim">${H.lim}</a></li><li><a href="#sec-fut">${H.fut}</a></li><li><a href="#sec-concl">${H.concl}</a></li><li><a href="#sec-refs">${H.refs}</a></li></ul>`;
+
+        const H = {
+            abs: lang==='pt'?'Resumo':lang==='es'?'Resumen':lang==='fr'?'Résumé':lang==='de'?'Abstract':'Abstract',
+            intro: lang==='pt'?'Introdução':lang==='es'?'Introducción':lang==='fr'?'Introduction':lang==='de'?'Einleitung':'Introduction',
+            rq: lang==='pt'?'Objetivos e Pergunta de Pesquisa':lang==='es'?'Objetivos y Pregunta de Investigación':lang==='fr'?'Objectifs et Question de Recherche':lang==='de'?'Ziele und Forschungsfrage':'Objectives and Research Question',
+            lit: lang==='pt'?'Revisão de Literatura':lang==='es'?'Revisión de Literatura':lang==='fr'?'Revue de Littérature':lang==='de'?'Literaturüberblick':'Literature Review',
+            meth: lang==='pt'?'Metodologia':lang==='es'?'Metodología':lang==='fr'?'Méthodologie':lang==='de'?'Methodik':'Methodology',
+            res: lang==='pt'?'Resultados':lang==='es'?'Resultados':lang==='fr'?'Résultats':lang==='de'?'Ergebnisse':'Results',
+            disc: lang==='pt'?'Discussão':lang==='es'?'Discusión':lang==='fr'?'Discussion':lang==='de'?'Diskussion':'Discussion',
+            lim: lang==='pt'?'Limitações':lang==='es'?'Limitaciones':lang==='fr'?'Limites':lang==='de'?'Grenzen':'Limitations',
+            fut: lang==='pt'?'Trabalhos Futuros':lang==='es'?'Trabajos Futuros':lang==='fr'?'Travaux Futurs':lang==='de'?'Zukünftige Arbeiten':'Future Work',
+            concl: lang==='pt'?'Conclusão':lang==='es'?'Conclusión':lang==='fr'?'Conclusion':lang==='de'?'Fazit':'Conclusion',
+            refs: lang==='pt'?'Referências':lang==='es'?'Referencias':lang==='fr'?'Références':lang==='de'?'Referenzen':'References'
+        };
+        const L = {
+            abs: lang==='pt'?`Este trabalho sobre ${topic} apresenta objetivo, método e principais achados em linguagem clara para facilitar avaliação e replicação.`:
+                 lang==='es'?`Este trabajo sobre ${topic} expone objetivo, método y hallazgos principales en lenguaje claro para facilitar evaluación y réplica.`:
+                 lang==='fr'?`Ce travail sur ${topic} présente l’objectif, la méthode et les principaux résultats en langage clair afin de faciliter l’évaluation et la réplication.`:
+                 lang==='de'?`Diese Arbeit zu ${topic} stellt Ziel, Methode und wichtigste Ergebnisse klar dar, um Bewertung und Replikation zu erleichtern.`:`This work on ${topic} states objective, method, and key findings clearly to support evaluation and replication.`,
+            intro: lang==='pt'?`${topic} exige rigor conceitual e operacional. Em ${year}, pesquisas avançam quando hipóteses são testadas com métodos transparentes e dados observáveis.`:
+                   lang==='es'?`${topic} requiere rigor conceptual y operativo. En ${year}, la investigación avanza cuando las hipótesis se prueban con métodos transparentes y datos observables.`:
+                   lang==='fr'?`${topic} requiert une rigueur conceptuelle et opérationnelle. En ${year}, la recherche progresse quand les hypothèses sont testées avec des méthodes transparentes et des données observables.`:
+                   lang==='de'?`${topic} verlangt konzeptionelle und operative Strenge. Im ${year} schreitet Forschung voran, wenn Hypothesen mit transparenten Methoden und beobachtbaren Daten geprüft werden.`:`${topic} demands conceptual and operational rigor. In ${year}, research advances when hypotheses are tested with transparent methods and observable data.`,
+            rq: lang==='pt'?`Pergunta central: como ${topic} se comporta sob condições controladas? Objetivos: delimitar escopo, definir variáveis e estimar efeitos.`:
+                lang==='es'?`Pregunta central: ¿cómo se comporta ${topic} bajo condiciones controladas? Objetivos: delimitar alcance, definir variables y estimar efectos.`:
+                lang==='fr'?`Question centrale : comment ${topic} se comporte‑t‑il en conditions contrôlées ? Objectifs : délimiter le périmètre, définir les variables et estimer les effets.`:
+                lang==='de'?`Zentrale Frage: Wie verhält sich ${topic} unter kontrollierten Bedingungen? Ziele: Umfang abgrenzen, Variablen definieren und Effekte abschätzen.`:`Central question: how does ${topic} behave under controlled conditions? Objectives: delimit scope, define variables, estimate effects.`,
+            lit: lang==='pt'?`A literatura recente indica avanços e lacunas. Este trabalho sintetiza correntes principais e posiciona a contribuição incremental de ${topic}.`:
+                 lang==='es'?`La literatura reciente indica avances y vacíos. Este trabajo sintetiza corrientes principales y posiciona la contribución incremental de ${topic}.`:
+                 lang==='fr'?`La littérature récente montre des avancées et des lacunes. Ce travail synthétise les courants principaux et positionne l’apport incrémental de ${topic}.`:
+                 lang==='de'?`Die aktuelle Literatur zeigt Fortschritte und Lücken. Diese Arbeit fasst Hauptströmungen zusammen und positioniert den inkrementellen Beitrag von ${topic}.`:`Recent literature shows advances and gaps. This work synthesizes main strands and positions the incremental contribution of ${topic}.`,
+            meth: lang==='pt'?`Método: delineamento, amostra, instrumentos, procedimentos e análise. Guardrails éticos e reprodutibilidade são descritos.`:
+                 lang==='es'?`Método: diseño, muestra, instrumentos, procedimientos y análisis. Se describen guardas éticas y reproducibilidad.`:
+                 lang==='fr'?`Méthode : design, échantillon, instruments, procédures et analyse. Les garde‑fous éthiques et la reproductibilité sont décrits.`:
+                 lang==='de'?`Methode: Design, Stichprobe, Instrumente, Verfahren und Analyse. Ethische Leitplanken und Reproduzierbarkeit werden beschrieben.`:`Method: design, sample, instruments, procedures, and analysis. Ethical guardrails and reproducibility are detailed.`,
+            res: lang==='pt'?`Resultados: efeitos principais, variações por coorte e significância estatística.`:
+                 lang==='es'?`Resultados: efectos principales, variaciones por cohorte y significancia estadística.`:
+                 lang==='fr'?`Résultats : effets principaux, variations par cohorte et significativité statistique.`:
+                 lang==='de'?`Ergebnisse: Haupteffekte, Kohortenvariationen und statistische Signifikanz.`:`Results: main effects, cohort variations, and statistical significance.`,
+            disc: lang==='pt'?`Discussão: interpretações, implicações e confronto com literatura.`:
+                  lang==='es'?`Discusión: interpretaciones, implicaciones y contraste con la literatura.`:
+                  lang==='fr'?`Discussion : interprétations, implications et confrontation à la littérature.`:
+                  lang==='de'?`Diskussion: Interpretationen, Implikationen und Bezug zur Literatur.`:`Discussion: interpretations, implications, and relation to literature.`,
+            lim: lang==='pt'?`Limitações: escopo, viés, instrumentos e validade externa.`:
+                 lang==='es'?`Limitaciones: alcance, sesgo, instrumentos y validez externa.`:
+                 lang==='fr'?`Limites : périmètre, biais, instruments et validité externe.`:
+                 lang==='de'?`Grenzen: Umfang, Bias, Instrumente und externe Validität.`:`Limitations: scope, bias, instruments, and external validity.`,
+            fut: lang==='pt'?`Trabalhos futuros: replicações, extensões e aplicações práticas.`:
+                 lang==='es'?`Trabajos futuros: replicaciones, extensiones y aplicaciones prácticas.`:
+                 lang==='fr'?`Travaux futurs : réplications, extensions et applications pratiques.`:
+                 lang==='de'?`Zukünftige Arbeiten: Replikationen, Erweiterungen und praktische Anwendungen.`:`Future work: replications, extensions, and practical applications.`,
+            concl: lang==='pt'?`Conclusão: síntese dos achados, utilidade e próximos passos.`:
+                  lang==='es'?`Conclusión: síntesis de hallazgos, utilidad y próximos pasos.`:
+                  lang==='fr'?`Conclusion : synthèse des résultats, utilité et prochaines étapes.`:
+                  lang==='de'?`Fazit: Zusammenfassung der Ergebnisse, Nutzen und nächste Schritte.`:`Conclusion: synthesis of findings, utility, and next steps.`,
+            refsIntro: lang==='pt'?`Referências exemplificativas:`:lang==='es'?`Referencias de ejemplo:`:lang==='fr'?`Références d’exemple :`:lang==='de'?`Beispielhafte Referenzen:`:`Sample references:`
+        };
+
+        content += `<h2 id="sec-abs">${H.abs}</h2><p>${L.abs}</p>`;
+        content += `<h2 id="sec-intro">${H.intro}</h2><p>${L.intro}</p>`;
+        content += `<h2 id="sec-rq">${H.rq}</h2><p>${L.rq}</p>`;
+        content += `<h2 id="sec-lit">${H.lit}</h2><p>${L.lit} ${cite(refsData[0], stylePref)}.</p>`;
+        content += `<h2 id="sec-meth">${H.meth}</h2><p>${L.meth}</p><ul><li>${lang==='pt'?'Amostra definida e critérios explícitos':'Defined sample and explicit criteria'}</li><li>${lang==='pt'?'Instrumentos validados':'Validated instruments'}</li><li>${lang==='pt'?'Procedimentos replicáveis':'Replicable procedures'}</li></ul>`;
+        content += `<h2 id="sec-res">${H.res}</h2><p>${L.res}</p>`;
+        const levelAdd = level==='phd'?(lang==='pt'?` Ênfase em contribuição original e robustez analítica.`:lang==='es'?` Énfasis en contribución original y robustez analítica.`:lang==='fr'?` Accent sur la contribution originale et la robustesse analytique.`:lang==='de'?` Fokus auf Originalbeitrag und analytische Robustheit.`:` Emphasis on original contribution and analytical robustness.`): level==='masters'?(lang==='pt'?` Foco em replicabilidade e consistência metodológica.`:lang==='es'?` Enfoque en replicabilidad y consistencia metodológica.`:lang==='fr'?` Accent sur la reproductibilité et la cohérence méthodologique.`:lang==='de'?` Schwerpunkt auf Replizierbarkeit und methodischer Konsistenz.`:` Focus on replicability and methodological consistency.`):(lang==='pt'?` Consolidação de fundamentos e aplicação prática.`:lang==='es'?` Consolidación de fundamentos y aplicación práctica.`:lang==='fr'?` Consolidation des fondamentaux et application pratique.`:lang==='de'?` Konsolidierung von Grundlagen und praktischer Anwendung.`:` Consolidation of fundamentals and practical application.`);
+        content += `<h2 id="sec-disc">${H.disc}</h2><p>${L.disc} ${cite(refsData[1], stylePref)}. ${levelAdd}</p>`;
+        content += `<h2 id="sec-lim">${H.lim}</h2><p>${L.lim}</p>`;
+        content += `<h2 id="sec-fut">${H.fut}</h2><p>${L.fut}</p>`;
+        const usdMid = formatPrice('USD', convertFromBRL(BASE_PRICE_BRL, 'USD'));
+        const eurMid = formatPrice('EUR', convertFromBRL(BASE_PRICE_BRL, 'EUR'));
+        const gbpMid = formatPrice('GBP', convertFromBRL(BASE_PRICE_BRL, 'GBP'));
+        const localSymMid = USER_CURRENCY.symbol;
+        const localAmtMid = formatPrice(USER_CURRENCY.code, USER_CURRENCY.price);
+        const priceLineMid = lang==='pt'?`Assine por ${localSymMid}${localAmtMid}/mês (≈ R$ ${BASE_PRICE_BRL.toFixed(2)} | US$ ${usdMid} | € ${eurMid} | £ ${gbpMid})`:
+                              lang==='es'?`Suscríbete por ${localSymMid}${localAmtMid}/mes (≈ R$ ${BASE_PRICE_BRL.toFixed(2)} | US$ ${usdMid} | € ${eurMid} | £ ${gbpMid})`:
+                              lang==='fr'?`Abonnez‑vous pour ${localSymMid}${localAmtMid}/mois (≈ R$ ${BASE_PRICE_BRL.toFixed(2)} | $${usdMid} | € ${eurMid} | £ ${gbpMid})`:
+                              lang==='de'?`Abonnieren für ${localSymMid}${localAmtMid}/Monat (≈ R$ ${BASE_PRICE_BRL.toFixed(2)} | $${usdMid} | € ${eurMid} | £ ${gbpMid})`:`Subscribe for ${localSymMid}${localAmtMid}/month (≈ R$ ${BASE_PRICE_BRL.toFixed(2)} | $${usdMid} | € ${eurMid} | £ ${gbpMid})`;
+        const ctaHead = lang==='pt'?'Modo Acadêmico Ativo':'Academic Mode Enabled';
+        const ctaLink = lang==='pt'?'Assinar':'Subscribe';
+        content += `<div class="lux-cta"><h3>${ctaHead}</h3><p>${priceLineMid}</p><a href="#" onclick="redirectToStripe()">${ctaLink}</a></div>`;
+
+        content += `<h2 id="sec-concl">${H.concl}</h2><p>${L.concl}</p>`;
+        content += `<h2 id="sec-refs">${H.refs}</h2><p>${L.refsIntro}</p><ul>`;
+        for (const r of refsData) content += `<li>${fmtRef(r, stylePref, sourceType)}</li>`;
+        content += `</ul>`;
+
+        const expanders = lang==='pt'?[`Detalhe do método: controle, variáveis e validação.`,`Integração com literatura: convergências e divergências.`,`Aplicações práticas e impacto esperado.`]:
+                           lang==='es'?[`Detalle del método: control, variables y validación.`,`Integración con la literatura: convergencias y divergencias.`,`Aplicaciones prácticas e impacto esperado.`]:
+                           lang==='fr'?[`Détail de la méthode : contrôle, variables et validation.`,`Intégration à la littérature : convergences et divergences.`,`Applications pratiques et impact attendu.`]:
+                           lang==='de'?[`Methodendetails: Kontrolle, Variablen und Validierung.`,`Einbindung in die Literatur: Konvergenzen und Divergenzen.`,`Praktische Anwendungen und erwarteter Impact.`]:
+                           [`Method detail: control, variables, validation.`,`Integration with literature: convergences and divergences.`,`Practical applications and expected impact.`];
+        let i = 0;
+        while (count(content) < targetMin && i < 20) { content += `<p>${pick(expanders)}</p>`; i++; }
+
+        const finalCount = count(content);
+        return { title: title, content: content, wordCount: finalCount, language: language, style: style, createdAt: new Date().toISOString() };
+    }
+    if (language === 'en' && wordCount >= 2000) {
+        let title = `The D2 Method for predictable growth`;
+        const prevTitle = localStorage.getItem('LAST_ARTICLE_TITLE') || '';
+        if (prevTitle === title) title = `${title} ${num(10,99)}`;
+        let content = `${css}<section class="lux-article"><h1>${title}</h1>`;
+        const hook = `Most teams chase dozens of ideas and stall. D2 focuses on two moves: Diagnose precisely and Do fast, creating measurable progress in ${year}.`;
+        content += `<div class="lux-callout">${hook}</div>`;
+
+        content += `<h2>Introduction</h2>`;
+        content += `<p>${topic} looks simple until you try to scale it. The D2 Method reduces chaos by forcing two disciplined steps: understand the exact constraint, then act decisively within a short window. Instead of debating strategies, teams run observable experiments that produce evidence in days, not months. D2 is pragmatic: it works whether you manage a SaaS onboarding flow, an e‑commerce checkout, or a content growth funnel. By anchoring decisions to measurable signals, it prevents scatter, accelerates learning, and compounds small wins into durable growth.</p>`;
+
+        content += `<h2>Why It Matters for Growth</h2>`;
+        content += `<p>Growth stalls when teams treat every problem as equal or pursue too many initiatives at once. D2 clarifies priority by identifying the single bottleneck that governs outcomes, then concentrating execution on that point. This alignment increases signal‑to‑noise, reduces cycle time, and unlocks predictable momentum. In practice, one focused experiment can improve activation by ${num(7,15)}% or cut churn by ${num(4,12)}% because effort finally matches leverage. D2 also builds trust: executives see real evidence, operators feel agency, and stakeholders align around numbers rather than opinions. The result is a repeatable cadence: diagnose, decide, act, measure, adjust.</p>`;
+
+        const scenarios = ['SaaS onboarding','e‑commerce checkout','B2B lead generation','mobile retention','content funnel'];
+
+        content += `<h2>Diagnosis</h2>`;
+        content += `<p>Diagnosis isolates the constraint that most limits ${topic}. It replaces generic dashboards with focused queries: where does attention drop, which step delays action, what cohort deviates from the norm? The output is a precise hypothesis that can be tested quickly. For ${pick(scenarios)}, examine entry‑to‑value time, step‑level conversion, and user narratives. Good diagnosis narrows the scope until one lever stands out.</p>`;
+        content += `<ul><li>Map the journey in discrete steps</li><li>Quantify drop‑offs and latency</li><li>Identify one lever with outsized impact</li></ul>`;
+        content += `<p>Example: after mapping onboarding, the team saw a ${num(18,35)}% drop at email verification. A one‑step change (passkey + delayed verification) raised activation ${num(6,14)}% in two weeks.</p>`;
+
+        content += `<h2>Execution</h2>`;
+        content += `<p>Execution converts the hypothesis into a minimum viable experiment. The goal is speed without sloppiness: make one change that is easy to observe, safe to roll back, and attributable to the specific lever. D2 favors tight timeboxes (${num(7,14)} days) and unambiguous metrics so outcomes are clear.</p>`;
+        content += `<ul><li>Define a single success metric</li><li>Ship the smallest change that moves it</li><li>Instrument before and after</li></ul>`;
+        content += `<p>Example: simplifying checkout copy to reduce cognitive load improved completion by ${num(3,9)}% while decreasing support contacts by ${num(5,12)}%.</p>`;
+
+        content += `<h2>Feedback</h2>`;
+        content += `<p>Feedback closes the loop. Teams compare predicted and observed impact, capture qualitative reactions, and determine whether to persist, pivot, or revert. The emphasis is learning speed: each cycle should produce a confident decision. Feedback blends numbers with context to avoid false positives.</p>`;
+        content += `<ul><li>Review metric deltas with cohort cuts</li><li>Collect quick user notes</li><li>Decide: scale, iterate, or discard</li></ul>`;
+        content += `<p>Example: notifications increased re‑engagement by ${num(8,16)}%, but qualitative notes flagged fatigue; the team kept timing changes and dropped generic reminders.</p>`;
+
+        content += `<h2>Optimization</h2>`;
+        content += `<p>Optimization refines the winning change. Instead of adding new projects, D2 deepens performance on the same lever: copy, timing, placement, segment targeting, or friction removal. Small adjustments compound, turning a modest gain into a material shift.</p>`;
+        content += `<ul><li>Run A/B on the chosen lever</li><li>Target segments with tailored variants</li><li>Remove micro‑frictions that block action</li></ul>`;
+        content += `<p>Example: segment‑specific headlines raised trial‑to‑paid by ${num(5,11)}% on top of the initial uplift.</p>`;
+
+        content += `<h2>Modification</h2>`;
+        content += `<p>Modification adapts the approach when assumptions break. If a change helps one cohort but hurts another, D2 adjusts scope or shifts the lever. Modification preserves momentum by reacting to evidence rather than sunk cost.</p>`;
+        content += `<ul><li>Detect asymmetric effects across cohorts</li><li>Scope changes to high‑impact segments</li><li>Switch levers when ROI drops</li></ul>`;
+        content += `<p>Example: a new pricing card helped self‑serve but confused enterprise buyers; the team split experiences and recovered ${num(6,12)}% in qualified leads.</p>`;
+
+        content += `<h2>Metrics</h2>`;
+        content += `<p>Metrics define reality. D2 uses few, specific measures tied to user progress: time to value, step conversion, retention lag, and revenue‑linked behaviors. The dashboard shows the minimum needed to decide, not everything that can be tracked.</p>`;
+        content += `<ul><li>One north‑star metric per cycle</li><li>Two supporting diagnostics</li><li>Always include a guardrail</li></ul>`;
+        content += `<p>Example: for ${pick(scenarios)}, north‑star was activation; diagnostics were verification latency and first‑action depth; guardrail was support escalations.</p>`;
+
+        content += `<h2>Myths vs Truths</h2>`;
+        content += `<p>Myth: more projects mean more growth. Truth: focus increases leverage and shrinks time to evidence. Myth: plan everything first. Truth: reality teaches faster than documents when instrumentation is strong. Myth: copy the leader. Truth: context differs; borrow principles, not tactics. Myth: generic data is enough. Truth: specific, step‑level data prevents misreads and guides action.</p>`;
+
+        content += `<h2>Myths vs Truths — Expanded</h2>`;
+        content += `<p>“More is better” creates an illusion of progress while diluting attention. D2 caps concurrent work so every change is visible and attributable. Teams discover that one well‑chosen lever can move the whole system.</p>`;
+        content += `<p>“Plan everything first” delays learning. D2 replaces certainty theater with instrumented experiments that surface reality early. When evidence contradicts assumptions, the team modifies quickly and keeps momentum.</p>`;
+        content += `<p>“Copy leaders” ignores context. A tactic that works for a marketplace may fail for a SaaS onboarding with different user motivations. D2 copies decision principles—tight scopes, fast feedback, guardrails—not the exact playbook.</p>`;
+        content += `<p>“Generic data is enough” leads to vague stories. D2 demands step‑level numbers and user notes so decisions connect to real behavior. This granularity prevents false confidence and highlights the next practical move.</p>`;
+
+        content += `<h2>FAQ</h2>`;
+        content += `<p><strong>How long is a D2 cycle?</strong> ${num(7,14)} days. Long enough to collect clean data, short enough to maintain urgency. Each cycle ends with a decision: double‑down, iterate, or stop.</p>`;
+        content += `<p><strong>Does D2 work without big budgets?</strong> Yes. The method prioritizes minimum viable changes with clear measurement. Many wins come from copy, flow, or timing tweaks rather than heavy builds.</p>`;
+        content += `<p><strong>What if stakeholders disagree?</strong> Use instrumented experiments to settle debates. D2 reframes opinions as testable hypotheses and aligns the group around evidence.</p>`;
+        content += `<p><strong>Can I apply D2 in ${pick(scenarios)}?</strong> Yes. Start by diagnosing the constraint, ship one change, measure, then iterate. The pattern is universal because it targets leverage, not a specific channel.</p>`;
+        content += `<p><strong>How do we avoid harming users?</strong> Include guardrails: support load, complaint rate, or opt‑out signals. If a metric crosses a threshold, revert immediately.</p>`;
+        content += `<p><strong>What happens after a win?</strong> Optimize the same lever before starting a new project. Compounding on one area often yields bigger returns than starting from scratch elsewhere.</p>`;
+
+        content += `<h2>Conclusion</h2>`;
+        content += `<p>D2 turns growth from guesswork into a disciplined cadence. By diagnosing constraints and acting quickly on the highest‑leverage change, teams create measurable progress and learn faster than they plan. The effect is cultural as much as tactical: clarity replaces noise, momentum replaces delay, and small wins compound. Choose one lever, instrument it, and run a ${num(7,14)}‑day cycle. Evidence will show the next move—and growth follows.</p>`;
+        content += `</section>`;
+
+        const finalCount = count(content);
+        return { title: title, content: content, wordCount: finalCount, language: language, style: style, createdAt: new Date().toISOString() };
+    }
+            const T = {
+                pt: {
+                    titles: [
+                        `${num(5,9)} passos para dominar ${topic} em ${year}`,
+                        `Como multiplicar resultados com ${topic} em 30 dias`,
+                        `${num(5,9)} erros que travam ${topic} (e como evitar)`,
+                        `O Método ${topic.split(/\s+/).map(w => w[0].toUpperCase()).slice(0,4).join('.')} para crescer com previsibilidade`
+                    ],
+                    hooks: [
+                        `90% dos blogs sobre ${topic} repetem fórmulas mortas. Aqui, você aprende a aplicar ${topic} com impacto mensurável e sem desperdício.`,
+                        `Se ${topic} fosse simples, todos teriam resultados consistentes. Você verá como construir um método que não depende de sorte.`
+                    ],
+                    whyChanged: `Por Que ${topic} Mudou em ${year}`,
+                    ctx: `Em ${year}, ${topic} saiu do improviso e entrou no ciclo de medição. Marcas como ${pick(['Nubank','Magazine Luiza','iFood','Hotmart','QuintoAndar'])} aplicam frameworks com cadência e escalam aprendizados. Em 24h, você consegue implementar um piloto que elimina ruído e cria tração.`,
+                    methodLabel: a => `Método ${a}`,
+                    overview: `Visão geral: mapear, testar, provar, escalar. Você foca em alavancas com impacto real, valida com dados e executa sem travar em debates sem fim.`,
+                    connectors: ['Além disso,','Na prática,','Por outro lado,','Em contraste,','Dito isso,','Em resumo,','No dia a dia,'],
+                    pillars: ['Diagnóstico','Estratégia','Execução','Prova','Otimização','Distribuição','Métricas','Diferenciação','Experiência','Confiança','Escala','Sustentação','Iteração','Comunicação','Reposicionamento'],
+                    whyBase: `${topic} funciona quando você escolhe poucas alavancas com impacto desproporcional e ignora o resto.`,
+                    how: `Como aplicar: defina o objetivo, transforme em ação observável e execute em ciclos curtos com feedback.`,
+                    actions: ['Defina um indicador principal','Estabeleça um limite de tempo','Crie um experimento mínimo viável','Colete evidências específicas','Elimine um gargalo por vez','Documente a cadência semanal'],
+                    proof: i => `Exemplo: ${num(127,140)} de ${num(140,160)} testes com ${topic} validaram ${i}% de ganho em ${pick(['retenção','conversão','alcance'])}.`,
+                    sectionSummary: 'Resumo da Seção',
+                    summaryText: `Foque em uma hipótese, valide, aprenda e avance.`,
+                    priceLine: (sym, amt, usd, eur, gbp) => `Assine por ${sym}${amt}/mês (≈ R$ ${BASE_PRICE_BRL.toFixed(2)} | US$ ${usd} | € ${eur} | £ ${gbp})`,
+                    ctaHead: 'Pronto Para Aplicar?',
+                    ctaLink: 'Começar agora',
+                    blockquote: 'Escrever sem estrutura é como construir casa sem planta: paredes no lugar errado.',
+                    altCompareTitle: 'Comparação de Alternativas',
+                    altComparePara: `Compare métodos concorrentes pela capacidade de gerar evidência rápida e custo de execução.`,
+                    mythsTitle: 'Mitos vs. Verdades',
+                    myths: ['Mais é melhor','Planejar tudo antes','Copiar o líder funciona','Dados genéricos bastam'],
+                    no: 'Não.',
+                    faqTitle: 'FAQ',
+                    faq: [
+                        `<strong>Quanto tempo até resultado?</strong> Ciclos de 7 a 14 dias, com sinal claro já no primeiro.`,
+                        `<strong>Dá para aplicar em 24h?</strong> Sim: escolha uma alavanca e rode um teste mínimo.`
+                    ],
+                    micro: () => `Semana passada, um cliente disse: "${pick(['Nada funciona','É muita teoria','Não tenho tempo'])}". Respondi: "Escolha uma alavanca e execute em 7 dias". Ele aplicou e viu ${num(12,35)}% de ganho.`,
+                    bottomCtaLink: 'Implementar',
+                    conclusionTitle: 'Conclusão',
+                    conclusionText: `Você viu um método que coloca ${topic} em ciclo de prova. A escolha é sua: seguir no improviso ou aplicar estrutura. Benefício tangível: clareza, cadência e avanço.`,
+                    fillers: [
+                        'Em resumo: escolha uma alavanca e avance.',
+                        'Evite dispersão: foque no que muda o resultado.',
+                        'Valide com dados, não com opiniões.',
+                        'Ciclos curtos criam tração sustentável.',
+                        'Aprenda rápido, ajuste e repita.',
+                        'Mais clareza, menos ruído.',
+                        'Execute hoje; refine amanhã.',
+                        'Uma hipótese por vez.',
+                        'Reduza escopo; aumente velocidade.',
+                        'Cadência semanal > projetos infinitos.',
+                        'Evidência específica vence achismo.',
+                        'Impacto desproporcional vem de poucas alavancas.'
+                    ],
+                    fieldNote: 'Nota de Campo',
+                    bullets: ['Defina uma hipótese','Colete evidências específicas','Itere em ciclos curtos']
+                },
+                en: {
+                    titles: [
+                        `${num(5,9)} steps to master ${topic} in ${year}`,
+                        `How to multiply results with ${topic} in 30 days`,
+                        `${num(5,9)} mistakes that stall ${topic} (and how to avoid them)`,
+                        `The ${topic.split(/\s+/).map(w => w[0].toUpperCase()).slice(0,4).join('.')} Method for predictable growth`
+                    ],
+                    hooks: [
+                        `90% of blogs on ${topic} repeat dead formulas. Here, you’ll learn how to apply ${topic} with measurable impact and zero waste.`,
+                        `If ${topic} were simple, everyone would have consistent results. You’ll see how to build a method that doesn’t rely on luck.`
+                    ],
+                    whyChanged: `Why ${topic} Changed in ${year}`,
+                    ctx: `In ${year}, ${topic} moved from improvisation to measurable loops. Brands like ${pick(['Stripe','Shopify','Airbnb','Datadog','HubSpot'])} apply frameworks rhythmically and scale learnings. In 24h, you can launch a pilot that removes noise and creates traction.`,
+                    methodLabel: a => `${a} Method`,
+                    overview: `Overview: map, test, prove, scale. You focus on levers with real impact, validate with data, and execute without getting stuck in endless debate.`,
+                    connectors: ['Additionally,','In practice,','On the other hand,','By contrast,','That said,','In summary,','Day to day,'],
+                    pillars: ['Diagnosis','Strategy','Execution','Proof','Optimization','Distribution','Metrics','Differentiation','Experience','Trust','Scale','Sustainment','Iteration','Communication','Repositioning'],
+                    whyBase: `${topic} works when you select a few levers with outsized impact and ignore the rest.`,
+                    how: `How to apply: define the goal, turn it into observable action, and execute in short cycles with feedback.`,
+                    actions: ['Define one primary metric','Set a time boundary','Create a minimum viable experiment','Collect specific evidence','Remove one bottleneck at a time','Document weekly cadence'],
+                    proof: i => `Example: ${num(127,140)} of ${num(140,160)} tests with ${topic} validated ${i}% gain in ${pick(['retention','conversion','reach'])}.`,
+                    sectionSummary: 'Section Summary',
+                    summaryText: `Focus on one hypothesis, validate, learn, and move forward.`,
+                    priceLine: (sym, amt, usd, eur, gbp) => `Subscribe for ${sym}${amt}/month (≈ R$ ${BASE_PRICE_BRL.toFixed(2)} | $${usd} | € ${eur} | £ ${gbp})`,
+                    ctaHead: 'Ready To Apply?',
+                    ctaLink: 'Start now',
+                    blockquote: 'Writing without structure is like building a house without a plan: walls in the wrong place.',
+                    altCompareTitle: 'Alternative Comparison',
+                    altComparePara: `Compare competing methods by their ability to generate fast evidence and execution cost.`,
+                    mythsTitle: 'Myths vs. Truths',
+                    myths: ['More is better','Plan everything first','Copying leaders works','Generic data is enough'],
+                    no: 'No.',
+                    faqTitle: 'FAQ',
+                    faq: [
+                        `<strong>How fast to results?</strong> 7–14 day cycles, with signal in the first one.`,
+                        `<strong>Can I apply in 24h?</strong> Yes: pick one lever and run a minimum test.`
+                    ],
+                    micro: () => `Last week, a client said: "${pick(['Nothing works','Too much theory','No time'])}". I replied: "Pick one lever and execute in 7 days". They applied and saw a ${num(12,35)}% gain.`,
+                    bottomCtaLink: 'Implement',
+                    conclusionTitle: 'Conclusion',
+                    conclusionText: `You saw a method that puts ${topic} on a proof cycle. Your choice: stay in improvisation or apply structure. Tangible benefit: clarity, cadence, progress.`,
+                    fillers: [
+                        'In summary: pick one lever and move.',
+                        'Avoid scatter: focus on what changes outcomes.',
+                        'Validate with data, not opinions.',
+                        'Short cycles create sustainable traction.',
+                        'Learn fast, adjust, and repeat.',
+                        'More clarity, less noise.',
+                        'Execute today; refine tomorrow.',
+                        'One hypothesis at a time.',
+                        'Reduce scope; increase speed.',
+                        'Weekly cadence > endless projects.',
+                        'Specific evidence beats guesswork.',
+                        'Outsized impact comes from few levers.'
+                    ],
+                    fieldNote: 'Field Note',
+                    bullets: ['Define a hypothesis','Collect specific evidence','Iterate in short cycles']
+                },
+                es: {
+                    titles: [
+                        `${num(5,9)} pasos para dominar ${topic} en ${year}`,
+                        `Cómo multiplicar resultados con ${topic} en 30 días`,
+                        `${num(5,9)} errores que frenan ${topic} (y cómo evitarlos)`,
+                        `El Método ${topic.split(/\s+/).map(w => w[0].toUpperCase()).slice(0,4).join('.')} para crecer con previsibilidad`
+                    ],
+                    hooks: [
+                        `El 90% de los blogs sobre ${topic} repiten fórmulas muertas. Aquí aprenderás a aplicar ${topic} con impacto medible y sin desperdicio.`,
+                        `Si ${topic} fuera simple, todos tendrían resultados consistentes. Verás cómo construir un método que no depende de la suerte.`
+                    ],
+                    whyChanged: `Por qué ${topic} cambió en ${year}`,
+                    ctx: `En ${year}, ${topic} salió del improviso y entró en ciclos medibles. Marcas como ${pick(['Stripe','Shopify','Airbnb','Datadog','HubSpot'])} aplican frameworks con cadencia y escalan aprendizajes. En 24h puedes lanzar un piloto que elimina ruido y crea tracción.`,
+                    methodLabel: a => `Método ${a}`,
+                    overview: `Visión general: mapear, probar, demostrar, escalar. Te enfocas en palancas con impacto real, validas con datos y ejecutas sin debates interminables.`,
+                    connectors: ['Además,','En la práctica,','Por otro lado,','En contraste,','Dicho esto,','En resumen,','En el día a día,'],
+                    pillars: ['Diagnóstico','Estrategia','Ejecución','Prueba','Optimización','Distribución','Métricas','Diferenciación','Experiencia','Confianza','Escala','Sostenimiento','Iteración','Comunicación','Reposicionamiento'],
+                    whyBase: `${topic} funciona cuando eliges pocas palancas con impacto desproporcionado y ignoras el resto.`,
+                    how: `Cómo aplicar: define el objetivo, conviértelo en acción observable y ejecuta en ciclos cortos con feedback.`,
+                    actions: ['Define un indicador principal','Establece un límite de tiempo','Crea un experimento mínimo viable','Recoge evidencia específica','Elimina un cuello de botella a la vez','Documenta la cadencia semanal'],
+                    proof: i => `Ejemplo: ${num(127,140)} de ${num(140,160)} tests con ${topic} validaron ${i}% de mejora en ${pick(['retención','conversión','alcance'])}.`,
+                    sectionSummary: 'Resumen de la sección',
+                    summaryText: `Enfócate en una hipótesis, valida, aprende y avanza.`,
+                    priceLine: (sym, amt, usd, eur, gbp) => `Suscríbete por ${sym}${amt}/mes (≈ R$ ${BASE_PRICE_BRL.toFixed(2)} | US$ ${usd} | € ${eur} | £ ${gbp})`,
+                    ctaHead: '¿Listo para aplicar?',
+                    ctaLink: 'Empezar ahora',
+                    blockquote: 'Escribir sin estructura es como construir una casa sin plano: paredes en el lugar equivocado.',
+                    altCompareTitle: 'Comparación de alternativas',
+                    altComparePara: `Compara métodos competidores por su capacidad de generar evidencia rápida y costo de ejecución.`,
+                    mythsTitle: 'Mitos vs. Verdades',
+                    myths: ['Más es mejor','Planear todo antes','Copiar al líder funciona','Los datos genéricos bastan'],
+                    no: 'No.',
+                    faqTitle: 'FAQ',
+                    faq: [
+                        `<strong>¿Qué tan rápido hay resultados?</strong> Ciclos de 7–14 días, con señal clara desde el primero.`,
+                        `<strong>¿Se puede aplicar en 24h?</strong> Sí: elige una palanca y ejecuta un test mínimo.`
+                    ],
+                    micro: () => `La semana pasada, un cliente dijo: "${pick(['Nada funciona','Demasiada teoría','No tengo tiempo'])}". Respondí: "Elige una palanca y ejecuta en 7 días". Aplicó y vio ${num(12,35)}% de mejora.`,
+                    bottomCtaLink: 'Implementar',
+                    conclusionTitle: 'Conclusión',
+                    conclusionText: `Has visto un método que pone ${topic} en ciclo de prueba. Tu elección: seguir improvisando o aplicar estructura. Beneficio tangible: claridad, cadencia y avance.`,
+                    fillers: [
+                        'En resumen: elige una palanca y avanza.',
+                        'Evita la dispersión: enfócate en lo que cambia resultados.',
+                        'Valida con datos, no con opiniones.',
+                        'Los ciclos cortos crean tracción sostenible.',
+                        'Aprende rápido, ajusta y repite.',
+                        'Más claridad, menos ruido.',
+                        'Ejecuta hoy; refina mañana.',
+                        'Una hipótesis a la vez.',
+                        'Reduce alcance; aumenta velocidad.',
+                        'Cadencia semanal > proyectos infinitos.',
+                        'La evidencia específica vence el adivinamiento.',
+                        'El impacto desproporcionado viene de pocas palancas.'
+                    ],
+                    fieldNote: 'Nota de campo',
+                    bullets: ['Define una hipótesis','Recoge evidencia específica','Itera en ciclos cortos']
+                },
+                fr: {
+                    titles: [
+                        `${num(5,9)} étapes pour maîtriser ${topic} en ${year}`,
+                        `Comment multiplier les résultats avec ${topic} en 30 jours`,
+                        `${num(5,9)} erreurs qui bloquent ${topic} (et comment les éviter)`,
+                        `La Méthode ${topic.split(/\s+/).map(w => w[0].toUpperCase()).slice(0,4).join('.')} pour une croissance prévisible`
+                    ],
+                    hooks: [
+                        `90% des articles sur ${topic} répètent des recettes mortes. Ici, vous apprendrez à appliquer ${topic} avec un impact mesurable et sans gaspillage.`,
+                        `Si ${topic} était simple, tout le monde aurait des résultats constants. Vous verrez comment construire une méthode qui ne dépend pas de la chance.`
+                    ],
+                    whyChanged: `Pourquoi ${topic} a changé en ${year}`,
+                    ctx: `En ${year}, ${topic} est passé de l’improvisation à des boucles mesurables. Des marques comme ${pick(['Stripe','Shopify','Airbnb','Datadog','HubSpot'])} appliquent des frameworks avec cadence et multiplient les apprentissages. En 24h, vous pouvez lancer un pilote qui supprime le bruit et crée de la traction.`,
+                    methodLabel: a => `Méthode ${a}`,
+                    overview: `Vue d’ensemble: cartographier, tester, prouver, scaler. Vous vous concentrez sur des leviers à fort impact, validez avec des données et exécutez sans débats sans fin.`,
+                    connectors: ['De plus,','En pratique,','À l’inverse,','Par contraste,','Cela dit,','En résumé,','Au quotidien,'],
+                    pillars: ['Diagnostic','Stratégie','Exécution','Preuve','Optimisation','Distribution','Métriques','Différenciation','Expérience','Confiance','Échelle','Soutien','Itération','Communication','Repositionnement'],
+                    whyBase: `${topic} fonctionne quand vous sélectionnez peu de leviers à l’impact disproportionné et ignorez le reste.`,
+                    how: `Comment appliquer: définir l’objectif, le transformer en action observable et exécuter en cycles courts avec feedback.`,
+                    actions: ['Définir un indicateur principal','Fixer une limite de temps','Créer une expérience minimale viable','Recueillir des preuves spécifiques','Supprimer un goulot d’étranglement à la fois','Documenter la cadence hebdomadaire'],
+                    proof: i => `Exemple: ${num(127,140)} de ${num(140,160)} tests avec ${topic} ont validé ${i}% de gain en ${pick(['rétention','conversion','portée'])}.`,
+                    sectionSummary: 'Résumé de la section',
+                    summaryText: `Se concentrer sur une hypothèse, valider, apprendre et avancer.`,
+                    priceLine: (sym, amt, usd, eur, gbp) => `Abonnez-vous pour ${sym}${amt}/mois (≈ R$ ${BASE_PRICE_BRL.toFixed(2)} | $${usd} | € ${eur} | £ ${gbp})`,
+                    ctaHead: 'Prêt à appliquer ?',
+                    ctaLink: 'Commencer maintenant',
+                    blockquote: 'Écrire sans structure, c’est construire une maison sans plan: des murs au mauvais endroit.',
+                    altCompareTitle: 'Comparaison des alternatives',
+                    altComparePara: `Comparez les méthodes concurrentes par leur capacité à générer rapidement des preuves et par leur coût d’exécution.`,
+                    mythsTitle: 'Mythes vs Vérités',
+                    myths: ['Plus c’est mieux','Tout planifier avant','Copier les leaders fonctionne','Les données génériques suffisent'],
+                    no: 'Non.',
+                    faqTitle: 'FAQ',
+                    faq: [
+                        `<strong>À quelle vitesse les résultats ?</strong> Des cycles de 7–14 jours, avec un signal dès le premier.`,
+                        `<strong>Peut-on appliquer en 24h ?</strong> Oui: choisissez un levier et lancez un test minimal.`
+                    ],
+                    micro: () => `La semaine dernière, un client a dit: "${pick(['Rien ne marche','Trop de théorie','Pas de temps'])}". J’ai répondu: "Choisissez un levier et exécutez en 7 jours". Il a appliqué et a vu ${num(12,35)}% de gain.`,
+                    bottomCtaLink: 'Implémenter',
+                    conclusionTitle: 'Conclusion',
+                    conclusionText: `Vous avez vu une méthode qui place ${topic} dans un cycle de preuve. À vous de choisir: improviser ou appliquer une structure. Bénéfice tangible: clarté, cadence, progrès.`,
+                    fillers: [
+                        'En résumé: choisissez un levier et avancez.',
+                        'Évitez la dispersion: concentrez-vous sur ce qui change les résultats.',
+                        'Validez avec des données, pas des opinions.',
+                        'Des cycles courts créent une traction durable.',
+                        'Apprenez vite, ajustez et répétez.',
+                        'Plus de clarté, moins de bruit.',
+                        'Exécutez aujourd’hui; affinez demain.',
+                        'Une hypothèse à la fois.',
+                        'Réduisez le périmètre; augmentez la vitesse.',
+                        'Cadence hebdomadaire > projets sans fin.',
+                        'Des preuves spécifiques battent les suppositions.',
+                        'Un impact disproportionné vient de quelques leviers.'
+                    ],
+                    fieldNote: 'Note de terrain',
+                    bullets: ['Définir une hypothèse','Recueillir des preuves spécifiques','Itérer en cycles courts']
+                },
+                de: {
+                    titles: [
+                        `${num(5,9)} Schritte, um ${topic} in ${year} zu meistern`,
+                        `So vervielfachen Sie Ergebnisse mit ${topic} in 30 Tagen`,
+                        `${num(5,9)} Fehler, die ${topic} ausbremsen (und wie man sie vermeidet)`,
+                        `Die ${topic.split(/\s+/).map(w => w[0].toUpperCase()).slice(0,4).join('.')}‑Methode für planbares Wachstum`
+                    ],
+                    hooks: [
+                        `90% der Beiträge zu ${topic} wiederholen tote Formeln. Hier lernen Sie, ${topic} mit messbarem Impact und ohne Verschwendung anzuwenden.`,
+                        `Wäre ${topic} einfach, hätten alle konsistente Ergebnisse. Sie sehen, wie man eine Methode baut, die nicht vom Zufall abhängt.`
+                    ],
+                    whyChanged: `Warum ${topic} sich in ${year} verändert hat`,
+                    ctx: `Im Jahr ${year} wechselte ${topic} vom Improvisieren zu messbaren Schleifen. Marken wie ${pick(['Stripe','Shopify','Airbnb','Datadog','HubSpot'])} arbeiten mit klarer Kadenz und skalieren Lernen. In 24h können Sie einen Piloten starten, der Rauschen entfernt und Traktion schafft.`,
+                    methodLabel: a => `${a}‑Methode`,
+                    overview: `Überblick: kartieren, testen, beweisen, skalieren. Fokus auf Hebel mit echtem Impact, validiert mit Daten, ausgeführt ohne endlose Debatten.`,
+                    connectors: ['Außerdem,','In der Praxis,','Auf der anderen Seite,','Im Gegensatz dazu,','Das gesagt,','Zusammengefasst,','Im Alltag,'],
+                    pillars: ['Diagnose','Strategie','Ausführung','Beweis','Optimierung','Distribution','Metriken','Differenzierung','Erfahrung','Vertrauen','Skalierung','Nachhaltigkeit','Iteration','Kommunikation','Neupositionierung'],
+                    whyBase: `${topic} funktioniert, wenn wenige Hebel mit überproportionalem Impact gewählt und der Rest ignoriert wird.`,
+                    how: `Wie anwenden: Ziel definieren, in beobachtbare Aktion übersetzen und in kurzen Zyklen mit Feedback ausführen.`,
+                    actions: ['Einen Primär‑Metrik festlegen','Zeitgrenze setzen','Minimales Experiment bauen','Spezifische Evidenz sammeln','Je einen Engpass entfernen','Wöchentliche Kadenz dokumentieren'],
+                    proof: i => `Beispiel: ${num(127,140)} von ${num(140,160)} Tests mit ${topic} bestätigten ${i}% Gewinn bei ${pick(['Bindung','Konversion','Reichweite'])}.`,
+                    sectionSummary: 'Abschnittszusammenfassung',
+                    summaryText: `Auf eine Hypothese fokussieren, validieren, lernen und weitermachen.`,
+                    priceLine: (sym, amt, usd, eur, gbp) => `Abonnieren für ${sym}${amt}/Monat (≈ R$ ${BASE_PRICE_BRL.toFixed(2)} | $${usd} | € ${eur} | £ ${gbp})`,
+                    ctaHead: 'Bereit zur Anwendung?',
+                    ctaLink: 'Jetzt starten',
+                    blockquote: 'Ohne Struktur zu schreiben ist wie ein Haus ohne Plan: Wände am falschen Ort.',
+                    altCompareTitle: 'Alternativenvergleich',
+                    altComparePara: `Vergleichen Sie konkurrierende Methoden nach schneller Evidenz und Ausführungskosten.`,
+                    mythsTitle: 'Mythen vs Wahrheiten',
+                    myths: ['Mehr ist besser','Alles zuerst planen','Führer kopieren funktioniert','Generische Daten genügen'],
+                    no: 'Nein.',
+                    faqTitle: 'FAQ',
+                    faq: [
+                        `<strong>Wie schnell zu Ergebnissen?</strong> Zyklen von 7–14 Tagen, mit Signal bereits im ersten.`,
+                        `<strong>Kann ich es in 24h anwenden?</strong> Ja: einen Hebel wählen und ein minimales Experiment ausführen.`
+                    ],
+                    micro: () => `Letzte Woche sagte ein Kunde: "${pick(['Nichts funktioniert','Zu viel Theorie','Keine Zeit'])}". Ich antwortete: "Wählen Sie einen Hebel und führen Sie ihn in 7 Tagen aus". Er setzte es um und sah ${num(12,35)}% Zuwachs.`,
+                    bottomCtaLink: 'Implementieren',
+                    conclusionTitle: 'Fazit',
+                    conclusionText: `Sie haben eine Methode gesehen, die ${topic} in einen Beweis‑Zyklus bringt. Ihre Wahl: improvisieren oder Struktur anwenden. Greifbarer Nutzen: Klarheit, Kadenz, Fortschritt.`,
+                    fillers: [
+                        'Kurz gesagt: einen Hebel wählen und voran gehen.',
+                        'Zerstreuung vermeiden: auf Outcome‑Hebel fokussieren.',
+                        'Mit Daten validieren, nicht mit Meinungen.',
+                        'Kurze Zyklen schaffen nachhaltige Traktion.',
+                        'Schnell lernen, anpassen, wiederholen.',
+                        'Mehr Klarheit, weniger Rauschen.',
+                        'Heute ausführen; morgen verfeinern.',
+                        'Eine Hypothese nach der anderen.',
+                        'Umfang reduzieren; Geschwindigkeit erhöhen.',
+                        'Wöchentliche Kadenz > endlose Projekte.',
+                        'Spezifische Evidenz schlägt Mutmaßungen.',
+                        'Überproportionaler Impact kommt von wenigen Hebeln.'
+                    ],
+                    fieldNote: 'Feldnotiz',
+                    bullets: ['Eine Hypothese definieren','Spezifische Evidenz sammeln','In kurzen Zyklen iterieren']
+                }
+            };
+            let title = pick(T[lang].titles);
             const prevTitle = localStorage.getItem('LAST_ARTICLE_TITLE') || '';
             if (prevTitle === title) title = `${title} ${num(10,99)}`;
             let content = `${css}<section class="lux-article"><h1>${title}</h1>`;
-            const hookPT = [
-                `90% dos blogs sobre ${topic} repetem fórmulas mortas. Aqui, você aprende a aplicar ${topic} com impacto mensurável e sem desperdício.`,
-                `Se ${topic} fosse simples, todos teriam resultados consistentes. Você verá como construir um método que não depende de sorte.`
-            ];
-            const hookEN = [
-                `90% of blogs on ${topic} repeat dead formulas. Here, you’ll learn how to apply ${topic} with measurable impact and zero waste.`,
-                `If ${topic} were simple, everyone would have consistent results. You’ll see how to build a method that doesn’t rely on luck.`
-            ];
-            const hook = isPT ? pick(hookPT) : pick(hookEN);
+            const hook = pick(T[lang].hooks);
             content += `<div class="lux-callout">${hook}</div>`;
-            content += `<h2>${isPT ? `Por Que ${topic} Mudou em ${year}` : `Why ${topic} Changed in ${year}`}</h2>`;
-            const brands = isPT ? ['Nubank','Magazine Luiza','iFood','Hotmart','QuintoAndar'] : ['Stripe','Shopify','Airbnb','Datadog','HubSpot'];
-            const ctxPT = `Em ${year}, ${topic} saiu do improviso e entrou no ciclo de medição. Marcas como ${pick(brands)} aplicam frameworks com cadência e escalam aprendizados. Em 24h, você consegue implementar um piloto que elimina ruído e cria tração.`;
-            const ctxEN = `In ${year}, ${topic} moved from improvisation to measurable loops. Brands like ${pick(brands)} apply frameworks rhythmically and scale learnings. In 24h, you can launch a pilot that removes noise and creates traction.`;
-            content += `<p>${isPT ? ctxPT : ctxEN}</p>`;
+            content += `<h2>${T[lang].whyChanged}</h2>`;
+            content += `<p>${T[lang].ctx}</p>`;
             const acro = topic.split(/\s+/).map(w => w[0].toUpperCase()).filter(Boolean).slice(0,4).join('.');
-            const methodLabel = isPT ? `Método ${acro}` : `${acro} Method`;
-            content += `<h2>${isPT ? `O Método ${methodLabel}` : `The ${methodLabel}`}</h2>`;
-            const overviewPT = `Visão geral: mapear, testar, provar, escalar. Você foca em alavancas com impacto real, valida com dados e executa sem travar em debates sem fim.`;
-            const overviewEN = `Overview: map, test, prove, scale. You focus on levers with real impact, validate with data, and execute without getting stuck in endless debate.`;
-            content += `<p>${isPT ? overviewPT : overviewEN}</p>`;
-            const connectorsPT = ['Além disso,','Na prática,','Por outro lado,','Em contraste,','Dito isso,','Em resumo,','No dia a dia,'];
-            const connectorsEN = ['Additionally,','In practice,','On the other hand,','By contrast,','That said,','In summary,','Day to day,'];
-            const trans = () => (isPT ? connectorsPT : connectorsEN)[Math.floor(Math.random()* (isPT ? connectorsPT.length : connectorsEN.length))];
-            const pillarsPT = ['Diagnóstico','Estratégia','Execução','Prova','Otimização','Distribuição','Métricas','Diferenciação','Experiência','Confiança','Escala','Sustentação','Iteração','Comunicação','Reposicionamento'];
-            const pillarsEN = ['Diagnosis','Strategy','Execution','Proof','Optimization','Distribution','Metrics','Differentiation','Experience','Trust','Scale','Sustainment','Iteration','Communication','Repositioning'];
+            const methodLabel = T[lang].methodLabel(acro);
+            content += `<h2>${lang==='pt' ? `O ${methodLabel}` : (lang==='es' ? `El ${methodLabel}` : (lang==='fr' ? `La ${methodLabel}` : (lang==='de' ? `${methodLabel}` : `The ${methodLabel}`)))}</h2>`;
+            content += `<p>${T[lang].overview}</p>`;
+            const connectors = T[lang].connectors;
+            const trans = () => connectors[Math.floor(Math.random()* connectors.length)];
+            const pillars = T[lang].pillars;
             const sectionsCount = wordCount <= 600 ? 3 : (wordCount <= 1200 ? 5 : (wordCount <= 2200 ? 7 : (wordCount <= 3200 ? 10 : 15)));
             const usedH = new Set();
-            const actionsPT = ['Defina um indicador principal','Estabeleça um limite de tempo','Crie um experimento mínimo viável','Colete evidências específicas','Elimine um gargalo por vez','Documente a cadência semanal'];
-            const actionsEN = ['Define one primary metric','Set a time boundary','Create a minimum viable experiment','Collect specific evidence','Remove one bottleneck at a time','Document weekly cadence'];
-            const proofPT = i => `Exemplo: ${num(127,140)} de ${num(140,160)} testes com ${topic} validaram ${i}% de ganho em ${pick(['retenção','conversão','alcance'])}.`;
-            const proofEN = i => `Example: ${num(127,140)} of ${num(140,160)} tests with ${topic} validated ${i}% gain in ${pick(['retention','conversion','reach'])}.`;
+            const actions = T[lang].actions;
+            const proof = T[lang].proof;
             for (let i = 0; i < sectionsCount; i++) {
-                const name = (isPT ? pillarsPT : pillarsEN)[i % (isPT ? pillarsPT.length : pillarsEN.length)];
+                const name = pillars[i % pillars.length];
                 const h = `${i+1}. ${name}`;
                 const guarded = usedH.has(h) ? `${i+1}. ${name} ${year}` : h;
                 usedH.add(guarded);
                 content += `<h2>${guarded}</h2>`;
-                const whyPT = `${trans()} ${topic} funciona quando você escolhe poucas alavancas com impacto desproporcional e ignora o resto.`;
-                const whyEN = `${trans()} ${topic} works when you select a few levers with outsized impact and ignore the rest.`;
-                content += `<p>${isPT ? whyPT : whyEN}</p>`;
-                const howPT = `Como aplicar: defina o objetivo, transforme em ação observável e execute em ciclos curtos com feedback.`;
-                const howEN = `How to apply: define the goal, turn it into observable action, and execute in short cycles with feedback.`;
-                content += `<p>${isPT ? howPT : howEN}</p>`;
+                content += `<p>${trans()} ${T[lang].whyBase}</p>`;
+                content += `<p>${T[lang].how}</p>`;
                 const pct = num(8,35);
-                content += `<p>${isPT ? proofPT(pct) : proofEN(pct)}</p>`;
-                const acts = isPT ? actionsPT : actionsEN;
+                content += `<p>${proof(pct)}</p>`;
+                const acts = actions;
                 const pickN = num(3,5);
                 const set = new Set();
                 while (set.size < pickN) set.add(pick(acts));
                 content += `<ul>${Array.from(set).map(a => `<li>${a}</li>`).join('')}</ul>`;
                 if (wordCount >= 3000) {
-                    content += `<h3>${isPT ? 'Resumo da Seção' : 'Section Summary'}</h3>`;
-                    content += `<p>${isPT ? `Foque em uma hipótese, valide, aprenda e avance.` : `Focus on one hypothesis, validate, learn, and move forward.`}</p>`;
+                    content += `<h3>${T[lang].sectionSummary}</h3>`;
+                    content += `<p>${T[lang].summaryText}</p>`;
                 }
                 if (i === Math.ceil(sectionsCount/2)-1) {
-                    const usdMid = formatPrice('USD', convertFromBRL(BASE_PRICE_BRL, 'USD'));
-                    const eurMid = formatPrice('EUR', convertFromBRL(BASE_PRICE_BRL, 'EUR'));
-                    const gbpMid = formatPrice('GBP', convertFromBRL(BASE_PRICE_BRL, 'GBP'));
-                    const priceLineMid = isPT ? `Assine por R$${BASE_PRICE_BRL.toFixed(2)}/mês (≈ US$ ${usdMid} | € ${eurMid} | £ ${gbpMid})` : `Subscribe for R$${BASE_PRICE_BRL.toFixed(2)}/month (≈ $${usdMid} | € ${eurMid} | £ ${gbpMid})`;
-                    content += `<div class="lux-cta"><h3>${isPT ? 'Pronto Para Aplicar?' : 'Ready To Apply?'}</h3><p>${priceLineMid}</p><a href="#">${isPT ? 'Começar agora' : 'Start now'}</a></div>`;
+            const usdMid = formatPrice('USD', convertFromBRL(BASE_PRICE_BRL, 'USD'));
+            const eurMid = formatPrice('EUR', convertFromBRL(BASE_PRICE_BRL, 'EUR'));
+            const gbpMid = formatPrice('GBP', convertFromBRL(BASE_PRICE_BRL, 'GBP'));
+            const localSymMid = USER_CURRENCY.symbol;
+            const localAmtMid = formatPrice(USER_CURRENCY.code, USER_CURRENCY.price);
+            const priceLineMid = T[lang].priceLine(localSymMid, localAmtMid, usdMid, eurMid, gbpMid);
+                    content += `<div class="lux-cta"><h3>${T[lang].ctaHead}</h3><p>${priceLineMid}</p><a href="#">${T[lang].ctaLink}</a></div>`;
                 }
             }
-            content += `<blockquote>${isPT ? 'Escrever sem estrutura é como construir casa sem planta: paredes no lugar errado.' : 'Writing without structure is like building a house without a plan: walls in the wrong place.'}</blockquote>`;
+            content += `<blockquote>${T[lang].blockquote}</blockquote>`;
             if (wordCount >= 2000) {
-                content += `<h2>${isPT ? 'Comparação de Alternativas' : 'Alternative Comparison'}</h2>`;
-                content += `<p>${isPT ? `Compare métodos concorrentes pela capacidade de gerar evidência rápida e custo de execução.` : `Compare competing methods by their ability to generate fast evidence and execution cost.`}</p>`;
-                content += `<h2>${isPT ? 'Mitos vs. Verdades' : 'Myths vs. Truths'}</h2>`;
-                content += `<ul>${(isPT ? ['Mais é melhor','Planejar tudo antes','Copiar o líder funciona','Dados genéricos bastam'] : ['More is better','Plan everything first','Copying leaders works','Generic data is enough']).map(m => `<li><strong>${m}</strong> ${isPT ? 'Não.' : 'No.'}</li>`).join('')}</ul>`;
-                content += `<h2>FAQ</h2>`;
-                content += `<p><strong>${isPT ? 'Quanto tempo até resultado?' : 'How fast to results?'}</strong> ${isPT ? 'Ciclos de 7 a 14 dias, com sinal claro já no primeiro.' : '7–14 day cycles, with signal in the first one.'}</p>`;
-                content += `<p><strong>${isPT ? 'Dá para aplicar em 24h?' : 'Can I apply in 24h?'}</strong> ${isPT ? 'Sim: escolha uma alavanca e rode um teste mínimo.' : 'Yes: pick one lever and run a minimum test.'}</p>`;
+                content += `<h2>${T[lang].altCompareTitle}</h2>`;
+                content += `<p>${T[lang].altComparePara}</p>`;
+                content += `<h2>${T[lang].mythsTitle}</h2>`;
+                content += `<ul>${T[lang].myths.map(m => `<li><strong>${m}</strong> ${T[lang].no}</li>`).join('')}</ul>`;
+                content += `<h2>${T[lang].faqTitle}</h2>`;
+                for (const qa of T[lang].faq) { content += `<p>${qa}</p>`; }
             }
-            const microPT = `Semana passada, um cliente disse: "${pick(['Nada funciona','É muita teoria','Não tenho tempo'])}". Respondi: "Escolha uma alavanca e execute em 7 dias". Ele aplicou e viu ${num(12,35)}% de ganho.`;
-            const microEN = `Last week, a client said: "${pick(['Nothing works','Too much theory','No time'])}". I replied: "Pick one lever and execute in 7 days". They applied and saw a ${num(12,35)}% gain.`;
-            content += `<p>${isPT ? microPT : microEN}</p>`;
+            content += `<p>${T[lang].micro()}</p>`;
             const usdBot = formatPrice('USD', convertFromBRL(BASE_PRICE_BRL, 'USD'));
             const eurBot = formatPrice('EUR', convertFromBRL(BASE_PRICE_BRL, 'EUR'));
             const gbpBot = formatPrice('GBP', convertFromBRL(BASE_PRICE_BRL, 'GBP'));
-            const priceLineBot = isPT ? `Assine por R$${BASE_PRICE_BRL.toFixed(2)}/mês (≈ US$ ${usdBot} | € ${eurBot} | £ ${gbpBot})` : `Subscribe for R$${BASE_PRICE_BRL.toFixed(2)}/month (≈ $${usdBot} | € ${eurBot} | £ ${gbpBot})`;
-            content += `<div class="lux-cta"><h3>${isPT ? 'Pronto Para Aplicar?' : 'Ready To Apply?'}</h3><p>${priceLineBot}</p><a href="#">${isPT ? 'Implementar' : 'Implement'}</a></div>`;
-            content += `<h2>${isPT ? 'Conclusão' : 'Conclusion'}</h2>`;
-            const endPT = `Você viu um método que coloca ${topic} em ciclo de prova. A escolha é sua: seguir no improviso ou aplicar estrutura. Benefício tangível: clareza, cadência e avanço.`;
-            const endEN = `You saw a method that puts ${topic} on a proof cycle. Your choice: stay in improvisation or apply structure. Tangible benefit: clarity, cadence, progress.`;
-            content += `<p>${isPT ? endPT : endEN}</p>`;
+            const localSymBot = USER_CURRENCY.symbol;
+            const localAmtBot = formatPrice(USER_CURRENCY.code, USER_CURRENCY.price);
+            const priceLineBot = T[lang].priceLine(localSymBot, localAmtBot, usdBot, eurBot, gbpBot);
+                content += `<div class="lux-cta"><h3>${T[lang].ctaHead}</h3><p>${priceLineBot}</p><a href="#">${T[lang].bottomCtaLink}</a></div>`;
+            content += `<h2>${T[lang].conclusionTitle}</h2>`;
+            const concl = academic ? (lang==='pt' ? `Para trabalhos acadêmicos, estruture ${topic} com problema de pesquisa, revisão de literatura, método, resultados e discussão, concluindo com limitações e próximos passos.` : lang==='es' ? `Para trabajos académicos, estructura ${topic} con problema de investigación, revisión de literatura, método, resultados y discusión, cerrando con limitaciones y próximos pasos.` : lang==='fr' ? `Pour les travaux académiques, structurez ${topic} avec problématique, revue de littérature, méthode, résultats et discussion, en terminant par limites et prochaines étapes.` : lang==='de' ? `Für akademische Arbeiten strukturieren Sie ${topic} mit Forschungsfrage, Literaturüberblick, Methode, Ergebnissen und Diskussion und schließen mit Grenzen und nächsten Schritten.` : `For academic work, structure ${topic} with research problem, literature review, method, results and discussion, closing with limitations and next steps.`) : T[lang].conclusionText;
+            content += `<p>${concl}</p>`;
             content += `</section>`;
-            const fillersPT = [
-                'Em resumo: escolha uma alavanca e avance.',
-                'Evite dispersão: foque no que muda o resultado.',
-                'Valide com dados, não com opiniões.',
-                'Ciclos curtos criam tração sustentável.',
-                'Aprenda rápido, ajuste e repita.',
-                'Mais clareza, menos ruído.',
-                'Execute hoje; refine amanhã.',
-                'Uma hipótese por vez.',
-                'Reduza escopo; aumente velocidade.',
-                'Cadência semanal > projetos infinitos.',
-                'Evidência específica vence achismo.',
-                'Impacto desproporcional vem de poucas alavancas.'
-            ];
-            const fillersEN = [
-                'In summary: pick one lever and move.',
-                'Avoid scatter: focus on what changes outcomes.',
-                'Validate with data, not opinions.',
-                'Short cycles create sustainable traction.',
-                'Learn fast, adjust, and repeat.',
-                'More clarity, less noise.',
-                'Execute today; refine tomorrow.',
-                'One hypothesis at a time.',
-                'Reduce scope; increase speed.',
-                'Weekly cadence > endless projects.',
-                'Specific evidence beats guesswork.',
-                'Outsized impact comes from few levers.'
-            ];
-            const pool = isPT ? fillersPT : fillersEN;
+            const pool = T[lang].fillers;
             const chosenFillers = new Set();
             let topupGuard = 0;
-            while (count(content) < targetMin && topupGuard < 8) {
+            const allowFillers = (!academic && wordCount < 1500);
+            while (allowFillers && count(content) < targetMin && topupGuard < 3) {
                 const deficit = targetMin - count(content);
-                if (deficit > 120) {
-                    const label = isPT ? 'Nota de Campo' : 'Field Note';
-                    content += `<h3>${label} ${topupGuard + 1}</h3>`;
-                    const line = pool[Math.floor(Math.random() * pool.length)];
-                    content += `<p>${line}</p>`;
-                    const bullets = isPT ? ['Defina uma hipótese','Colete evidências específicas','Itere em ciclos curtos'] : ['Define a hypothesis','Collect specific evidence','Iterate in short cycles'];
-                    content += `<ul>${bullets.map(b => `<li>${b}</li>`).join('')}</ul>`;
-                } else {
-                    const available = pool.filter(s => !chosenFillers.has(s));
-                    const line = (available.length ? available : pool)[Math.floor(Math.random() * (available.length ? available.length : pool.length))];
-                    chosenFillers.add(line);
-                    content += `<p>${line}</p>`;
-                }
+                const available = pool.filter(s => !chosenFillers.has(s));
+                const line = (available.length ? available : pool)[Math.floor(Math.random() * (available.length ? available.length : pool.length))];
+                chosenFillers.add(line);
+                content += `<p>${line}</p>`;
                 topupGuard++;
             }
             const hash = await hashSHA256(content);
             const last = localStorage.getItem('LAST_ARTICLE_HASH') || '';
             if (hash === last) {
-                content += `<p>${isPT ? 'Nota exclusiva:' : 'Exclusive note:'} ${isPT ? 'Esta versão inclui ações extras aplicáveis em 24h.' : 'This version includes extra actions you can apply within 24h.'}</p>`;
+                content += `<p>${lang==='pt' ? 'Nota exclusiva:' : (lang==='es' ? 'Nota exclusiva:' : (lang==='fr' ? 'Note exclusive :' : (lang==='de' ? 'Exklusive Notiz:' : 'Exclusive note:')))} ${lang==='pt' ? 'Esta versão inclui ações extras aplicáveis em 24h.' : (lang==='es' ? 'Esta versión incluye acciones extra aplicables en 24h.' : (lang==='fr' ? 'Cette version inclut des actions supplémentaires applicables en 24h.' : (lang==='de' ? 'Diese Version enthält zusätzliche Maßnahmen, die innerhalb von 24h anwendbar sind.' : 'This version includes extra actions you can apply within 24h.')))}</p>`;
             }
             localStorage.setItem('LAST_ARTICLE_HASH', await hashSHA256(content));
             localStorage.setItem('LAST_ARTICLE_TITLE', title);
@@ -1819,14 +2385,23 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
                 const imgHeight = (canvas.height * imgWidth) / canvas.width;
                 let heightLeft = imgHeight;
                 let position = 0;
-                
+                const totalPages = Math.ceil(imgHeight / pageHeight) || 1;
+                let pageNum = 1;
+
                 pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                pdf.setFontSize(10);
+                pdf.text('Blog Writer ULTRA', 10, 10);
+                pdf.text(`${pageNum} / ${totalPages}`, 200, pageHeight - 10, { align: 'right' });
                 heightLeft -= pageHeight;
                 
                 while (heightLeft >= 0) {
                     position = heightLeft - imgHeight;
                     pdf.addPage();
                     pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    pageNum++;
+                    pdf.setFontSize(10);
+                    pdf.text('Blog Writer ULTRA', 10, 10);
+                    pdf.text(`${pageNum} / ${totalPages}`, 200, pageHeight - 10, { align: 'right' });
                     heightLeft -= pageHeight;
                 }
                 
@@ -1941,6 +2516,7 @@ ${html}
             set('perMonthText', 'por mês', 'per month');
             set('btnCheckout', '💳 Ir para pagamento', '💳 Go to Checkout');
             set('btnSubscribeNow', '💳 Assinar Agora', '💳 Subscribe Now');
+            set('btnSubscribeTop', 'Assinar', 'Subscribe');
             set('btnUnlock', '✅ Já paguei — Liberar', '✅ I Have Paid — Unlock');
             set('btnLogout', 'Sair', 'Logout');
             set('labelArticlesCreated', 'Artigos Criados', 'Articles Created');
@@ -1951,7 +2527,12 @@ ${html}
             set('labelLanguage', '🌍 Idioma', '🌍 Language');
             set('labelWordCount', '📊 Contagem de Palavras', '📊 Word Count');
             set('labelStyle', '🎨 Estilo', '🎨 Style');
+            set('labelAcademic', '🎓 Modo Acadêmico (tese/doutorado)', '🎓 Academic Mode (thesis/PhD)');
+            set('labelSourceType', '📚 Tipo de Fonte', '📚 Source Type');
+            set('labelCitationStyle', '📝 Estilo de Citação', '📝 Citation Style');
+            set('labelAcademicLevel', '🏷️ Nível Acadêmico', '🏷️ Academic Level');
             set('labelInstructions', '💡 Instruções Adicionais (opcional)', '💡 Additional Instructions (optional)');
+            set('labelReferences', '📑 Bibliografia (opcional)', '📑 Bibliography (optional)');
             set('generateBtn', '🚀 Gerar Artigo', '🚀 Generate Article');
             set('previewTitle', '📄 Seu Artigo', '📄 Your Article');
             set('btnGenTitles', '🎲 Gerar Títulos', '🎲 Generate Titles');
@@ -1968,7 +2549,14 @@ ${html}
             set('titleHeader', 'Gerar Novos Títulos', 'Generate New Titles');
             set('btnRegenerate', '🔁 Regerar', '🔁 Regenerate');
             set('btnCloseOverlay', '✖ Fechar', '✖ Close');
+            set('adminAccessTitle','Controle de Acesso','Access Control');
+            set('adminAccessEmailLabel','Email do Usuário','User Email');
+            set('adminAccessDaysLabel','Dias de Acesso','Access Days');
+            set('adminAccessIndefLabel','Acesso Indeterminado','Indefinite Access');
+            set('adminAccessGrantBtn','Conceder Acesso','Grant Access');
+            set('adminAccessRemoveBtn','Remover Configuração','Remove Override');
             renderTrialBanner();
+            renderBenefitsTicker();
         }
     </script>
 </body>
