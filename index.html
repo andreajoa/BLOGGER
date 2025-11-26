@@ -1612,8 +1612,12 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
     const strip = s => s.replace(/<style[\s\S]*?<\/style>/gi,'').replace(/<[^>]+>/g, '');
     const count = s => strip(s).trim().split(/\s+/).filter(Boolean).length;
     const targetMin = Math.max(500, wordCount);
-    const pick = a => a[Math.floor(Math.random() * a.length)];
-    const num = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+    const seedStr = `${topic}|${language}|${style}|${wordCount}|${year}|${localStorage.getItem('LAST_ARTICLE_TITLE')||''}|${Date.now()}`;
+    const seedInit = (()=>{ try { const u = new Uint32Array(1); crypto.getRandomValues(u); return (u[0] ^ Array.from(seedStr).reduce((a,c)=>((a*31 + c.charCodeAt(0))>>>0),0))>>>0; } catch(e) { return Array.from(seedStr).reduce((a,c)=>((a*31 + c.charCodeAt(0))>>>0),0); } })();
+    function mulberry32(a){ return function(){ a|=0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t ^= t + Math.imul(t ^ (t >>> 7), 61 | t); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; } }
+    const R = mulberry32(seedInit);
+    const pick = a => a[Math.floor(R() * a.length)];
+    const num = (min, max) => Math.floor(R() * (max - min + 1)) + min;
 
     const lang = ['pt','en','es','fr','de'].includes(language) ? language : 'en';
     if (academic) {
@@ -2033,6 +2037,128 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
         } catch (err) {
             console.error('Academic generation error:', err);
         }
+    }
+    if (!academic) {
+        const isPTn = lang==='pt';
+        const isENn = lang==='en';
+        const isESn = lang==='es';
+        const isFRn = lang==='fr';
+        const isDEn = lang==='de';
+        const s500 = wordCount <= 500;
+        const s1000 = wordCount > 500 && wordCount <= 1000;
+        const s2000 = wordCount > 1000 && wordCount <= 2000;
+        const s5000 = wordCount > 2000;
+        let title = isPTn?`${topic} em ${year}: ${style==='creative'?'Narrativa sólida':style==='casual'?'Guia direto':style==='technical'?'Especificação técnica':'Estratégia profissional'}`:
+                    isESn?`${topic} en ${year}: ${style==='creative'?'Narrativa sólida':style==='casual'?'Guía directa':style==='technical'?'Especificación técnica':'Estrategia profesional'}`:
+                    isFRn?`${topic} en ${year} : ${style==='creative'?'Récit solide':style==='casual'?'Guide direct':style==='technical'?'Spécification technique':'Stratégie professionnelle'}`:
+                    isDEn?`${topic} im ${year}: ${style==='creative'?'Solider Narrativ':style==='casual'?'Direkter Leitfaden':style==='technical'?'Technische Spezifikation':'Professionelle Strategie'}`:
+                    `${topic} in ${year}: ${style==='creative'?'Solid narrative':style==='casual'?'Direct guide':style==='technical'?'Technical spec':'Professional strategy'}`;
+        const prevTitleN = localStorage.getItem('LAST_ARTICLE_TITLE') || '';
+        if (prevTitleN === title) title = `${title} ${num(10,99)}`;
+        let content = `${css}<section class="lux-article"><h1>${title}</h1>`;
+        const hookN = isPTn?`Estrutura objetiva para ${topic} com foco em clareza, evidência e aplicabilidade em ${year}.`:
+                        isESn?`Estructura objetiva para ${topic} con foco en claridad, evidencia y aplicabilidad en ${year}.`:
+                        isFRn?`Structure objective pour ${topic}, axée sur clarté, preuves et applicabilité en ${year}.`:
+                        isDEn?`Objektive Struktur für ${topic} mit Fokus auf Klarheit, Evidenz und Anwendbarkeit im ${year}.`:
+                        `Objective structure for ${topic}, focused on clarity, evidence, and applicability in ${year}.`;
+        content += `<div class="lux-callout">${hookN}</div>`;
+        const HN = {
+            intro: isPTn?'Introdução':isESn?'Introducción':isFRn?'Introduction':isDEn?'Einleitung':'Introduction',
+            plan: isPTn?'Plano de Ação':isESn?'Plan de Acción':isFRn?'Plan d’Action':isDEn?'Aktionsplan':'Action Plan',
+            meth: isPTn?'Método e Estrutura':isESn?'Método y Estructura':isFRn?'Méthode et Structure':isDEn?'Methode und Struktur':'Method and Structure',
+            apps: isPTn?'Aplicações e Cenários':isESn?'Aplicaciones y Escenarios':isFRn?'Applications et Scénarios':isDEn?'Anwendungen und Szenarien':'Applications and Scenarios',
+            metrics: isPTn?'Métricas e Evidência':isESn?'Métricas y Evidencia':isFRn?'Métriques et Preuves':isDEn?'Metriken und Evidenz':'Metrics and Evidence',
+            faq: isPTn?'Perguntas Frequentes':isESn?'Preguntas Frecuentes':isFRn?'FAQs':isDEn?'FAQs':'FAQs',
+            concl: isPTn?'Conclusão':isESn?'Conclusión':isFRn?'Conclusion':isDEn?'Fazit':'Conclusion'
+        };
+        const S = {
+            creative:{
+                intro:[
+                    `Em ${year}, ${topic} ganha contorno nítido: uma história sem floreios desnecessários, guiada por objetivos claros e resultados observáveis.`,
+                    `${topic} pede estrutura direta. Em ${year}, o roteiro foca problema, evidência e ação, com leitura fluida e sem rodeios.`,
+                    `A jornada de ${topic} em ${year} é enxuta: contexto, escolha de alavancas e ciclos curtos com prova.`,
+                    `Para ${topic}, ${year} traz um mapa simples: clareza de intenção, passos concretos e medida de impacto.`,
+                    `${topic} avança quando a escrita é rigorosa e acessível: objetivo, método e efeito em poucas páginas.`
+                ],
+                meth:[
+                    `Estrutura: delimitação de escopo, definição de variáveis, critérios de amostra, instrumentos validados e procedimentos replicáveis.`,
+                    `Fluxo: hipóteses explícitas, plano experimental mínimo, observabilidade antes e depois, guardrails e revisão rápida.`,
+                    `Organização: seções curtas, objetivos mensuráveis e linguagem que privilegia o entendimento imediato.`,
+                    `Cadência: ciclos de ${num(7,14)} dias, registros objetivos e decisões baseadas em sinais confiáveis.`,
+                    `Risco: testes seguros com reversão simples e documentação sucinta.`
+                ],
+                apps:[
+                    `Aplicações práticas com ganhos entre ${num(8,18)}% e ${num(19,32)}% quando focadas em uma alavanca por vez.`,
+                    `Cenários: adoção inicial, retenção e decisão — cada um com uma mudança clara e mensurável.`,
+                    `Casos: variações de cópia, fricção reduzida e tempo‑ao‑valor encurtado com impacto direto.`,
+                    `Na operação, ${topic} mostra efeito em coortes específicas; o ajuste fino amplia resultado.`,
+                    `Resultados consistentes surgem da repetição disciplinada sobre o mesmo ponto de alavanca.`
+                ],
+                metrics:[
+                    `Métricas essenciais: uma principal, duas diagnósticas e um guardrail. Evidência específica evita leituras enviesadas.`,
+                    `Acompanhar conversão por etapa, latência e sinais de sanidade reduz ambiguidade e acelera decisões.`,
+                    `Análise de sensibilidade confirma robustez: cortes por coorte e verificação de pressupostos.`,
+                    `Instrumentação pré/pós garante atribuição: o efeito é ligado à mudança escolhida.`,
+                    `Relato conciso com números e notas curtas dá contexto sem perder objetividade.`
+                ],
+                faq:[
+                    `Quanto tempo por ciclo? ${num(7,14)} dias com decisão clara no fim.`,
+                    `Funciona sem orçamento alto? Sim, mudanças mínimas com medição objetiva.`,
+                    `E se houver discordância? Transformar opiniões em hipóteses testáveis resolve.`
+                ],
+                concl:[
+                    `Conclusão: escolha uma alavanca, execute rápido e meça. A disciplina dá previsibilidade e aprendizado útil.`,
+                    `Encerramento: clareza, cadência e evidência tornam ${topic} prático e confiável em ${year}.`
+                ]
+            },
+            casual:{
+                intro:[`${topic} em ${year} pede um guia direto: o que fazer, como medir e quando ajustar.`,`Vamos simplificar ${topic}: poucos passos, resultados visíveis e linguagem leve.` ,`Para começar com ${topic}, foque no básico e acompanhe o que muda de verdade.`,`${topic} funciona melhor quando você escolhe uma ação clara e observa o efeito.`,`Em ${year}, o segredo de ${topic} é repetir o que funciona e cortar o resto.`],
+                meth:[`Passo a passo com objetivos simples e instrumentos fáceis de aplicar.`,`Hipóteses curtas, teste mínimo e acompanhamento objetivo.`,`Anote o antes e depois; decida com base no que mudou.`,`Use ciclos curtos e ajuste rápido quando os números pedirem.`,`Garanta reversão fácil se algo sair do esperado.`],
+                apps:[`Exemplos práticos com ganhos entre ${num(6,14)}% e ${num(15,28)}%.`,`Mudanças pequenas em texto ou fluxo já fazem diferença.`,`Aplique onde a atenção cai; um ajuste pode destravar.`,`Cortes por grupo mostram onde insistir ou mudar.`,`Repetir o que deu certo aumenta o efeito com pouco esforço.`],
+                metrics:[`Escolha uma métrica principal e duas de apoio.`,`Meça por etapa e por grupo para entender melhor.`,`Evite dados genéricos; foque no que guia decisões.`,`Inclua um guardrail para evitar efeitos colaterais.`,`Se o resultado for claro, avance; se não, ajuste.`],
+                faq:[`Quanto tempo? ${num(7,14)} dias costumam bastar.`,`Precisa de investimento grande? Não.`,`E quando há opiniões diferentes? Teste e decida pelo sinal.`],
+                concl:[`${topic} fica prático com foco e medida.`,`Fechar com o que funciona ajuda a manter a cadência.`]
+            },
+            technical:{
+                intro:[`Contexto de ${topic} em ${year} com objetivos definidos e linguagem precisa.`,`Escopo de ${topic} com variáveis, critérios e procedimentos objetivos.`,`Definição operacional clara para inferência consistente.`,`Princípios e restrições de ${topic} alinhados a resultados mensuráveis.`,`Estrutura técnica para observabilidade e replicação.`],
+                meth:[`Design: amostra, instrumentos, procedimentos, análise. Poder alvo ${num(80,95)}% e α=0.${num(1,5)}.`,`Plano: hipóteses, experimento mínimo, coleta pré/pós e guardrails.`,`Validação: pressupostos, sensibilidade e cortes por coorte.`,`Atribuição: instrumentação garante relação causa‑efeito.`,`Registro: versão de materiais e resultados com hash.`],
+                apps:[`Aplicações com efeito estimado entre ${num(9,17)}% e ${num(18,30)}% sob condições controladas.`,`Cenários com redução de latência e aumento de conversão por etapa.`,`Replicações leves demonstram consistência operacional.`,`Ajustes finos maximizam ganho em segmentos alvo.`,`Relatos concisos com tabela de métricas principais.`],
+                metrics:[`Métricas: principal, duas diagnósticas e um guardrail; IC ${num(90,99)}%.`,`Evidência observável por etapa e por coorte.`,`Sensibilidade e verificação de pressupostos.`,`Logs de instrumentação e versão de scripts.`,`Relato autor‑data simplificado quando aplicável.`],
+                faq:[`Janela de ${num(7,14)} dias com decisão objetiva.`,`Mudanças mínimas com medição adequada.`,`Testes resolvem divergências de opinião.`],
+                concl:[`Síntese técnica com próximos passos mensuráveis.`,`Aplicabilidade direta em ${year} com risco controlado.`]
+            },
+            professional:{
+                intro:[`${topic} tratado com rigor prático em ${year}: intenção clara, ação mensurável e relato objetivo.`,`${topic} exige disciplina: poucas alavancas, observação precisa e decisão rápida.`,`Estratégia direta para ${topic}: foco, execução e evidência específica.`,`${topic} se beneficia de ciclos curtos e documentação enxuta.`,`Resultados confiáveis surgem de método e clareza de linguagem.`],
+                meth:[`Delimitação, variáveis, amostra, instrumentos, procedimentos e análise com guardrails.`,`Hipóteses testáveis e experimentos mínimos com atribuição clara.`,`Medição pré/pós e revisão semanal.`,`Cortes por coorte, sensibilidade e verificação de pressupostos.`,`Registros e dados essenciais disponíveis.`],
+                apps:[`Ganhos típicos entre ${num(8,16)}% e ${num(17,29)}% ao focar um ponto.`,`Casos mostram benefício em adoção e retenção.`,`Ajustes simples de fluxo produzem efeito mensurável.`,`Execução alinhada à prioridade reduz ruído.`,`Relatos breves sustentam comunicação executiva.`],
+                metrics:[`Uma métrica principal e duas auxiliares com guardrail.`,`Evidência por etapa confirma alavanca.`,`Sensibilidade e sanidade evitam falsos positivos.`,`Decisões ancoradas em números e contexto curto.`,`Relato objetivo com linguagem neutra.`],
+                faq:[`Ciclos de ${num(7,14)} dias.`,`Sem necessidade de grande orçamento.`,`Divergências resolvidas com testes instrumentados.`],
+                concl:[`Fechamento executivo: clareza, cadência e avanço previsível.`,`Próximo passo: manter foco na mesma alavanca antes de abrir outra.`]
+            }
+        };
+        const P = S[style] || S.professional;
+        content += `<h2>${HN.intro}</h2><p>${pick(P.intro)}</p>`;
+        content += `<h2>${HN.plan}</h2><p>${pick(P.intro)}</p>`;
+        if (!s500) content += `<h2>${HN.meth}</h2><p>${pick(P.meth)}</p>`;
+        if (s1000 || s2000 || s5000) content += `<h2>${HN.apps}</h2><p>${pick(P.apps)}</p>`;
+        if (s2000 || s5000) content += `<h2>${HN.metrics}</h2><p>${pick(P.metrics)}</p>`;
+        if (s2000 || s5000) { for (let i=0;i<2;i++) content += `<p>${pick(P.apps)}</p>`; }
+        if (s5000) { for (let i=0;i<4;i++) content += `<p>${pick(P.meth)}</p>`; for (let i=0;i<4;i++) content += `<p>${pick(P.metrics)}</p>`; }
+        content += `<h2>${HN.faq}</h2><ul>${P.faq.map(f=>`<li>${f}</li>`).join('')}</ul>`;
+        content += `<h2>${HN.concl}</h2><p>${pick(P.concl)}</p>`;
+        content += `</section>`;
+        const hashN = await hashSHA256(content);
+        const lastN = localStorage.getItem('LAST_ARTICLE_HASH') || '';
+        if (hashN === lastN) { content += `<p>${isPTn?'Nota: versão com ajustes finos em 24h.':(isESn?'Nota: versión con ajustes finos en 24h.':(isFRn?'Note : version avec réglages fins en 24h.':(isDEn?'Hinweis: Version mit Feinanpassungen in 24h.':'Note: version with fine adjustments in 24h.')))}</p>`; }
+        const histStr = localStorage.getItem('ART_HISTORY') || '[]';
+        let histArr = [];
+        try { histArr = JSON.parse(histStr) || []; } catch(e) { histArr = []; }
+        histArr.push({ title, hash: hashN, createdAt: new Date().toISOString(), seed: seedInit, style, academic: false, language });
+        localStorage.setItem('ART_HISTORY', JSON.stringify(histArr.slice(-50)));
+        localStorage.setItem('LAST_ARTICLE_HASH', hashN);
+        localStorage.setItem('LAST_ARTICLE_TITLE', title);
+        const finalCountN = count(content);
+        return { title: title, content: content, wordCount: finalCountN, language: language, style: style, createdAt: new Date().toISOString() };
     }
     if (language === 'en' && wordCount >= 2000) {
         let title = `The D2 Method for predictable growth`;
@@ -2508,10 +2634,16 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
             
             const hash = await hashSHA256(content);
             const last = localStorage.getItem('LAST_ARTICLE_HASH') || '';
-            if (hash === last) {
-                content += `<p>${lang==='pt' ? 'Nota exclusiva:' : (lang==='es' ? 'Nota exclusiva:' : (lang==='fr' ? 'Note exclusive :' : (lang==='de' ? 'Exklusive Notiz:' : 'Exclusive note:')))} ${lang==='pt' ? 'Esta versão inclui ações extras aplicáveis em 24h.' : (lang==='es' ? 'Esta versión incluye acciones extra aplicables en 24h.' : (lang==='fr' ? 'Cette version inclut des actions supplémentaires applicables en 24h.' : (lang==='de' ? 'Diese Version enthält zusätzliche Maßnahmen, die innerhalb von 24h anwendbar sind.' : 'This version includes extra actions you can apply within 24h.')))}</p>`;
-            }
-            localStorage.setItem('LAST_ARTICLE_HASH', await hashSHA256(content));
+        if (hash === last) {
+            content += `<p>${lang==='pt' ? 'Nota exclusiva:' : (lang==='es' ? 'Nota exclusiva:' : (lang==='fr' ? 'Note exclusive :' : (lang==='de' ? 'Exklusive Notiz:' : 'Exclusive note:')))} ${lang==='pt' ? 'Esta versão inclui ações extras aplicáveis em 24h.' : (lang==='es' ? 'Esta versión incluye acciones extra aplicables en 24h.' : (lang==='fr' ? 'Cette version inclut des actions supplémentaires applicables en 24h.' : (lang==='de' ? 'Diese Version enthält zusätzliche Maßnahmen, die innerhalb von 24h anwendbar sind.' : 'This version includes extra actions you can apply within 24h.')))}</p>`;
+        }
+            const uniq = await hashSHA256(content);
+            const historyRaw = localStorage.getItem('ART_HISTORY') || '[]';
+            let hist = [];
+            try { hist = JSON.parse(historyRaw) || []; } catch(e) { hist = []; }
+            hist.push({ title, hash: uniq, createdAt: new Date().toISOString(), style, academic, language });
+            localStorage.setItem('ART_HISTORY', JSON.stringify(hist.slice(-50)));
+            localStorage.setItem('LAST_ARTICLE_HASH', uniq);
             localStorage.setItem('LAST_ARTICLE_TITLE', title);
             const finalCount = count(content);
             return { title: title, content: content, wordCount: finalCount, language: language, style: style, createdAt: new Date().toISOString() };
