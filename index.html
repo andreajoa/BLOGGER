@@ -1603,6 +1603,7 @@
 .lux-cta h3{color:#111;margin:0}
 .lux-cta p{color:#111;text-align:center;margin:0}
 .lux-cta a{display:inline-block;background:#fff;color:#111;border:2px solid #8B5CF6;border-radius:8px;padding:.5rem 1rem;font-weight:700;text-decoration:none}
+.lux-meta{background:#F8FAFF;border:2px solid #8B5CF6;color:#111;border-radius:12px;padding:.5rem .75rem;text-align:center;margin:.75rem 0;font-weight:600}
 .lux-platforms{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center;margin-top:.25rem}
 .lux-chip{display:inline-flex;align-items:center;gap:.35rem;border:2px solid #8B5CF6;color:#111;border-radius:999px;padding:.35rem .7rem;text-decoration:none;font-weight:600}
 .lux-chip svg{width:16px;height:16px;fill:#8B5CF6}
@@ -1616,6 +1617,7 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
 
     const lang = ['pt','en','es','fr','de'].includes(language) ? language : 'en';
     if (academic) {
+        try {
         const stylePref = (document.getElementById('citationStyle') && document.getElementById('citationStyle').value) || 'abnt';
         const level = (document.getElementById('academicLevel') && document.getElementById('academicLevel').value) || 'masters';
         const sourceType = (document.getElementById('sourceType') && document.getElementById('sourceType').value) || 'article';
@@ -1711,6 +1713,17 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
         const hook = (poolA.length ? poolA : acaPool)[Math.floor(Math.random() * (poolA.length ? poolA.length : acaPool.length))];
         localStorage.setItem('LAST_HOOK_ACAD', hook);
         content += `<div class="lux-callout">${hook}</div>`;
+        const levelName = level==='phd'?(lang==='pt'?'Doutorado':lang==='es'?'Doctorado':lang==='fr'?'Doctorat':lang==='de'?'Promotion':'PhD'):
+                          level==='masters'?(lang==='pt'?'Mestrado':lang==='es'?'Maestría':lang==='fr'?'Master':lang==='de'?'Master':'Masters'):
+                          (lang==='pt'?'Graduação':lang==='es'?'Grado':lang==='fr'?'Licence':lang==='de'?'Bachelor':'Undergraduate');
+        const styleName = stylePref.toUpperCase();
+        const typeName = sourceType==='article'?(lang==='pt'?'Artigo':lang==='es'?'Artículo':lang==='fr'?'Article':lang==='de'?'Artikel':'Article'):sourceType==='book'?(lang==='pt'?'Livro':lang==='es'?'Libro':lang==='fr'?'Livre':lang==='de'?'Buch':'Book'):(lang==='pt'?'Conferência':lang==='es'?'Conferencia':lang==='fr'?'Conférence':lang==='de'?'Konferenz':'Conference');
+        const metaLabel = lang==='pt'?`Gerado com: ${levelName} · Estilo: ${styleName} · Fonte: ${typeName} · Meta: ${wordCount}`:
+                           lang==='es'?`Generado con: ${levelName} · Estilo: ${styleName} · Fuente: ${typeName} · Meta: ${wordCount}`:
+                           lang==='fr'?`Généré avec : ${levelName} · Style : ${styleName} · Source : ${typeName} · Objectif : ${wordCount}`:
+                           lang==='de'?`Erzeugt mit: ${levelName} · Stil: ${styleName} · Quelle: ${typeName} · Ziel: ${wordCount}`:
+                           `Generated with: ${levelName} · Style: ${styleName} · Source: ${typeName} · Target: ${wordCount}`;
+        content += `<div class="lux-meta">${metaLabel}</div>`;
 
         const H = {
             abs: lang==='pt'?'Resumo':lang==='es'?'Resumen':lang==='fr'?'Résumé':lang==='de'?'Abstract':'Abstract',
@@ -1725,6 +1738,28 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
             concl: lang==='pt'?'Conclusão':lang==='es'?'Conclusión':lang==='fr'?'Conclusion':lang==='de'?'Fazit':'Conclusion',
             refs: lang==='pt'?'Referências':lang==='es'?'Referencias':lang==='fr'?'Références':lang==='de'?'Referenzen':'References'
         };
+
+        const absAdd = level==='phd'?(lang==='pt'?` Enquadra contribuição original e base teórica robusta.`:lang==='es'?` Enmarca contribución original y base teórica sólida.`:lang==='fr'?` Cadrage d’une contribution originale et d’un socle théorique solide.`:lang==='de'?` Rahmung eines originellen Beitrags mit solider Theorie.`:` Frames original contribution with solid theoretical basis.`):
+                         level==='masters'?(lang==='pt'?` Evidencia replicabilidade e consistência metodológica.`:lang==='es'?` Evidencia replicabilidad y consistencia metodológica.`:lang==='fr'?` Met en évidence la reproductibilité et la cohérence méthodologique.`:lang==='de'?` Hebt Replizierbarkeit und methodische Konsistenz hervor.`:` Highlights replicability and methodological consistency.`):
+                         (lang==='pt'?` Resume fundamentos e aplicações diretas.`:lang==='es'?` Resume fundamentos y aplicaciones directas.`:lang==='fr'?` Résume les fondamentaux et les applications directes.`:lang==='de'?` Fasst Grundlagen und direkte Anwendungen zusammen.`:` Summarizes fundamentals and direct applications.`);
+        const methAdd = level==='phd'?(lang==='pt'?` Emprega desenho multi‑método e triangulação.`:lang==='es'?` Emplea diseño multi‑método y triangulación.`:lang==='fr'?` Utilise un design multi‑méthodes et triangulation.`:lang==='de'?` Nutzt Multi‑Methoden‑Design und Triangulation.`:` Uses multi‑method design and triangulation.`):
+                         level==='masters'?(lang==='pt'?` Prioriza replicação com instrumentos validados.`:lang==='es'?` Prioriza la réplica con instrumentos validados.`:lang==='fr'?` Priorise la réplication avec instruments validés.`:lang==='de'?` Priorisiert Replikation mit validierten Instrumenten.`:` Prioritizes replication with validated instruments.`):
+                         (lang==='pt'?` Aplica delineamento simples com critérios objetivos.`:lang==='es'?` Aplica diseño simple con criterios objetivos.`:lang==='fr'?` Applique un design simple avec critères objectifs.`:lang==='de'?` Verwendet einfaches Design mit objektiven Kriterien.`:` Applies simple design with objective criteria.`);
+        const resAdd = level==='phd'?(lang==='pt'?` Inclui análises avançadas e sensibilidade.`:lang==='es'?` Incluye análisis avanzados y sensibilidad.`:lang==='fr'?` Inclut des analyses avancées et de sensibilité.`:lang==='de'?` Enthält fortgeschrittene Analysen und Sensitivität.`:` Includes advanced and sensitivity analyses.`):
+                         level==='masters'?(lang==='pt'?` Apresenta efeitos consistentes com testes apropriados.`:lang==='es'?` Presenta efectos consistentes con pruebas apropiadas.`:lang==='fr'?` Présente des effets cohérents avec tests appropriés.`:lang==='de'?` Zeigt konsistente Effekte mit passenden Tests.`:` Shows consistent effects with appropriate tests.`):
+                         (lang==='pt'?` Mostra resultados claros e mensuráveis.`:lang==='es'?` Muestra resultados claros y medibles.`:lang==='fr'?` Montre des résultats clairs et mesurables.`:lang==='de'?` Zeigt klare, messbare Ergebnisse.`:` Shows clear, measurable results.`);
+        const discAdd = level==='phd'?(lang==='pt'?` Ênfase em contribuição original e robustez analítica.`:lang==='es'?` Énfasis en contribución original y robustez analítica.`:lang==='fr'?` Accent sur la contribution originale et la robustesse analytique.`:lang==='de'?` Fokus auf Originalbeitrag und analytische Robustheit.`:` Emphasis on original contribution and analytical robustness.`):
+                         level==='masters'?(lang==='pt'?` Foco em replicabilidade e consistência metodológica.`:lang==='es'?` Enfoque en replicabilidad y consistencia metodológica.`:lang==='fr'?` Accent sur la reproductibilité et la cohérence méthodologique.`:lang==='de'?` Schwerpunkt auf Replizierbarkeit und methodischer Konsistenz.`:` Focus on replicability and methodological consistency.`):
+                         (lang==='pt'?` Consolidação de fundamentos e aplicação prática.`:lang==='es'?` Consolidación de fundamentos y aplicación práctica.`:lang==='fr'?` Consolidation des fondamentaux et application pratique.`:lang==='de'?` Konsolidierung von Grundlagen und praktischer Anwendung.`:` Consolidation of fundamentals and practical application.`);
+        const limAdd = level==='phd'?(lang==='pt'?` Discute validade externa e vieses residuais.`:lang==='es'?` Discute validez externa y sesgos residuales.`:lang==='fr'?` Discute la validité externe et les biais résiduels.`:lang==='de'?` Diskutiert externe Validität und verbleibende Verzerrungen.`:` Discusses external validity and residual biases.`):
+                         level==='masters'?(lang==='pt'?` Aborda limites operacionais e amostrais.`:lang==='es'?` Aborda límites operativos y muestrales.`:lang==='fr'?` Aborde les limites opérationnelles et d’échantillon.`:lang==='de'?` Geht auf operative und Stichproben‑Grenzen ein.`:` Addresses operational and sampling limits.`):
+                         (lang==='pt'?` Aponta restrições de escopo e instrumentos.`:lang==='es'?` Señala restricciones de alcance e instrumentos.`:lang==='fr'?` Indique les restrictions de périmètre et d’instruments.`:lang==='de'?` Nennt Einschränkungen von Umfang und Instrumenten.`:` Notes scope and instrument constraints.`);
+        const futAdd = level==='phd'?(lang==='pt'?` Propõe agenda de pesquisa e replicações com dados abertos.`:lang==='es'?` Propone agenda de investigación y réplicas con datos abiertos.`:lang==='fr'?` Propose un agenda de recherche et des répliques avec données ouvertes.`:lang==='de'?` Schlägt Forschungsagenda und Replikationen mit offenen Daten vor.`:` Proposes research agenda and replications with open data.`):
+                         level==='masters'?(lang==='pt'?` Sugere extensões e réplicas em contextos distintos.`:lang==='es'?` Sugiere extensiones y réplicas en contextos distintos.`:lang==='fr'?` Suggère des extensions et répliques dans des contextes distincts.`:lang==='de'?` Schlägt Erweiterungen und Replikationen in verschiedenen Kontexten vor.`:` Suggests extensions and replications in distinct contexts.`):
+                         (lang==='pt'?` Indica aplicações práticas e estudos simples de continuidade.`:lang==='es'?` Indica aplicaciones prácticas y estudios simples de continuidad.`:lang==='fr'?` Indique des applications pratiques et des études de continuité simples.`:lang==='de'?` Zeigt praktische Anwendungen und einfache Folgestudien auf.`:` Indicates practical applications and simple continuation studies.`);
+        const conclAdd = level==='phd'?(lang==='pt'?` Destaca originalidade e implicações teóricas.`:lang==='es'?` Destaca originalidad e implicaciones teóricas.`:lang==='fr'?` Met en avant l’originalité et les implications théoriques.`:lang==='de'?` Hebt Originalität und theoretische Implikationen hervor.`:` Highlights originality and theoretical implications.`):
+                         level==='masters'?(lang==='pt'?` Sublinha robustez e aplicabilidade.`:lang==='es'?` Subraya robustez y aplicabilidad.`:lang==='fr'?` Souligne robustesse et applicabilité.`:lang==='de'?` Betont Robustheit und Anwendbarkeit.`:` Underscores robustness and applicability.`):
+                         (lang==='pt'?` Reforça aprendizagem de base e utilidade imediata.`:lang==='es'?` Refuerza aprendizaje de base y utilidad inmediata.`:lang==='fr'?` Renforce l’apprentissage de base et l’utilité immédiate.`:lang==='de'?` Verstärkt Grundlagenlernen und unmittelbaren Nutzen.`:` Reinforces foundational learning and immediate utility.`);
 
         const tocLabel = lang==='pt'? 'Sumário' : lang==='es'? 'Contenido' : lang==='fr'? 'Sommaire' : lang==='de'? 'Inhaltsverzeichnis' : 'Table of Contents';
         content += `<h2>${tocLabel}</h2>`;
@@ -1773,18 +1808,23 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
             refsIntro: lang==='pt'?`Referências exemplificativas:`:lang==='es'?`Referencias de ejemplo:`:lang==='fr'?`Références d’exemple :`:lang==='de'?`Beispielhafte Referenzen:`:`Sample references:`
         };
 
-        content += `<h2 id="sec-abs">${H.abs}</h2><p>${L.abs}</p>`;
+        content += `<h2 id="sec-abs">${H.abs}</h2><p>${L.abs} ${absAdd}</p>`;
         content += `<h2 id="sec-intro">${H.intro}</h2><p>${L.intro}</p>`;
         content += `<h2 id="sec-rq">${H.rq}</h2><p>${L.rq}</p>`;
         const c0 = refsData[0] ? cite(refsData[0], stylePref) : '';
         content += `<h2 id="sec-lit">${H.lit}</h2><p>${L.lit} ${c0}</p>`;
-        content += `<h2 id="sec-meth">${H.meth}</h2><p>${L.meth}</p><ul><li>${lang==='pt'?'Amostra definida e critérios explícitos':'Defined sample and explicit criteria'}</li><li>${lang==='pt'?'Instrumentos validados':'Validated instruments'}</li><li>${lang==='pt'?'Procedimentos replicáveis':'Replicable procedures'}</li></ul>`;
-        content += `<h2 id="sec-res">${H.res}</h2><p>${L.res}</p>`;
-        const levelAdd = level==='phd'?(lang==='pt'?` Ênfase em contribuição original e robustez analítica.`:lang==='es'?` Énfasis en contribución original y robustez analítica.`:lang==='fr'?` Accent sur la contribution originale et la robustesse analytique.`:lang==='de'?` Fokus auf Originalbeitrag und analytische Robustheit.`:` Emphasis on original contribution and analytical robustness.`): level==='masters'?(lang==='pt'?` Foco em replicabilidade e consistência metodológica.`:lang==='es'?` Enfoque en replicabilidad y consistencia metodológica.`:lang==='fr'?` Accent sur la reproductibilité et la cohérence méthodologique.`:lang==='de'?` Schwerpunkt auf Replizierbarkeit und methodischer Konsistenz.`:` Focus on replicability and methodological consistency.`):(lang==='pt'?` Consolidação de fundamentos e aplicação prática.`:lang==='es'?` Consolidación de fundamentos y aplicación práctica.`:lang==='fr'?` Consolidation des fondamentaux et application pratique.`:lang==='de'?` Konsolidierung von Grundlagen und praktischer Anwendung.`:` Consolidation of fundamentals and practical application.`);
+        const c2 = refsData[2] ? cite(refsData[2], stylePref) : '';
+        const MB = lang==='pt'?(level==='phd'?[`Desenho multi‑método/longitudinal`,`Triangulação de dados`,`Modelos hierárquicos`,`Testes de robustez`]:level==='masters'?[`Amostra estratificada e poder amostral`,`Instrumentos validados`,`Procedimentos replicáveis`,`Análise de sensibilidade`]:[`Amostra básica com critérios objetivos`,`Instrumentos introdutórios`,`Procedimentos claros e replicáveis`]):
+                    lang==='es'?(level==='phd'?[`Diseño multi‑método/longitudinal`,`Triangulación de datos`,`Modelos jerárquicos`,`Pruebas de robustez`]:level==='masters'?[`Muestra estratificada y poder estadístico`,`Instrumentos validados`,`Procedimientos replicables`,`Análisis de sensibilidad`]:[`Muestra básica con criterios objetivos`,`Instrumentos introductorios`,`Procedimientos claros y replicables`]):
+                    lang==='fr'?(level==='phd'?[`Design multi‑méthodes/longitudinal`,`Triangulation des données`,`Modèles hiérarchiques`,`Tests de robustesse`]:level==='masters'?[`Échantillon stratifié et puissance statistique`,`Instruments validés`,`Procédures réplicables`,`Analyse de sensibilité`]:[`Échantillon de base avec critères objectifs`,`Instruments introductifs`,`Procédures claires et réplicables`]):
+                    lang==='de'?(level==='phd'?[`Multi‑Methoden/longitudinales Design`,`Daten‑Triangulation`,`Hierarchische Modelle`,`Robustheits‑Tests`]:level==='masters'?[`Stratifizierte Stichprobe und Teststärke`,`Validierte Instrumente`,`Replizierbare Verfahren`,`Sensitivitätsanalyse`]:[`Grundstichprobe mit objektiven Kriterien`,`Einführungsinstrumente`,`Klare, replizierbare Verfahren`]):
+                    (level==='phd'?[`Multi‑method/longitudinal design`,`Data triangulation`,`Hierarchical models`,`Robustness checks`]:level==='masters'?[`Stratified sample and power analysis`,`Validated instruments`,`Replicable procedures`,`Sensitivity analysis`]:[`Basic sample with objective criteria`,`Introductory instruments`,`Clear, replicable procedures`] );
+        content += `<h2 id="sec-meth">${H.meth}</h2><p>${L.meth} ${c2} ${methAdd}</p><ul>${MB.map(li=>`<li>${li}</li>`).join('')}</ul>`;
         const c1 = refsData[1] ? cite(refsData[1], stylePref) : '';
-        content += `<h2 id="sec-disc">${H.disc}</h2><p>${L.disc} ${c1} ${levelAdd}</p>`;
+        content += `<h2 id="sec-res">${H.res}</h2><p>${L.res} ${c1} ${resAdd}</p>`;
+        content += `<h2 id="sec-disc">${H.disc}</h2><p>${L.disc} ${c0} ${discAdd}</p>`;
         content += `<h2 id="sec-lim">${H.lim}</h2><p>${L.lim}</p>`;
-        content += `<h2 id="sec-fut">${H.fut}</h2><p>${L.fut}</p>`;
+        content += `<h2 id="sec-fut">${H.fut}</h2><p>${L.fut} ${c2} ${futAdd}</p>`;
             const localSymMid = USER_CURRENCY.symbol;
             const localAmtMid = formatPrice(USER_CURRENCY.code, USER_CURRENCY.price);
             const priceLineMid = lang==='pt'?`Assine por ${localSymMid}${localAmtMid}/mês`:
@@ -1800,22 +1840,199 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
         const payHref = `${STRIPE_LINK}?client_reference_id=${currentUser?currentUser.email:''}&prefilled_email=${currentUser?currentUser.email:''}`;
         content += `<div class="lux-cta"><h3>${ctaHead}</h3><p>${priceLineMid}</p><div style="display:flex;gap:.5rem;justify-content:center"><a href="${payHref}" target="_blank" rel="noopener">${ctaLink}</a><a href="#" onclick="openInstallGuide()">${installLabel}</a></div><div class="lux-platforms"><a href="#" onclick="openInstallGuide()" class="lux-chip"><svg viewBox="0 0 24 24"><path d="M12 2l3 3-3 3-3-3 3-3zm-6 6l3 3-3 3-3-3 3-3zm12 0l3 3-3 3-3-3 3-3zm-6 6l3 3-3 3-3-3 3-3z"/></svg>${chipAndroid}</a><a href="#" onclick="openInstallGuide()" class="lux-chip"><svg viewBox="0 0 24 24"><path d="M16 2c-2 0-3 1-4 2-1-1-2-2-4-2-3 0-6 3-6 7 0 6 7 10 10 13 3-3 10-7 10-13 0-4-3-7-6-7z"/></svg>${chipIOS}</a><a href="#" onclick="openInstallGuide()" class="lux-chip"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z M7 7h10v10H7z"/></svg>${chipMac}</a></div></div>`;
 
-        content += `<h2 id="sec-concl">${H.concl}</h2><p>${L.concl}</p>`;
+        content += `<h2 id="sec-concl">${H.concl}</h2><p>${L.concl} ${conclAdd}</p>`;
         content += `<h2 id="sec-refs">${H.refs}</h2><p>${L.refsIntro}</p><ul>`;
         for (const r of refsData) content += `<li>${fmtRef(r, stylePref, sourceType)}</li>`;
         content += `</ul>`;
 
-        const expanders = lang==='pt'?[`Detalhe do método: controle, variáveis e validação.`,`Integração com literatura: convergências e divergências.`,`Aplicações práticas e impacto esperado.`]:
-                           lang==='es'?[`Detalle del método: control, variables y validación.`,`Integración con la literatura: convergencias y divergencias.`,`Aplicaciones prácticas e impacto esperado.`]:
-                           lang==='fr'?[`Détail de la méthode : contrôle, variables et validation.`,`Intégration à la littérature : convergences et divergences.`,`Applications pratiques et impact attendu.`]:
-                           lang==='de'?[`Methodendetails: Kontrolle, Variablen und Validierung.`,`Einbindung in die Literatur: Konvergenzen und Divergenzen.`,`Praktische Anwendungen und erwarteter Impact.`]:
-                           [`Method detail: control, variables, validation.`,`Integration with literature: convergences and divergences.`,`Practical applications and expected impact.`];
-        let i = 0;
-        const filler = () => `${pick(expanders)} ${pick(expanders)} ${pick(expanders)}`;
-        while (count(content) < targetMin && i < 300) { content += `<p>${filler()}</p>`; i++; }
+        const A = lang==='pt'?{
+            method:[
+                `Definição de variáveis e controles para ${topic}.`,
+                `Plano amostral e critérios de inclusão para ${topic}.`,
+                `Instrumentação para observabilidade e replicação.`,
+                `Estratégia ${level==='phd'?`multi‑método`:`de amostragem controlada`} aplicada a ${topic}.`,
+                `Validação cruzada e teste de robustez em ${topic}.`,
+                `Transparência: pré‑registro e dados abertos.`
+            ],
+            lit:[
+                `Síntese das correntes e lacunas na literatura de ${topic}.`,
+                `Mapa de debates e convergências recentes sobre ${topic}.`,
+                `Referenciais teóricos contrastantes sobre ${topic}.`,
+                `Panorama de métodos e limitações em ${topic}.`
+            ],
+            apps:[
+                `Aplicações práticas de ${topic} com efeito estimado entre ${num(5,15)}% e ${num(16,28)}%.`,
+                `Cenários de uso e implicações de ${topic} em ${year}.`,
+                `Impacto operacional de ${topic} com ganhos de ${num(12,35)}%.`,
+                `Estudos de caso com replicação leve em ${year}.`
+            ],
+            stats:[
+                `Análise estatística: testes apropriados, intervalos de confiança e poder amostral.`,
+                `Poder alvo ${num(80,95)}% com α=0.${num(1,5)} e IC ${num(90,99)}%.`,
+                `Checagens de pressupostos e análises de sensibilidade.`
+            ],
+            ethics:[
+                `Cuidados éticos e mitigação de vieses no estudo.`,
+                `Privacidade, compliance e governança de dados.`
+            ],
+            repl:[
+                `Plano de replicação e compartilhamento de dados.`,
+                `Checklist de replicação, materiais e scripts versionados.`
+            ]
+        }:(lang==='es'?{
+            method:[
+                `Definición de variables y controles para ${topic}.`,
+                `Plan muestral y criterios de inclusión para ${topic}.`,
+                `Instrumentación para observabilidad y réplica.`,
+                `Estrategia ${level==='phd'?`multi‑método`:`de muestreo controlado`} aplicada a ${topic}.`,
+                `Validación cruzada y pruebas de robustez en ${topic}.`,
+                `Transparencia: pre‑registro y datos abiertos.`
+            ],
+            lit:[
+                `Síntesis de corrientes y vacíos en la literatura de ${topic}.`,
+                `Mapa de debates y convergencias recientes de ${topic}.`,
+                `Marcos teóricos contrastantes sobre ${topic}.`,
+                `Panorama de métodos y limitaciones en ${topic}.`
+            ],
+            apps:[
+                `Aplicaciones prácticas de ${topic} con efecto estimado entre ${num(5,15)}% y ${num(16,28)}%.`,
+                `Escenarios de uso e implicaciones en ${year}.`,
+                `Impacto operativo de ${topic} con mejoras de ${num(12,35)}%.`,
+                `Estudios de caso con réplica ligera en ${year}.`
+            ],
+            stats:[
+                `Análisis estadístico: pruebas adecuadas, intervalos de confianza y potencia.`,
+                `Potencia objetivo ${num(80,95)}% con α=0.${num(1,5)} e IC ${num(90,99)}%.`,
+                `Chequeos de supuestos y análisis de sensibilidad.`
+            ],
+            ethics:[
+                `Cuidados éticos y mitigación de sesgos.`,
+                `Privacidad, cumplimiento y gobernanza de datos.`
+            ],
+            repl:[
+                `Plan de réplica y datos abiertos.`,
+                `Lista de verificación, materiales y scripts versionados.`
+            ]
+        }:(lang==='fr'?{
+            method:[
+                `Définition des variables et contrôles pour ${topic}.`,
+                `Plan d’échantillonnage et critères d’inclusion pour ${topic}.`,
+                `Instrumentation pour observabilité et réplication.`,
+                `Stratégie ${level==='phd'?`multi‑méthodes`:`d’échantillonnage contrôlé`} appliquée à ${topic}.`,
+                `Validation croisée et tests de robustesse sur ${topic}.`,
+                `Transparence : pré‑enregistrement et données ouvertes.`
+            ],
+            lit:[
+                `Synthèse des courants et lacunes de la littérature sur ${topic}.`,
+                `Carte des débats et convergences récentes.`,
+                `Cadres théoriques contrastés autour de ${topic}.`,
+                `Panorama des méthodes et de leurs limites en ${topic}.`
+            ],
+            apps:[
+                `Applications pratiques de ${topic} avec effet estimé entre ${num(5,15)}% et ${num(16,28)}%.`,
+                `Scénarios d’usage et implications en ${year}.`,
+                `Impact opérationnel de ${topic} avec gains de ${num(12,35)}%.`,
+                `Études de cas avec réplication légère en ${year}.`
+            ],
+            stats:[
+                `Analyse statistique : tests appropriés, intervalles de confiance et puissance.`,
+                `Puissance cible ${num(80,95)}% avec α=0.${num(1,5)} et IC ${num(90,99)}%.`,
+                `Vérifications d’hypothèses et analyses de sensibilité.`
+            ],
+            ethics:[
+                `Précautions éthiques et réduction des biais.`,
+                `Confidentialité, conformité et gouvernance des données.`
+            ],
+            repl:[
+                `Plan de réplication et ouverture des données.`,
+                `Liste de contrôle, matériels et scripts versionnés.`
+            ]
+        }:(lang==='de'?{
+            method:[
+                `Definition von Variablen und Kontrollen für ${topic}.`,
+                `Stichprobenplan und Einschlusskriterien für ${topic}.`,
+                `Instrumentierung für Beobachtbarkeit und Replikation.`,
+                `Strategie ${level==='phd'?`Multi‑Methoden`:`kontrolliertes Sampling`} für ${topic}.`,
+                `Kreuzvalidierung und Robustheits‑Tests für ${topic}.`,
+                `Transparenz: Präregistrierung und offene Daten.`
+            ],
+            lit:[
+                `Synthese von Strömungen und Lücken in der Literatur zu ${topic}.`,
+                `Landkarte aktueller Debatten und Konvergenzen.`,
+                `Kontrastierende theoretische Rahmen zu ${topic}.`,
+                `Übersicht über Methoden und deren Grenzen in ${topic}.`
+            ],
+            apps:[
+                `Praktische Anwendungen von ${topic} mit geschätztem Effekt zwischen ${num(5,15)}% und ${num(16,28)}%.`,
+                `Nutzungs­szenarien und Implikationen im ${year}.`,
+                `Operativer Impact von ${topic} mit Zugewinnen von ${num(12,35)}%.`,
+                `Fallstudien mit leichter Replikation im ${year}.`
+            ],
+            stats:[
+                `Statistische Analyse: geeignete Tests, Konfidenzintervalle und Power.`,
+                `Angestrebte Teststärke ${num(80,95)}% bei α=0.${num(1,5)} und KI ${num(90,99)}%.`,
+                `Annahmen prüfen und Sensitivitätsanalysen.`
+            ],
+            ethics:[
+                `Ethische Leitplanken und Bias‑Minderung.`,
+                `Datenschutz, Compliance und Daten‑Governance.`
+            ],
+            repl:[
+                `Replikationsplan und offene Daten.`,
+                `Checkliste, Materialien und versionierte Skripte.`
+            ]
+        }:{
+            method:[
+                `Definition of variables and controls for ${topic}.`,
+                `Sampling plan and inclusion criteria for ${topic}.`,
+                `Instrumentation for observability and replication.`,
+                `${level==='phd'?`Multi‑method`:`Controlled sampling`} strategy applied to ${topic}.`,
+                `Cross‑validation and robustness checks for ${topic}.`,
+                `Transparency: preregistration and open data.`
+            ],
+            lit:[
+                `Synthesis of strands and gaps in ${topic} literature.`,
+                `Map of debates and recent convergences.`,
+                `Contrasting theoretical frameworks on ${topic}.`,
+                `Overview of methods and their limits in ${topic}.`
+            ],
+            apps:[
+                `Practical applications of ${topic} with estimated effect between ${num(5,15)}% and ${num(16,28)}%.`,
+                `Use scenarios and implications in ${year}.`,
+                `Operational impact of ${topic} with gains of ${num(12,35)}%.`,
+                `Case studies with light replication in ${year}.`
+            ],
+            stats:[
+                `Statistical analysis: appropriate tests, confidence intervals, and power.`,
+                `Target power ${num(80,95)}% at α=0.${num(1,5)} and CI ${num(90,99)}%.`,
+                `Assumption checks and sensitivity analyses.`
+            ],
+            ethics:[
+                `Ethical guardrails and bias mitigation.`,
+                `Privacy, compliance, and data governance.`
+            ],
+            repl:[
+                `Replication plan and open data.`,
+                `Replication checklist, materials, and versioned scripts.`
+            ]
+        })))
+        const keys = ['method','lit','apps','stats','ethics','repl'];
+        const ix = {method:0, lit:0, apps:0, stats:0, ethics:0, repl:0};
+        let k = 0;
+        while (count(content) < targetMin && k < 400) {
+            const sec = keys[k % keys.length];
+            const arr = A[sec];
+            const s = arr[ix[sec] % arr.length];
+            ix[sec]++;
+            content += `<p>${s}</p>`;
+            k++;
+        }
 
         const finalCount = count(content);
         return { title: title, content: content, wordCount: finalCount, language: language, style: style, createdAt: new Date().toISOString() };
+        } catch (err) {
+            console.error('Academic generation error:', err);
+        }
     }
     if (language === 'en' && wordCount >= 2000) {
         let title = `The D2 Method for predictable growth`;
@@ -2524,6 +2741,7 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
         .lux-cta h3{color:#111;margin:0}
         .lux-cta p{color:#111;text-align:center;margin:0}
         .lux-cta a{display:inline-block;background:#fff;color:#111;border:2px solid #8B5CF6;border-radius:8px;padding:.5rem 1rem;font-weight:700;text-decoration:none}
+        .lux-meta{background:#F8FAFF;border:2px solid #8B5CF6;color:#111;border-radius:12px;padding:.5rem .75rem;text-align:center;margin:.75rem 0;font-weight:600}
         .lux-platforms{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center;margin-top:.25rem}
         .lux-chip{display:inline-flex;align-items:center;gap:.35rem;border:2px solid #8B5CF6;color:#111;border-radius:999px;padding:.35rem .7rem;text-decoration:none;font-weight:600}
         .lux-chip svg{width:16px;height:16px;fill:#8B5CF6}
