@@ -1370,10 +1370,8 @@
             USER_CURRENCY = data;
             document.getElementById('priceCurrency').textContent = data.symbol;
             document.getElementById('priceAmount').textContent = formatPrice(data.code, data.price);
-            const usd = formatPrice('USD', convertFromBRL(BASE_PRICE_BRL, 'USD'));
-            const eur = formatPrice('EUR', convertFromBRL(BASE_PRICE_BRL, 'EUR'));
-            const gbp = formatPrice('GBP', convertFromBRL(BASE_PRICE_BRL, 'GBP'));
-            document.getElementById('priceConvert').textContent = `≈ R$ ${BASE_PRICE_BRL.toFixed(2)} | $ ${usd} | € ${eur} | £ ${gbp}`;
+            const pc = document.getElementById('priceConvert');
+            if (pc) { pc.textContent = ''; pc.style.display = 'none'; }
         }
         
         function redirectToStripe() {
@@ -1390,7 +1388,7 @@
         function initializeTrialForUser() { const key = getUserKey(); const startKey = `TRIAL_START_${key}`; const statusKey = `SUBSCRIPTION_STATUS_${key}`; if (!localStorage.getItem(startKey)) { localStorage.setItem(startKey, new Date().toISOString()); } const status = localStorage.getItem(statusKey) || (currentUser.subscription_status || 'trial_active'); localStorage.setItem(statusKey, status); const overrideStr = localStorage.getItem(`ADMIN_ACCESS_${key}`); if (overrideStr) { try { const o = JSON.parse(overrideStr); if (o && o.indefinite) { localStorage.setItem(statusKey, 'active'); } else if (o && o.days && o.days > 0) { const grantStartKey = `GRANT_START_${key}`; if (!localStorage.getItem(grantStartKey)) { const now = new Date().toISOString(); localStorage.setItem(grantStartKey, now); localStorage.setItem(startKey, now); } localStorage.setItem(`TRIAL_LENGTH_${key}`, String(o.days)); localStorage.setItem(statusKey, 'trial_active'); } } catch (e) {} } }
         function getRemainingTrialDays() { const key = getUserKey(); const startStr = localStorage.getItem(`TRIAL_START_${key}`); const lenStr = localStorage.getItem(`TRIAL_LENGTH_${key}`); const length = lenStr ? (parseInt(lenStr) || 14) : 14; if (!startStr) return length; const start = new Date(startStr); const now = new Date(); const days = Math.ceil((now - start) / (1000*60*60*24)); return Math.max(0, length - days); }
         function getSubscriptionStatus() { const key = getUserKey(); const status = localStorage.getItem(`SUBSCRIPTION_STATUS_${key}`) || 'trial_active'; if (status === 'active') return 'active'; const left = getRemainingTrialDays(); return left > 0 ? 'trial_active' : 'trial_expired'; }
-        function renderTrialBanner() { const banner = document.getElementById('trialBanner'); if (!banner || !currentUser) return; const status = getSubscriptionStatus(); if (status === 'active') { banner.style.display='none'; return; } const left = getRemainingTrialDays(); const lang = (document.getElementById('langSelect').value || 'pt'); const isPT = lang === 'pt'; const isEN = lang === 'en'; const isES = lang === 'es'; const isFR = lang === 'fr'; const isDE = lang === 'de'; const usd = formatPrice('USD', convertFromBRL(BASE_PRICE_BRL, 'USD')); const eur = formatPrice('EUR', convertFromBRL(BASE_PRICE_BRL, 'EUR')); const gbp = formatPrice('GBP', convertFromBRL(BASE_PRICE_BRL, 'GBP')); const localSym = USER_CURRENCY.symbol; const localAmt = formatPrice(USER_CURRENCY.code, USER_CURRENCY.price); const priceLine = isPT ? `Assine por ${localSym}${localAmt}/mês (≈ R$ ${BASE_PRICE_BRL.toFixed(2)} | US$ ${usd} | € ${eur} | £ ${gbp})` : (isEN ? `Subscribe for ${localSym}${localAmt}/month (≈ R$ ${BASE_PRICE_BRL.toFixed(2)} | $${usd} | € ${eur} | £ ${gbp})` : (isES ? `Suscríbete por ${localSym}${localAmt}/mes (≈ R$ ${BASE_PRICE_BRL.toFixed(2)} | US$ ${usd} | € ${eur} | £ ${gbp})` : (isFR ? `Abonnez‑vous pour ${localSym}${localAmt}/mois (≈ R$ ${BASE_PRICE_BRL.toFixed(2)} | $${usd} | € ${eur} | £ ${gbp})` : `Abonnieren für ${localSym}${localAmt}/Monat (≈ R$ ${BASE_PRICE_BRL.toFixed(2)} | $${usd} | € ${eur} | £ ${gbp})`))); const msg = isPT ? `Seu teste gratuito termina em ${left} dia${left===1?'':'s'}.` : (isEN ? `Your free trial ends in ${left} day${left===1?'':'s'}.` : (isES ? `Tu prueba gratuita termina en ${left} día${left===1?'':'s'}.` : (isFR ? `Votre essai gratuit se termine dans ${left} jour${left===1?'':'s'}.` : `Ihre kostenlose Testphase endet in ${left} Tag${left===1?'':'en'}.`))); const nudge = isPT ? `Crie um artigo hoje — pequenos ciclos geram resultados.` : (isEN ? `Create an article today — short cycles compound results.` : (isES ? `Crea un artículo hoy — ciclos cortos generan resultados.` : (isFR ? `Créez un article aujourd’hui — les cycles courts composent les résultats.` : `Erstellen Sie heute einen Artikel — kurze Zyklen verstärken die Ergebnisse.`))); banner.style.display='block'; banner.classList.toggle('warn', left <= 3); const btnText = isPT ? 'Assinar Agora' : (isEN ? 'Subscribe Now' : (isES ? 'Suscribirse' : (isFR ? 'S’abonner' : 'Jetzt abonnieren'))); banner.innerHTML = `<span>${msg}</span> <span style="margin-left:.5rem;color:#444;font-weight:500">${priceLine}</span> <button class="btn-action" onclick="redirectToStripe()" style="margin-left:.5rem;padding:.35rem .7rem">${btnText}</button> <span style="margin-left:.5rem;color:#6B7280;font-weight:500">${nudge}</span>`; }
+        function renderTrialBanner() { const banner = document.getElementById('trialBanner'); if (!banner || !currentUser) return; const status = getSubscriptionStatus(); if (status === 'active') { banner.style.display='none'; return; } const left = getRemainingTrialDays(); const lang = (document.getElementById('langSelect').value || 'pt'); const isPT = lang === 'pt'; const isEN = lang === 'en'; const isES = lang === 'es'; const isFR = lang === 'fr'; const isDE = lang === 'de'; const localSym = USER_CURRENCY.symbol; const localAmt = formatPrice(USER_CURRENCY.code, USER_CURRENCY.price); const priceLine = isPT ? `Assine por ${localSym}${localAmt}/mês` : (isEN ? `Subscribe for ${localSym}${localAmt}/month` : (isES ? `Suscríbete por ${localSym}${localAmt}/mes` : (isFR ? `Abonnez‑vous pour ${localSym}${localAmt}/mois` : `Abonnieren für ${localSym}${localAmt}/Monat`))); const msg = isPT ? `Seu teste gratuito termina em ${left} dia${left===1?'':'s'}.` : (isEN ? `Your free trial ends in ${left} day${left===1?'':'s'}.` : (isES ? `Tu prueba gratuita termina en ${left} día${left===1?'':'s'}.` : (isFR ? `Votre essai gratuit se termine dans ${left} jour${left===1?'':'s'}.` : `Ihre kostenlose Testphase endet in ${left} Tag${left===1?'':'en'}.`))); const nudge = isPT ? `Crie um artigo hoje — pequenos ciclos geram resultados.` : (isEN ? `Create an article today — short cycles compound results.` : (isES ? `Crea un artículo hoy — ciclos cortos generan resultados.` : (isFR ? `Créez un article aujourd’hui — les cycles courts composent les résultats.` : `Erstellen Sie heute einen Artikel — kurze Zyklen verstärken die Ergebnisse.`))); banner.style.display='block'; banner.classList.toggle('warn', left <= 3); const btnText = isPT ? 'Assinar Agora' : (isEN ? 'Subscribe Now' : (isES ? 'Suscribirse' : (isFR ? 'S’abonner' : 'Jetzt abonnieren'))); banner.innerHTML = `<span>${msg}</span> <span style="margin-left:.5rem;color:#444;font-weight:500">${priceLine}</span> <button class="btn-action" onclick="redirectToStripe()" style="margin-left:.5rem;padding:.35rem .7rem">${btnText}</button> <span style="margin-left:.5rem;color:#6B7280;font-weight:500">${nudge}</span>`; }
         function maybeWarnTrialExpiring() { const left = getRemainingTrialDays(); const key = getUserKey(); const markKey = `TRIAL_WARN_${key}_${new Date().toDateString()}`; if (left <= 3 && !localStorage.getItem(markKey)) { alert(`⚠️ Seu teste gratuito termina em ${left} dia${left===1?'':'s'}.`); localStorage.setItem(markKey, '1'); } }
         function unlockAfterPayment() { const key = getUserKey(); localStorage.setItem(`SUBSCRIPTION_STATUS_${key}`, 'active'); currentUser.subscription_status = 'active'; document.getElementById('paywallOverlay').classList.remove('active'); renderTrialBanner(); alert('✅ Assinatura ativada! Acesso liberado.'); }
         function handleReturnParams() { const params = new URLSearchParams(window.location.search); if (params.get('unlock') === '1' || params.get('paid') === '1' || params.get('status') === 'active') { if (currentUser) { unlockAfterPayment(); } else { localStorage.setItem('PAID_FLAG', '1'); } } }
@@ -1570,7 +1568,7 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
 </style>`;
     const strip = s => s.replace(/<style[\s\S]*?<\/style>/gi,'').replace(/<[^>]+>/g, '');
     const count = s => strip(s).trim().split(/\s+/).filter(Boolean).length;
-    const targetMin = Math.max(300, Math.floor(wordCount * 0.95));
+    const targetMin = Math.max(500, wordCount);
     const pick = a => a[Math.floor(Math.random() * a.length)];
     const num = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
@@ -1729,15 +1727,12 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
         content += `<h2 id="sec-disc">${H.disc}</h2><p>${L.disc} ${cite(refsData[1], stylePref)}. ${levelAdd}</p>`;
         content += `<h2 id="sec-lim">${H.lim}</h2><p>${L.lim}</p>`;
         content += `<h2 id="sec-fut">${H.fut}</h2><p>${L.fut}</p>`;
-        const usdMid = formatPrice('USD', convertFromBRL(BASE_PRICE_BRL, 'USD'));
-        const eurMid = formatPrice('EUR', convertFromBRL(BASE_PRICE_BRL, 'EUR'));
-        const gbpMid = formatPrice('GBP', convertFromBRL(BASE_PRICE_BRL, 'GBP'));
-        const localSymMid = USER_CURRENCY.symbol;
-        const localAmtMid = formatPrice(USER_CURRENCY.code, USER_CURRENCY.price);
-        const priceLineMid = lang==='pt'?`Assine por ${localSymMid}${localAmtMid}/mês (≈ R$ ${BASE_PRICE_BRL.toFixed(2)} | US$ ${usdMid} | € ${eurMid} | £ ${gbpMid})`:
-                              lang==='es'?`Suscríbete por ${localSymMid}${localAmtMid}/mes (≈ R$ ${BASE_PRICE_BRL.toFixed(2)} | US$ ${usdMid} | € ${eurMid} | £ ${gbpMid})`:
-                              lang==='fr'?`Abonnez‑vous pour ${localSymMid}${localAmtMid}/mois (≈ R$ ${BASE_PRICE_BRL.toFixed(2)} | $${usdMid} | € ${eurMid} | £ ${gbpMid})`:
-                              lang==='de'?`Abonnieren für ${localSymMid}${localAmtMid}/Monat (≈ R$ ${BASE_PRICE_BRL.toFixed(2)} | $${usdMid} | € ${eurMid} | £ ${gbpMid})`:`Subscribe for ${localSymMid}${localAmtMid}/month (≈ R$ ${BASE_PRICE_BRL.toFixed(2)} | $${usdMid} | € ${eurMid} | £ ${gbpMid})`;
+            const localSymMid = USER_CURRENCY.symbol;
+            const localAmtMid = formatPrice(USER_CURRENCY.code, USER_CURRENCY.price);
+            const priceLineMid = lang==='pt'?`Assine por ${localSymMid}${localAmtMid}/mês`:
+                              lang==='es'?`Suscríbete por ${localSymMid}${localAmtMid}/mes`:
+                              lang==='fr'?`Abonnez‑vous pour ${localSymMid}${localAmtMid}/mois`:
+                              lang==='de'?`Abonnieren für ${localSymMid}${localAmtMid}/Monat`:`Subscribe for ${localSymMid}${localAmtMid}/month`;
         const ctaHead = lang==='pt'?'Modo Acadêmico Ativo':'Academic Mode Enabled';
         const ctaLink = lang==='pt'?'Assinar':'Subscribe';
         content += `<div class="lux-cta"><h3>${ctaHead}</h3><p>${priceLineMid}</p><a href="#" onclick="redirectToStripe()">${ctaLink}</a></div>`;
@@ -1753,7 +1748,8 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
                            lang==='de'?[`Methodendetails: Kontrolle, Variablen und Validierung.`,`Einbindung in die Literatur: Konvergenzen und Divergenzen.`,`Praktische Anwendungen und erwarteter Impact.`]:
                            [`Method detail: control, variables, validation.`,`Integration with literature: convergences and divergences.`,`Practical applications and expected impact.`];
         let i = 0;
-        while (count(content) < targetMin && i < 20) { content += `<p>${pick(expanders)}</p>`; i++; }
+        const filler = () => `${pick(expanders)} ${pick(expanders)} ${pick(expanders)}`;
+        while (count(content) < targetMin && i < 300) { content += `<p>${filler()}</p>`; i++; }
 
         const finalCount = count(content);
         return { title: title, content: content, wordCount: finalCount, language: language, style: style, createdAt: new Date().toISOString() };
@@ -1852,7 +1848,7 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
                     proof: i => `Exemplo: ${num(127,140)} de ${num(140,160)} testes com ${topic} validaram ${i}% de ganho em ${pick(['retenção','conversão','alcance'])}.`,
                     sectionSummary: 'Resumo da Seção',
                     summaryText: `Foque em uma hipótese, valide, aprenda e avance.`,
-                    priceLine: (sym, amt, usd, eur, gbp) => `Assine por ${sym}${amt}/mês (≈ R$ ${BASE_PRICE_BRL.toFixed(2)} | US$ ${usd} | € ${eur} | £ ${gbp})`,
+                    priceLine: (sym, amt) => `Assine por ${sym}${amt}/mês`,
                     ctaHead: 'Pronto Para Aplicar?',
                     ctaLink: 'Começar agora',
                     blockquote: 'Escrever sem estrutura é como construir casa sem planta: paredes no lugar errado.',
@@ -1910,7 +1906,7 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
                     proof: i => `Example: ${num(127,140)} of ${num(140,160)} tests with ${topic} validated ${i}% gain in ${pick(['retention','conversion','reach'])}.`,
                     sectionSummary: 'Section Summary',
                     summaryText: `Focus on one hypothesis, validate, learn, and move forward.`,
-                    priceLine: (sym, amt, usd, eur, gbp) => `Subscribe for ${sym}${amt}/month (≈ R$ ${BASE_PRICE_BRL.toFixed(2)} | $${usd} | € ${eur} | £ ${gbp})`,
+                    priceLine: (sym, amt) => `Subscribe for ${sym}${amt}/month`,
                     ctaHead: 'Ready To Apply?',
                     ctaLink: 'Start now',
                     blockquote: 'Writing without structure is like building a house without a plan: walls in the wrong place.',
@@ -1968,7 +1964,7 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
                     proof: i => `Ejemplo: ${num(127,140)} de ${num(140,160)} tests con ${topic} validaron ${i}% de mejora en ${pick(['retención','conversión','alcance'])}.`,
                     sectionSummary: 'Resumen de la sección',
                     summaryText: `Enfócate en una hipótesis, valida, aprende y avanza.`,
-                    priceLine: (sym, amt, usd, eur, gbp) => `Suscríbete por ${sym}${amt}/mes (≈ R$ ${BASE_PRICE_BRL.toFixed(2)} | US$ ${usd} | € ${eur} | £ ${gbp})`,
+                    priceLine: (sym, amt) => `Suscríbete por ${sym}${amt}/mes`,
                     ctaHead: '¿Listo para aplicar?',
                     ctaLink: 'Empezar ahora',
                     blockquote: 'Escribir sin estructura es como construir una casa sin plano: paredes en el lugar equivocado.',
@@ -2026,7 +2022,7 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
                     proof: i => `Exemple: ${num(127,140)} de ${num(140,160)} tests avec ${topic} ont validé ${i}% de gain en ${pick(['rétention','conversion','portée'])}.`,
                     sectionSummary: 'Résumé de la section',
                     summaryText: `Se concentrer sur une hypothèse, valider, apprendre et avancer.`,
-                    priceLine: (sym, amt, usd, eur, gbp) => `Abonnez-vous pour ${sym}${amt}/mois (≈ R$ ${BASE_PRICE_BRL.toFixed(2)} | $${usd} | € ${eur} | £ ${gbp})`,
+                    priceLine: (sym, amt) => `Abonnez-vous pour ${sym}${amt}/mois`,
                     ctaHead: 'Prêt à appliquer ?',
                     ctaLink: 'Commencer maintenant',
                     blockquote: 'Écrire sans structure, c’est construire une maison sans plan: des murs au mauvais endroit.',
@@ -2084,7 +2080,7 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
                     proof: i => `Beispiel: ${num(127,140)} von ${num(140,160)} Tests mit ${topic} bestätigten ${i}% Gewinn bei ${pick(['Bindung','Konversion','Reichweite'])}.`,
                     sectionSummary: 'Abschnittszusammenfassung',
                     summaryText: `Auf eine Hypothese fokussieren, validieren, lernen und weitermachen.`,
-                    priceLine: (sym, amt, usd, eur, gbp) => `Abonnieren für ${sym}${amt}/Monat (≈ R$ ${BASE_PRICE_BRL.toFixed(2)} | $${usd} | € ${eur} | £ ${gbp})`,
+                    priceLine: (sym, amt) => `Abonnieren für ${sym}${amt}/Monat`,
                     ctaHead: 'Bereit zur Anwendung?',
                     ctaLink: 'Jetzt starten',
                     blockquote: 'Ohne Struktur zu schreiben ist wie ein Haus ohne Plan: Wände am falschen Ort.',
@@ -2159,12 +2155,9 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
                     content += `<p>${T[lang].summaryText}</p>`;
                 }
                 if (i === Math.ceil(sectionsCount/2)-1) {
-            const usdMid = formatPrice('USD', convertFromBRL(BASE_PRICE_BRL, 'USD'));
-            const eurMid = formatPrice('EUR', convertFromBRL(BASE_PRICE_BRL, 'EUR'));
-            const gbpMid = formatPrice('GBP', convertFromBRL(BASE_PRICE_BRL, 'GBP'));
             const localSymMid = USER_CURRENCY.symbol;
             const localAmtMid = formatPrice(USER_CURRENCY.code, USER_CURRENCY.price);
-            const priceLineMid = T[lang].priceLine(localSymMid, localAmtMid, usdMid, eurMid, gbpMid);
+            const priceLineMid = T[lang].priceLine(localSymMid, localAmtMid);
                     content += `<div class="lux-cta"><h3>${T[lang].ctaHead}</h3><p>${priceLineMid}</p><a href="#">${T[lang].ctaLink}</a></div>`;
                 }
             }
@@ -2178,12 +2171,9 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
                 for (const qa of T[lang].faq) { content += `<p>${qa}</p>`; }
             }
             content += `<p>${T[lang].micro()}</p>`;
-            const usdBot = formatPrice('USD', convertFromBRL(BASE_PRICE_BRL, 'USD'));
-            const eurBot = formatPrice('EUR', convertFromBRL(BASE_PRICE_BRL, 'EUR'));
-            const gbpBot = formatPrice('GBP', convertFromBRL(BASE_PRICE_BRL, 'GBP'));
             const localSymBot = USER_CURRENCY.symbol;
             const localAmtBot = formatPrice(USER_CURRENCY.code, USER_CURRENCY.price);
-            const priceLineBot = T[lang].priceLine(localSymBot, localAmtBot, usdBot, eurBot, gbpBot);
+            const priceLineBot = T[lang].priceLine(localSymBot, localAmtBot);
                 content += `<div class="lux-cta"><h3>${T[lang].ctaHead}</h3><p>${priceLineBot}</p><a href="#">${T[lang].bottomCtaLink}</a></div>`;
             content += `<h2>${T[lang].conclusionTitle}</h2>`;
             const concl = academic ? (lang==='pt' ? `Para trabalhos acadêmicos, estruture ${topic} com problema de pesquisa, revisão de literatura, método, resultados e discussão, concluindo com limitações e próximos passos.` : lang==='es' ? `Para trabajos académicos, estructura ${topic} con problema de investigación, revisión de literatura, método, resultados y discusión, cerrando con limitaciones y próximos pasos.` : lang==='fr' ? `Pour les travaux académiques, structurez ${topic} avec problématique, revue de littérature, méthode, résultats et discussion, en terminant par limites et prochaines étapes.` : lang==='de' ? `Für akademische Arbeiten strukturieren Sie ${topic} mit Forschungsfrage, Literaturüberblick, Methode, Ergebnissen und Diskussion und schließen mit Grenzen und nächsten Schritten.` : `For academic work, structure ${topic} with research problem, literature review, method, results and discussion, closing with limitations and next steps.`) : T[lang].conclusionText;
