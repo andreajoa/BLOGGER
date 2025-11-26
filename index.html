@@ -1077,6 +1077,16 @@
 
     <!-- Install Button -->
     <button class="install-btn" id="installBtn">📱 Install App</button>
+    <div id="installGuideOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); align-items:center; justify-content:center; z-index:10002;">
+        <div style="background:#FFFFFF; border:1px solid #E6E6E6; border-radius:12px; padding:1.25rem; width:100%; max-width:700px;">
+            <h2 class="section-title" id="installGuideTitle">Instalar App</h2>
+            <div id="installGuideBody" style="color:#111; line-height:1.7;">
+            </div>
+            <div style="display:flex; gap:.5rem; justify-content:flex-end; margin-top:.75rem;">
+                <button class="btn-action" onclick="closeInstallGuide()" id="installGuideClose">Fechar</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Admin Setup Modal -->
     <div id="adminSetupOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); align-items:center; justify-content:center; z-index:10001;">
@@ -1250,7 +1260,7 @@
             });
             
             document.getElementById('installBtn').addEventListener('click', async () => {
-                if (!deferredPrompt) return;
+                if (!deferredPrompt) { openInstallGuide(); return; }
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
                 console.log('Install outcome:', outcome);
@@ -1258,6 +1268,33 @@
                 document.getElementById('installBtn').style.display = 'none';
             });
         }
+
+        function openInstallGuide(){
+            const lang = (document.getElementById('langSelect').value || 'pt');
+            const ua = navigator.userAgent || navigator.vendor || window.opera;
+            const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+            const isAndroid = /Android/.test(ua);
+            const isMac = /Macintosh/.test(ua);
+            const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
+            const isChrome = /Chrome/i.test(ua);
+            const T = {
+                pt: { title:'Instalar App', android:'No Android (Chrome): toque o botão acima ou o ícone de instalar na barra do navegador.', ios:'No iPhone/iPad (Safari): Compartilhar → Adicionar à Tela de Início.', mac:'No Mac: Safari → Arquivo → Adicionar ao Dock. No Chrome: Mais ferramentas → Criar atalho… e marque “Abrir como janela”.', close:'Fechar' },
+                en: { title:'Install App', android:'On Android (Chrome): tap the button above or the install icon in the address bar.', ios:'On iPhone/iPad (Safari): Share → Add to Home Screen.', mac:'On Mac: Safari → File → Add to Dock. Chrome: More Tools → Create Shortcut… and check “Open as window”.', close:'Close' },
+                es: { title:'Instalar App', android:'En Android (Chrome): toca el botón arriba o el icono de instalar.', ios:'En iPhone/iPad (Safari): Compartir → Añadir a Pantalla de Inicio.', mac:'En Mac: Safari → Archivo → Añadir al Dock. Chrome: Más herramientas → Crear acceso directo… y marcar “Abrir como ventana”.', close:'Cerrar' },
+                fr: { title:'Installer l’App', android:'Sur Android (Chrome) : appuyez sur le bouton ou l’icône d’installation.', ios:'Sur iPhone/iPad (Safari) : Partager → Ajouter à l’écran d’accueil.', mac:'Sur Mac : Safari → Fichier → Ajouter au Dock. Chrome : Plus d’outils → Créer un raccourci… et cochez “Ouvrir comme fenêtre”.', close:'Fermer' },
+                de: { title:'App installieren', android:'Auf Android (Chrome): Tippen Sie auf den Button oder das Installationssymbol.', ios:'Auf iPhone/iPad (Safari): Teilen → Zum Home-Bildschirm.', mac:'Auf Mac: Safari → Ablage → Zum Dock hinzufügen. Chrome: Weitere Tools → Verknüpfung erstellen… und “Als Fenster öffnen”.', close:'Schließen' }
+            }[lang];
+            document.getElementById('installGuideTitle').textContent = T.title;
+            document.getElementById('installGuideClose').textContent = T.close;
+            let body = '';
+            if (isAndroid || isChrome) body += `<p>${T.android}</p>`;
+            if (isIOS) body += `<p>${T.ios}</p>`;
+            if (isMac || isSafari) body += `<p>${T.mac}</p>`;
+            if (!body) body = `<p>${T.android}</p><p>${T.ios}</p><p>${T.mac}</p>`;
+            document.getElementById('installGuideBody').innerHTML = body;
+            document.getElementById('installGuideOverlay').style.display = 'flex';
+        }
+        function closeInstallGuide(){ document.getElementById('installGuideOverlay').style.display = 'none'; }
         
         // ==================== AUTH ====================
         function showAuthTab(tab) {
@@ -1566,6 +1603,9 @@
 .lux-cta h3{color:#111;margin:0}
 .lux-cta p{color:#111;text-align:center;margin:0}
 .lux-cta a{display:inline-block;background:#fff;color:#111;border:2px solid #8B5CF6;border-radius:8px;padding:.5rem 1rem;font-weight:700;text-decoration:none}
+.lux-platforms{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center;margin-top:.25rem}
+.lux-chip{display:inline-flex;align-items:center;gap:.35rem;border:2px solid #8B5CF6;color:#111;border-radius:999px;padding:.35rem .7rem;text-decoration:none;font-weight:600}
+.lux-chip svg{width:16px;height:16px;fill:#8B5CF6}
 blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:1rem 0}
 </style>`;
     const strip = s => s.replace(/<style[\s\S]*?<\/style>/gi,'').replace(/<[^>]+>/g, '');
@@ -1753,8 +1793,12 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
                               lang==='de'?`Abonnieren für ${localSymMid}${localAmtMid}/Monat`:`Subscribe for ${localSymMid}${localAmtMid}/month`;
         const ctaHead = lang==='pt'?'Modo Acadêmico Ativo':'Academic Mode Enabled';
         const ctaLink = lang==='pt'?'Assinar':'Subscribe';
+        const installLabel = lang==='pt'?'Instalar App':(lang==='es'?'Instalar App':(lang==='fr'?'Installer l’App':(lang==='de'?'App installieren':'Install App')));
+        const chipAndroid = lang==='pt'?'Android':(lang==='es'?'Android':(lang==='fr'?'Android':(lang==='de'?'Android':'Android')));
+        const chipIOS = lang==='pt'?'iOS':(lang==='es'?'iOS':(lang==='fr'?'iOS':(lang==='de'?'iOS':'iOS')));
+        const chipMac = lang==='pt'?'macOS':(lang==='es'?'macOS':(lang==='fr'?'macOS':(lang==='de'?'macOS':'macOS')));
         const payHref = `${STRIPE_LINK}?client_reference_id=${currentUser?currentUser.email:''}&prefilled_email=${currentUser?currentUser.email:''}`;
-        content += `<div class="lux-cta"><h3>${ctaHead}</h3><p>${priceLineMid}</p><a href="${payHref}" target="_blank" rel="noopener">${ctaLink}</a></div>`;
+        content += `<div class="lux-cta"><h3>${ctaHead}</h3><p>${priceLineMid}</p><div style="display:flex;gap:.5rem;justify-content:center"><a href="${payHref}" target="_blank" rel="noopener">${ctaLink}</a><a href="#" onclick="openInstallGuide()">${installLabel}</a></div><div class="lux-platforms"><a href="#" onclick="openInstallGuide()" class="lux-chip"><svg viewBox="0 0 24 24"><path d="M12 2l3 3-3 3-3-3 3-3zm-6 6l3 3-3 3-3-3 3-3zm12 0l3 3-3 3-3-3 3-3zm-6 6l3 3-3 3-3-3 3-3z"/></svg>${chipAndroid}</a><a href="#" onclick="openInstallGuide()" class="lux-chip"><svg viewBox="0 0 24 24"><path d="M16 2c-2 0-3 1-4 2-1-1-2-2-4-2-3 0-6 3-6 7 0 6 7 10 10 13 3-3 10-7 10-13 0-4-3-7-6-7z"/></svg>${chipIOS}</a><a href="#" onclick="openInstallGuide()" class="lux-chip"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z M7 7h10v10H7z"/></svg>${chipMac}</a></div></div>`;
 
         content += `<h2 id="sec-concl">${H.concl}</h2><p>${L.concl}</p>`;
         content += `<h2 id="sec-refs">${H.refs}</h2><p>${L.refsIntro}</p><ul>`;
@@ -2218,7 +2262,8 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
             const localAmtMid = formatPrice(USER_CURRENCY.code, USER_CURRENCY.price);
             const priceLineMid = T[lang].priceLine(localSymMid, localAmtMid);
                 const payHrefMid = `${STRIPE_LINK}?client_reference_id=${currentUser?currentUser.email:''}&prefilled_email=${currentUser?currentUser.email:''}`;
-                content += `<div class="lux-cta"><h3>${T[lang].ctaHead}</h3><p>${priceLineMid}</p><a href="${payHrefMid}" target="_blank" rel="noopener">${T[lang].ctaLink}</a></div>`;
+                const installLabelMid = lang==='pt'?'Instalar App':(lang==='es'?'Instalar App':(lang==='fr'?'Installer l’App':(lang==='de'?'App installieren':'Install App')));
+                content += `<div class="lux-cta"><h3>${T[lang].ctaHead}</h3><p>${priceLineMid}</p><div style="display:flex;gap:.5rem;justify-content:center"><a href="${payHrefMid}" target="_blank" rel="noopener">${T[lang].ctaLink}</a><a href="#" onclick="openInstallGuide()">${installLabelMid}</a></div><div class="lux-platforms"><a href="#" onclick="openInstallGuide()" class="lux-chip"><svg viewBox="0 0 24 24"><path d="M12 2l3 3-3 3-3-3 3-3zm-6 6l3 3-3 3-3-3 3-3zm12 0l3 3-3 3-3-3 3-3zm-6 6l3 3-3 3-3-3 3-3z"/></svg>${chipAndroid}</a><a href="#" onclick="openInstallGuide()" class="lux-chip"><svg viewBox="0 0 24 24"><path d="M16 2c-2 0-3 1-4 2-1-1-2-2-4-2-3 0-6 3-6 7 0 6 7 10 10 13 3-3 10-7 10-13 0-4-3-7-6-7z"/></svg>${chipIOS}</a><a href="#" onclick="openInstallGuide()" class="lux-chip"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z M7 7h10v10H7z"/></svg>${chipMac}</a></div></div>`;
                 }
             }
             content += `<blockquote>${T[lang].blockquote}</blockquote>`;
@@ -2237,7 +2282,8 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
             const localAmtBot = formatPrice(USER_CURRENCY.code, USER_CURRENCY.price);
             const priceLineBot = T[lang].priceLine(localSymBot, localAmtBot);
                 const payHrefBot = `${STRIPE_LINK}?client_reference_id=${currentUser?currentUser.email:''}&prefilled_email=${currentUser?currentUser.email:''}`;
-                content += `<div class="lux-cta"><h3>${T[lang].ctaHead}</h3><p>${priceLineBot}</p><a href="${payHrefBot}" target="_blank" rel="noopener">${T[lang].bottomCtaLink}</a></div>`;
+                const installLabelBot = lang==='pt'?'Instalar App':(lang==='es'?'Instalar App':(lang==='fr'?'Installer l’App':(lang==='de'?'App installieren':'Install App')));
+                content += `<div class="lux-cta"><h3>${T[lang].ctaHead}</h3><p>${priceLineBot}</p><div style="display:flex;gap:.5rem;justify-content:center"><a href="${payHrefBot}" target="_blank" rel="noopener">${T[lang].bottomCtaLink}</a><a href="#" onclick="openInstallGuide()">${installLabelBot}</a></div><div class="lux-platforms"><a href="#" onclick="openInstallGuide()" class="lux-chip"><svg viewBox="0 0 24 24"><path d="M12 2l3 3-3 3-3-3 3-3zm-6 6l3 3-3 3-3-3 3-3zm12 0l3 3-3 3-3-3 3-3zm-6 6l3 3-3 3-3-3 3-3z"/></svg>${chipAndroid}</a><a href="#" onclick="openInstallGuide()" class="lux-chip"><svg viewBox="0 0 24 24"><path d="M16 2c-2 0-3 1-4 2-1-1-2-2-4-2-3 0-6 3-6 7 0 6 7 10 10 13 3-3 10-7 10-13 0-4-3-7-6-7z"/></svg>${chipIOS}</a><a href="#" onclick="openInstallGuide()" class="lux-chip"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z M7 7h10v10H7z"/></svg>${chipMac}</a></div></div>`;
             content += `<h2>${T[lang].conclusionTitle}</h2>`;
             const concl = academic ? (lang==='pt' ? `Para trabalhos acadêmicos, estruture ${topic} com problema de pesquisa, revisão de literatura, método, resultados e discussão, concluindo com limitações e próximos passos.` : lang==='es' ? `Para trabajos académicos, estructura ${topic} con problema de investigación, revisión de literatura, método, resultados y discusión, cerrando con limitaciones y próximos pasos.` : lang==='fr' ? `Pour les travaux académiques, structurez ${topic} avec problématique, revue de littérature, méthode, résultats et discussion, en terminant par limites et prochaines étapes.` : lang==='de' ? `Für akademische Arbeiten strukturieren Sie ${topic} mit Forschungsfrage, Literaturüberblick, Methode, Ergebnissen und Diskussion und schließen mit Grenzen und nächsten Schritten.` : `For academic work, structure ${topic} with research problem, literature review, method, results and discussion, closing with limitations and next steps.`) : T[lang].conclusionText;
             content += `<p>${concl}</p>`;
@@ -2478,6 +2524,9 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
         .lux-cta h3{color:#111;margin:0}
         .lux-cta p{color:#111;text-align:center;margin:0}
         .lux-cta a{display:inline-block;background:#fff;color:#111;border:2px solid #8B5CF6;border-radius:8px;padding:.5rem 1rem;font-weight:700;text-decoration:none}
+        .lux-platforms{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center;margin-top:.25rem}
+        .lux-chip{display:inline-flex;align-items:center;gap:.35rem;border:2px solid #8B5CF6;color:#111;border-radius:999px;padding:.35rem .7rem;text-decoration:none;font-weight:600}
+        .lux-chip svg{width:16px;height:16px;fill:#8B5CF6}
         blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:1rem 0}
     </style>
 </head>
