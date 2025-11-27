@@ -11,14 +11,11 @@
     <link rel="manifest" href="manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Merriweather:wght@300;400;700;900&display=swap" rel="stylesheet">
     <title>✍️ Blog Writer ULTRA - AI Content Generator</title>
-    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
         :root {
             --primary: #000000;
             --secondary: #555555;
@@ -29,14 +26,12 @@
             --light: #FFFFFF;
             --gray: #E6E6E6;
         }
-        
         body {
             font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
             background: #FFFFFF;
             color: var(--dark);
             min-height: 100vh;
         }
-        
         /* Loading Screen */
         .loading {
             position: fixed;
@@ -48,7 +43,6 @@
             justify-content: center;
             z-index: 10000;
         }
-        
         .spinner {
             width: 60px;
             height: 60px;
@@ -57,16 +51,13 @@
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
-        
         @keyframes spin { to { transform: rotate(360deg); } }
-        
         .loading-text {
             color: #000;
             font-size: 1.2em;
             margin-top: 1.5rem;
             font-weight: 600;
         }
-        
         /* Auth Container */
         .auth-container {
             display: none;
@@ -76,7 +67,6 @@
             padding: 1rem;
             background: #FFFFFF;
         }
-        
         .auth-box {
             background: #FFFFFF;
             border-radius: 0;
@@ -86,17 +76,14 @@
             box-shadow: none;
             border: 1px solid var(--gray);
         }
-        
         .auth-logo {
             text-align: left;
             margin-bottom: 1.25rem;
         }
-        
         .auth-logo-icon {
             font-size: 4em;
             margin-bottom: 0.5rem;
         }
-        
         .auth-logo h1 {
             font-family: 'Merriweather', Georgia, 'Times New Roman', serif;
             font-size: 2.2em;
@@ -104,7 +91,6 @@
             color: #000000;
             background: none;
         }
-        
         .trial-badge {
             background: #000000;
             color: #FFFFFF;
@@ -114,7 +100,6 @@
             font-weight: 700;
             display: inline-block;
         }
-        
         .auth-tabs {
             display: flex;
             gap: 0.5rem;
@@ -123,7 +108,6 @@
             border-radius: 0;
             padding: 0;
         }
-        
         .auth-tab {
             flex: 1;
             padding: 0.7rem;
@@ -135,25 +119,20 @@
             color: #000000;
             transition: all 0.2s;
         }
-        
         .auth-tab.active {
             background: #000000;
             color: #FFFFFF;
             box-shadow: none;
         }
-        
         .auth-form {
             display: none;
         }
-        
         .auth-form.active {
             display: block;
         }
-        
         .form-group {
             margin-bottom: 1.2rem;
         }
-        
         .form-group label {
             display: block;
             margin-bottom: 0.5rem;
@@ -161,7 +140,6 @@
             font-size: 0.95em;
             color: #000000;
         }
-        
         .form-group input,
         .form-group select,
         .form-group textarea {
@@ -173,7 +151,6 @@
             font-family: inherit;
             background: #FFFFFF;
         }
-        
         .form-group input:focus,
         .form-group select:focus,
         .form-group textarea:focus {
@@ -181,7 +158,6 @@
             border-color: #000000;
             box-shadow: none;
         }
-        
         .btn-auth {
             width: 100%;
             padding: 0.9rem;
@@ -194,17 +170,14 @@
             cursor: pointer;
             transition: all 0.2s;
         }
-        
         .btn-auth:hover {
             background: #FFFFFF;
             color: #000000;
         }
-        
         .btn-auth:disabled {
             opacity: 0.6;
             cursor: not-allowed;
         }
-        
         .auth-msg {
             padding: 0.75rem;
             border-radius: 6px;
@@ -213,19 +186,16 @@
             display: none;
             border: 1px solid var(--gray);
         }
-        
         .auth-error {
             background: #FFFFFF;
             color: #CC0000;
             border-color: #CC0000;
         }
-        
         .auth-success {
             background: #FFFFFF;
             color: #0A7F3B;
             border-color: #0A7F3B;
         }
-        
         /* Paywall */
         .paywall-overlay {
             display: none;
@@ -237,11 +207,9 @@
             justify-content: center;
             padding: 1rem;
         }
-        
         .paywall-overlay.active {
             display: flex;
         }
-        
         .paywall-box {
             background: white;
             border-radius: 24px;
@@ -250,37 +218,31 @@
             width: 100%;
             text-align: center;
         }
-        
         .paywall-icon {
             font-size: 5em;
             margin-bottom: 1rem;
         }
-        
         .paywall-title {
             font-size: 2.5em;
             font-weight: 800;
             margin-bottom: 1rem;
             color: #000000;
         }
-        
         .price-box {
             background: #F0F0F0;
             border-radius: 20px;
             padding: 2rem;
             margin: 2rem 0;
         }
-        
         .price-amount {
             font-size: 3.5em;
             font-weight: 800;
             color: #000000;
         }
-        
         .price-currency {
             font-size: 0.5em;
             opacity: 0.7;
         }
-        
         .btn-subscribe {
             width: 100%;
             padding: 1rem;
@@ -293,23 +255,19 @@
             cursor: pointer;
             transition: all 0.2s;
         }
-        
         .btn-subscribe:hover {
             background: #FFFFFF;
             color: #000000;
         }
-        
         /* App Container */
         .app-container {
             display: none;
             background: #FFFFFF;
             min-height: 100vh;
         }
-        
         .app-container.active {
             display: block;
         }
-        
         /* Navbar */
         .navbar {
             background: #FFFFFF;
@@ -329,7 +287,6 @@
         .ticker-item{display:inline-block;margin-right:2rem;font-weight:600}
         .ticker-cta{margin-left:auto;background:#FFFFFF;color:#0F172A;border:1px solid #FFFFFF;border-radius:6px;padding:.35rem .7rem;font-weight:700;cursor:pointer}
         @keyframes ticker-scroll{0%{transform:translateX(0%)}100%{transform:translateX(-50%)}}
-        
         .navbar-title {
             font-size: 1.4em;
             font-weight: 800;
@@ -337,14 +294,12 @@
             align-items: center;
             gap: 0.5rem;
         }
-        
         .navbar-actions {
             display: flex;
             align-items: center;
             gap: 1rem;
             flex-wrap: wrap;
         }
-        
         .user-badge {
             background: #F0F0F0;
             padding: 0.5rem 1rem;
@@ -352,7 +307,6 @@
             font-size: 0.9em;
             font-weight: 600;
         }
-        
         .btn-nav {
             background: #FFFFFF;
             border: 1px solid #000000;
@@ -363,19 +317,16 @@
             font-weight: 600;
             transition: all 0.2s;
         }
-        
         .btn-nav:hover {
             background: #000000;
             color: #FFFFFF;
         }
-        
         /* Container */
         .container {
             max-width: 1400px;
             margin: 0 auto;
             padding: 2rem 1rem;
         }
-        
         /* Generator Section */
         .generator-section {
             background: #FFFFFF;
@@ -385,7 +336,6 @@
             box-shadow: none;
             margin-bottom: 2rem;
         }
-        
         .section-title {
             font-family: 'Merriweather', Georgia, 'Times New Roman', serif;
             font-size: 2.2em;
@@ -393,25 +343,21 @@
             margin-bottom: 1.25rem;
             color: #000000;
         }
-        
         .form-row {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 1.5rem;
             margin-bottom: 1.5rem;
         }
-        
         .input-group {
             display: flex;
             flex-direction: column;
         }
-        
         .input-group label {
             font-weight: 600;
             margin-bottom: 0.5rem;
             color: var(--dark);
         }
-        
         .input-group input,
         .input-group select,
         .input-group textarea {
@@ -422,19 +368,16 @@
             font-family: inherit;
             transition: border-color 0.3s;
         }
-        
         .input-group input:focus,
         .input-group select:focus,
         .input-group textarea:focus {
             outline: none;
             border-color: #000000;
         }
-        
         .input-group textarea {
             min-height: 120px;
             resize: vertical;
         }
-        
         .btn-generate {
             width: 100%;
             padding: 1rem;
@@ -448,20 +391,17 @@
             transition: all 0.2s;
             margin-top: 1rem;
         }
-        
         .btn-generate:hover {
             background: #FFFFFF;
             color: #000000;
             box-shadow: none;
             transform: none;
         }
-        
         .btn-generate:disabled {
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
         }
-        
         /* Article Preview */
         .article-preview {
             background: #FFFFFF;
@@ -472,11 +412,9 @@
             margin-bottom: 2rem;
             display: none;
         }
-        
         .article-preview.active {
             display: block;
         }
-        
         .preview-header {
             display: flex;
             justify-content: space-between;
@@ -485,20 +423,17 @@
             flex-wrap: wrap;
             gap: 1rem;
         }
-        
         .preview-title {
             font-family: 'Merriweather', Georgia, 'Times New Roman', serif;
             font-size: 1.8em;
             font-weight: 900;
             color: #000000;
         }
-        
         .preview-actions {
             display: flex;
             gap: 0.8rem;
             flex-wrap: wrap;
         }
-        
         .btn-action {
             padding: 0.65rem 1.1rem;
             border: 1px solid #000000;
@@ -509,22 +444,18 @@
             font-weight: 600;
             transition: all 0.2s;
         }
-        
         .btn-action:hover {
             background: #000000;
             color: #FFFFFF;
         }
-        
         .btn-action.success {
             border-color: var(--success);
             color: var(--success);
         }
-        
         .btn-action.success:hover {
             background: var(--success);
             color: #FFFFFF;
         }
-        
         /* Article Content */
         .article-content {
             background: #FFFFFF;
@@ -534,7 +465,6 @@
             font-size: 1.125em;
             color: #111111;
         }
-        
         .article-content h1 {
             font-family: 'Merriweather', Georgia, 'Times New Roman', serif;
             font-size: 2.6em;
@@ -543,7 +473,6 @@
             color: #000000;
             line-height: 1.15;
         }
-        
         .article-content h2 {
             font-family: 'Merriweather', Georgia, 'Times New Roman', serif;
             font-size: 2em;
@@ -553,7 +482,6 @@
             border-bottom: 2px solid var(--gray);
             padding-bottom: 0.4rem;
         }
-        
         .article-content h3 {
             font-family: 'Merriweather', Georgia, 'Times New Roman', serif;
             font-size: 1.4em;
@@ -561,33 +489,27 @@
             margin: 1.25rem 0 0.75rem 0;
             color: #111111;
         }
-        
         .article-content p {
             margin-bottom: 1.5rem;
             text-align: justify;
             color: #374151;
         }
-        
         .article-content ul,
         .article-content ol {
             margin: 1.5rem 0 1.5rem 2rem;
         }
-        
         .article-content li {
             margin-bottom: 0.8rem;
             color: #374151;
         }
-        
         .article-content strong {
             color: #000000;
             font-weight: 700;
         }
-        
         .article-content em {
             color: #555555;
             font-style: italic;
         }
-        
         .article-meta {
             display: flex;
             gap: 2rem;
@@ -596,7 +518,6 @@
             border-top: 2px solid var(--gray);
             flex-wrap: wrap;
         }
-        
         .meta-item {
             display: flex;
             align-items: center;
@@ -604,14 +525,12 @@
             color: #666;
             font-size: 0.95em;
         }
-        
         /* My Articles */
         .articles-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 1.5rem;
         }
-        
         .article-card {
             background: #FFFFFF;
             border-radius: 0;
@@ -621,19 +540,16 @@
             transition: transform 0.3s, box-shadow 0.3s;
             cursor: pointer;
         }
-        
         .article-card:hover {
             background: #F9F9F9;
             transform: none;
         }
-        
         .article-card-title {
             font-size: 1.2em;
             font-weight: 700;
             margin-bottom: 0.8rem;
             color: var(--dark);
         }
-        
         .article-card-info {
             display: flex;
             justify-content: space-between;
@@ -641,12 +557,10 @@
             color: #666;
             margin-bottom: 1rem;
         }
-        
         .article-card-actions {
             display: flex;
             gap: 0.5rem;
         }
-        
         .btn-card {
             flex: 1;
             padding: 0.6rem;
@@ -656,17 +570,14 @@
             font-weight: 600;
             transition: opacity 0.3s;
         }
-        
         .btn-card.view {
             background: var(--primary);
             color: white;
         }
-        
         .btn-card.delete {
             background: var(--danger);
             color: white;
         }
-        
         .btn-card:hover {
             opacity: 0.8;
         }
@@ -678,7 +589,6 @@
         .title-item{padding:.75rem;border:1px solid #000000;border-radius:8px;cursor:pointer}
         .title-item:hover{background:#000000;color:#FFFFFF}
         .title-actions{display:flex;gap:.6rem;margin-top:1rem;justify-content:flex-end}
-        
         /* Stats */
         .stats-grid {
             display: grid;
@@ -686,7 +596,6 @@
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
-        
         .stat-card {
             background: #FFFFFF;
             border-radius: 0;
@@ -695,18 +604,15 @@
             box-shadow: none;
             text-align: center;
         }
-        
         .stat-icon {
             font-size: 3em;
             margin-bottom: 0.5rem;
         }
-        
         .stat-value {
             font-size: 2.5em;
             font-weight: 800;
             color: #000000;
         }
-        
         .stat-label {
             color: #666;
             font-size: 0.9em;
@@ -714,7 +620,6 @@
         }
         .trial-banner{background:#FFF8E1;border:1px solid #F59E0B;color:#7C3A00;border-radius:10px;padding:.75rem 1rem;margin:0 0 1rem 0;font-weight:600}
         .trial-banner.warn{background:#FFE4E6;border-color:#EF4444;color:#7F1D1D}
-        
         /* Install Button */
 .install-btn {
             position: fixed;
@@ -732,44 +637,35 @@
             transition: all 0.2s;
     display: inline-flex;
 }
-        
         .install-btn:hover {
             background: #FFFFFF;
             color: #000000;
             transform: none;
         }
-        
         /* Responsive */
         @media (max-width: 768px) {
             .navbar {
                 padding: 1rem;
             }
-            
             .navbar-title {
                 font-size: 1.2em;
             }
-            
             .container {
                 padding: 1rem;
             }
-            
             .generator-section,
             .article-preview {
                 padding: 1.5rem;
             }
-            
             .article-content {
                 padding: 1.5rem;
             }
-            
             .form-row {
                 grid-template-columns: 1fr;
             }
-            
             .preview-actions {
                 width: 100%;
             }
-            
             .btn-action {
                 flex: 1;
             }
@@ -788,7 +684,6 @@
         <div class="spinner"></div>
         <div class="loading-text">✍️ Inicializando Blog Writer ULTRA...</div>
     </div>
-
     <!-- Auth Container -->
     <div class="auth-container" id="authContainer">
         <div class="auth-box">
@@ -797,15 +692,12 @@
                     <h1>Blog Writer ULTRA</h1>
                     <div id="trialBadge" class="trial-badge">🎁 14 Dias de Teste Grátis</div>
                 </div>
-                
                 <div class="auth-tabs">
                     <button id="authTabLogin" class="auth-tab active" onclick="showAuthTab('login')">Entrar</button>
                     <button id="authTabSignup" class="auth-tab" onclick="showAuthTab('signup')">Criar Conta</button>
                 </div>
-            
             <div id="authError" class="auth-msg auth-error"></div>
             <div id="authSuccess" class="auth-msg auth-success"></div>
-            
             <!-- Login Form -->
             <form id="loginForm" class="auth-form active" onsubmit="handleLogin(event)">
                 <div class="form-group">
@@ -818,7 +710,6 @@
                 </div>
                 <button id="btnLogin" type="submit" class="btn-auth">Entrar</button>
             </form>
-            
             <!-- Signup Form -->
             <form id="signupForm" class="auth-form" onsubmit="handleSignup(event)">
                 <div class="form-group">
@@ -840,7 +731,6 @@
             </div>
         </div>
     </div>
-
     <!-- Paywall -->
             <div class="paywall-overlay" id="paywallOverlay">
                 <div class="paywall-box">
@@ -862,7 +752,6 @@
                     <button id="btnSubscribeNow" class="btn-subscribe" onclick="redirectToStripe()">💳 Assinar Agora</button>
                 </div>
             </div>
-
     <!-- App Container -->
     <div class="app-container" id="appContainer">
         <!-- Navbar -->
@@ -884,7 +773,6 @@
                 <button id="btnLogout" class="btn-nav" onclick="logout()">Sair</button>
             </div>
         </div>
-
         <div class="container">
             <div id="trialBanner" class="trial-banner" style="display:none"></div>
             <!-- Stats -->
@@ -905,11 +793,9 @@
                     <div id="labelDayStreak" class="stat-label">Dias Seguidos</div>
                 </div>
             </div>
-
             <!-- Generator Section -->
             <div class="generator-section">
                 <h2 id="titleCreate" class="section-title">✨ Criar Novo Artigo</h2>
-                
                 <div class="form-row">
                     <div class="input-group">
                         <label id="labelTopic">📝 Tópico</label>
@@ -926,7 +812,6 @@
                         </select>
                     </div>
                 </div>
-                
                 <div class="form-row">
                     <div class="input-group">
                         <label id="labelWordCount">📊 Contagem de Palavras</label>
@@ -980,21 +865,19 @@
                         </select>
                     </div>
                 </div>
-                
                 <div class="input-group">
                     <label id="labelInstructions">💡 Instruções Adicionais (opcional)</label>
                     <textarea id="articleInstructions" placeholder="Add specific requirements, keywords, or structure..."></textarea>
                 </div>
                 <div class="input-group">
                     <label id="labelReferences">📑 Bibliografia (opcional)</label>
-                    <textarea id="referencesInput" placeholder="Autor; Ano; Título; Cidade; Editora; Revista; Volume; Número; Páginas; DOI/Link\nUm por linha"></textarea>
+                    <textarea id="referencesInput" placeholder="Autor; Ano; Título; Cidade; Editora; Revista; Volume; Número; Páginas; DOI/Link
+Um por linha"></textarea>
                 </div>
-                
                 <button class="btn-generate" id="generateBtn" onclick="generateArticle()">
                     🚀 Gerar Artigo
                 </button>
             </div>
-
             <!-- Article Preview -->
             <div class="article-preview" id="articlePreview">
                 <div class="preview-header">
@@ -1008,9 +891,7 @@
                         <button id="btnDownloadMd" class="btn-action" onclick="downloadMarkdown()">⬇️ Markdown</button>
                     </div>
                 </div>
-                
                 <div class="article-content" id="articleContent"></div>
-                
                 <div class="article-meta">
                     <div class="meta-item">
                         <span>📊</span>
@@ -1026,7 +907,6 @@
                     </div>
                 </div>
             </div>
-
             <div id="titleOverlay" class="title-overlay">
                 <div class="title-modal">
                     <div id="titleHeader" class="title-header">Gerar Novos Títulos</div>
@@ -1037,7 +917,6 @@
                     </div>
                 </div>
             </div>
-
             <!-- My Articles -->
             <div class="generator-section">
                 <h2 id="titleMyArticles" class="section-title">📚 Meus Artigos</h2>
@@ -1045,7 +924,6 @@
                     <p style="text-align:center;color:#999;">Nenhum artigo ainda. Crie sua primeira obra-prima!</p>
                 </div>
             </div>
-
             <!-- Reviews Section -->
             <div class="generator-section">
                 <h2 id="titleReviews" class="section-title">⭐ Avaliações</h2>
@@ -1074,7 +952,6 @@
             </div>
         </div>
     </div>
-
     <!-- Install Button -->
     <button class="install-btn" id="installBtn">📱 Install App</button>
     <div id="installGuideOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); align-items:center; justify-content:center; z-index:10002;">
@@ -1087,7 +964,6 @@
             </div>
         </div>
     </div>
-
     <!-- Admin Setup Modal -->
     <div id="adminSetupOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); align-items:center; justify-content:center; z-index:10001;">
         <div style="background:#FFFFFF; border:1px solid #E6E6E6; padding:2rem; width:100%; max-width:520px;">
@@ -1106,7 +982,6 @@
             </div>
         </div>
     </div>
-
     <!-- Admin Panel Modal -->
     <div id="adminOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); align-items:center; justify-content:center; z-index:10001;">
         <div style="background:#FFFFFF; border:1px solid #E6E6E6; padding:2rem; width:100%; max-width:900px; max-height:90vh; overflow-y:auto;">
@@ -1155,7 +1030,6 @@
             </div>
         </div>
     </div>
-
     <script>
         // ==================== CONFIG ====================
         const SUPABASE_URL = 'YOUR_SUPABASE_URL';
@@ -1180,7 +1054,6 @@
         const CURRENCY_SYMBOL = {
             BRL: 'R$', USD: '$', EUR: '€', GBP: '£', CAD: 'C$', AUD: 'A$', JPY: '¥', MXN: '$', ARS: 'ARS$', CLP: 'CLP$', COP: 'COL$', CHF: 'CHF'
         };
-        
         let supabase = null;
         let currentUser = null;
         let currentArticle = null;
@@ -1199,7 +1072,6 @@
             };
             return map[country] || (navigator.language && navigator.language.startsWith('pt') ? 'pt' : (navigator.language && navigator.language.startsWith('es') ? 'es' : (navigator.language && navigator.language.startsWith('fr') ? 'fr' : (navigator.language && navigator.language.startsWith('de') ? 'de' : 'en'))));
         }
-        
         const CURRENCY_BY_COUNTRY = {
             'US': { symbol: '$', code: 'USD' },
             'BR': { symbol: 'R$', code: 'BRL' },
@@ -1220,7 +1092,6 @@
         function convertFromBRL(amount, code) { const rate = CURRENCY_RATES[code] || 1; return amount * rate; }
         function formatPrice(code, amount) { const v = code === 'JPY' ? Math.round(amount) : amount.toFixed(2); return v; }
         function getPriceForCountry(country) { const c = CURRENCY_BY_COUNTRY[country] || CURRENCY_BY_COUNTRY['US']; const price = convertFromBRL(BASE_PRICE_BRL, c.code); return { symbol: c.symbol, code: c.code, price }; }
-        
         // ==================== INIT ====================
         async function init() {
             try {
@@ -1237,14 +1108,18 @@
                 loadAdminConfig();
                 renderReviews();
                 handleReturnParams();
+                // Check payment status when returning to tab
+                window.addEventListener('focus', () => {
+                    if (currentUser) {
+                        checkPaymentStatus();
+                    }
+                });
             } catch (err) {
                 console.error('Init error:', err);
                 alert('Error initializing app');
             }
         }
-        
         init();
-        
         // ==================== PWA ====================
         function setupPWA() {
             if ('serviceWorker' in navigator) {
@@ -1252,13 +1127,11 @@
                     .then(reg => console.log('SW registered:', reg))
                     .catch(err => console.error('SW error:', err));
             }
-            
             window.addEventListener('beforeinstallprompt', (e) => {
                 e.preventDefault();
                 deferredPrompt = e;
                 document.getElementById('installBtn').style.display = 'block';
             });
-            
             document.getElementById('installBtn').addEventListener('click', async () => {
                 if (!deferredPrompt) { openInstallGuide(); return; }
                 deferredPrompt.prompt();
@@ -1267,7 +1140,6 @@
                 deferredPrompt = null;
             });
         }
-
         function openInstallGuide(){
             const lang = (document.getElementById('langSelect').value || 'pt');
             const ua = navigator.userAgent || navigator.vendor || window.opera;
@@ -1294,12 +1166,10 @@
             document.getElementById('installGuideOverlay').style.display = 'flex';
         }
         function closeInstallGuide(){ document.getElementById('installGuideOverlay').style.display = 'none'; }
-        
         // ==================== AUTH ====================
         function showAuthTab(tab) {
             document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
-            
             if (tab === 'login') {
                 document.querySelectorAll('.auth-tab')[0].classList.add('active');
                 document.getElementById('loginForm').classList.add('active');
@@ -1309,45 +1179,193 @@
             }
             hideMsg();
         }
-        
         function showError(msg) {
             document.getElementById('authError').textContent = msg;
             document.getElementById('authError').style.display = 'block';
             document.getElementById('authSuccess').style.display = 'none';
         }
-        
         function showSuccess(msg) {
             document.getElementById('authSuccess').textContent = msg;
             document.getElementById('authSuccess').style.display = 'block';
             document.getElementById('authError').style.display = 'none';
         }
-        
         function hideMsg() {
             document.getElementById('authError').style.display = 'none';
             document.getElementById('authSuccess').style.display = 'none';
         }
-        
         async function hashSHA256(t) {
             const e = new TextEncoder().encode(t);
             const n = await crypto.subtle.digest('SHA-256', e);
             return Array.from(new Uint8Array(n)).map(r => r.toString(16).padStart(2, '0')).join('');
         }
-        
         function loadAdminConfig() {
             adminEmail = localStorage.getItem('ADMIN_EMAIL') || null;
             adminHash = localStorage.getItem('ADMIN_PASSWORD_HASH') || null;
         }
-        
         async function isAdminCredentials(email, pass) {
             if (!adminEmail || !adminHash) return false;
             const h = await hashSHA256(pass);
             return email === adminEmail && h === adminHash;
         }
-        
-        async function handleLogin(e) { e.preventDefault(); const email = document.getElementById('loginEmail').value.trim().toLowerCase(); const pass = document.getElementById('loginPassword').value; let user = null; if (await isAdminCredentials(email, pass)) { user = { email: email, name: 'Admin', role: 'admin', subscription_status: 'active', articles_count: 0, total_words: 0, streak: 0 }; user.email = (user.email || '').toLowerCase(); loginUser(user); return; } if (email === 'demo@demo.com' && pass === 'demo123') { user = { email: email, name: 'Demo User', subscription_status: 'active', articles_count: 5, total_words: 12500, streak: 7 }; user.email = (user.email || '').toLowerCase(); loginUser(user); return; } if (!supabase) { const users = JSON.parse(localStorage.getItem('LOCAL_USERS') || '[]'); const hash = await hashSHA256(pass); const u = users.find(u => u.email === email && u.hash === hash); if (u) { user = { email: email, name: u.name, subscription_status: 'active', articles_count: 0, total_words: 0, streak: 0 }; user.email = (user.email || '').toLowerCase(); loginUser(user); return; } showError('❌ Credenciais inválidas'); return; } showError('❌ Credenciais inválidas'); }
-        
-        async function handleSignup(e) { e.preventDefault(); const name = document.getElementById('signupName').value.trim(); const email = document.getElementById('signupEmail').value.trim().toLowerCase(); const pass = document.getElementById('signupPassword').value; if (!name || !email || !pass) { showError('❌ Fill all fields'); return; } if (!supabase) { const users = JSON.parse(localStorage.getItem('LOCAL_USERS') || '[]'); const exists = users.find(u => u.email === email); if (exists) { showError('❌ Email already registered'); return; } const hash = await hashSHA256(pass); users.push({ name, email, hash }); localStorage.setItem('LOCAL_USERS', JSON.stringify(users)); localStorage.setItem(`TRIAL_START_${email}`, new Date().toISOString()); localStorage.setItem(`SUBSCRIPTION_STATUS_${email}`, 'trial_active'); showSuccess('✅ Account created! Please login.'); return; } showSuccess('✅ Account created! Please login.'); }
-        
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+            const pass = document.getElementById('loginPassword').value;
+            
+            // ✅ 1. Verificar admin local (mantém funcionalidade offline)
+            if (await isAdminCredentials(email, pass)) {
+                const user = {
+                    email: email,
+                    name: 'Admin',
+                    role: 'admin',
+                    subscription_status: 'active'
+                };
+                loginUser(user);
+                return;
+            }
+            
+            // ✅ 2. Demo account (mantém)
+            if (email === 'demo@demo.com' && pass === 'demo123') {
+                const user = {
+                    email: email,
+                    name: 'Demo User',
+                    subscription_status: 'active'
+                };
+                loginUser(user);
+                return;
+            }
+            
+            // ✅ 3. NOVO: Autenticar com Supabase
+            if (supabase) {
+                try {
+                    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+                        email: email,
+                        password: pass
+                    });
+                    
+                    if (authError) throw authError;
+                    
+                    // Buscar dados completos do usuário
+                    const { data: userData, error: userError } = await supabase
+                        .from('users')
+                        .select('*')
+                        .eq('email', email)
+                        .single();
+                    
+                    if (userError) throw userError;
+                    
+                    // Verificar trial expirado
+                    const trialEnd = new Date(userData.trial_end_date);
+                    const now = new Date();
+                    
+                    if (userData.subscription_status === 'trial' && trialEnd < now) {
+                        userData.subscription_status = 'trial_expired';
+                        await supabase
+                            .from('users')
+                            .update({ subscription_status: 'trial_expired' })
+                            .eq('id', userData.id);
+                    }
+                    
+                    loginUser({
+                        id: userData.id,
+                        email: userData.email,
+                        name: userData.full_name,
+                        role: userData.role,
+                        subscription_status: userData.subscription_status,
+                        articles_count: userData.articles_count,
+                        total_words: userData.total_words,
+                        streak: userData.streak
+                    });
+                    
+                } catch (err) {
+                    console.error('Login error:', err);
+                    showError('❌ Email ou senha incorretos');
+                }
+            } else {
+                // Fallback: localStorage (modo offline)
+                const users = JSON.parse(localStorage.getItem('LOCAL_USERS') || '[]');
+                const hash = await hashSHA256(pass);
+                const u = users.find(u => u.email === email && u.hash === hash);
+                
+                if (u) {
+                    loginUser({
+                        email: email,
+                        name: u.name,
+                        subscription_status: 'active'
+                    });
+                } else {
+                    showError('❌ Credenciais inválidas');
+                }
+            }
+        }
+        async function handleSignup(e) {
+            e.preventDefault();
+            const name = document.getElementById('signupName').value.trim();
+            const email = document.getElementById('signupEmail').value.trim().toLowerCase();
+            const pass = document.getElementById('signupPassword').value;
+            
+            if (!name || !email || !pass) {
+                showError('❌ Preencha todos os campos');
+                return;
+            }
+            
+            if (supabase) {
+                try {
+                    // 1. Criar conta no Supabase Auth
+                    const { data: authData, error: authError } = await supabase.auth.signUp({
+                        email: email,
+                        password: pass,
+                        options: {
+                            data: { full_name: name }
+                        }
+                    });
+                    
+                    if (authError) throw authError;
+                    
+                    // 2. Criar registro na tabela users
+                    const { error: insertError } = await supabase
+                        .from('users')
+                        .insert({
+                            email: email,
+                            password_hash: await hashSHA256(pass), // Para compatibilidade
+                            full_name: name,
+                            subscription_status: 'trial',
+                            trial_start_date: new Date().toISOString(),
+                            trial_end_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString()
+                        });
+                    
+                    if (insertError) throw insertError;
+                    
+                    showSuccess('✅ Conta criada! Verifique seu email e faça login.');
+                    showAuthTab('login');
+                    
+                } catch (err) {
+                    console.error('Signup error:', err);
+                    if (err.message.includes('already registered')) {
+                        showError('❌ Email já cadastrado');
+                    } else {
+                        showError('❌ Erro ao criar conta: ' + err.message);
+                    }
+                }
+            } else {
+                // Fallback: localStorage
+                const users = JSON.parse(localStorage.getItem('LOCAL_USERS') || '[]');
+                const exists = users.find(u => u.email === email);
+                
+                if (exists) {
+                    showError('❌ Email já cadastrado');
+                    return;
+                }
+                
+                const hash = await hashSHA256(pass);
+                users.push({ name, email, hash });
+                localStorage.setItem('LOCAL_USERS', JSON.stringify(users));
+                localStorage.setItem(`TRIAL_START_${email}`, new Date().toISOString());
+                localStorage.setItem(`SUBSCRIPTION_STATUS_${email}`, 'trial_active');
+                showSuccess('✅ Conta criada! Faça login.');
+                showAuthTab('login');
+            }
+        }
         function loginUser(user) {
             currentUser = user;
             initializeTrialForUser();
@@ -1358,17 +1376,14 @@
             document.getElementById('authContainer').style.display = 'none';
             document.getElementById('appContainer').classList.add('active');
             document.getElementById('userName').textContent = user.name.split(' ')[0];
-            
             if (user.role === 'admin') {
                 document.getElementById('adminBtn').style.display = 'inline-block';
             }
-            
             updateStats();
             loadArticles();
             loadAdminConfig();
             renderReviews();
         }
-        
         function checkSubscriptionStatus(user) {
             const status = getSubscriptionStatus();
             if (status === 'trial_expired') {
@@ -1377,14 +1392,12 @@
                 document.getElementById('paywallOverlay').classList.remove('active');
             }
         }
-        
         function logout() {
             currentUser = null;
             document.getElementById('appContainer').classList.remove('active');
             document.getElementById('authContainer').style.display = 'flex';
             showAuthTab('login');
         }
-        
         // ==================== CURRENCY ====================
         async function detectUserLocation() {
             let country = 'US';
@@ -1409,17 +1422,18 @@
             const pc = document.getElementById('priceConvert');
             if (pc) { pc.textContent = ''; pc.style.display = 'none'; }
         }
-        
         function redirectToStripe() {
             if (!currentUser || !currentUser.email) {
                 alert('❌ Erro: usuário não identificado');
                 return;
             }
-            const stripeUrl = `${STRIPE_LINK}?client_reference_id=${currentUser.email}&prefilled_email=${currentUser.email}`;
+            // ✅ Adicionar email como metadata
+            const stripeUrl = `${STRIPE_LINK}?prefilled_email=${encodeURIComponent(currentUser.email)}&client_reference_id=${encodeURIComponent(currentUser.email)}`;
             console.log('🔗 Redirecionando para Stripe:', stripeUrl);
+            // ✅ Salvar timestamp para verificar depois
+            localStorage.setItem('PAYMENT_REDIRECT_TIME', Date.now().toString());
             window.open(stripeUrl, '_blank');
         }
-
         function getUserKey() { return (currentUser && currentUser.email) ? currentUser.email.toLowerCase() : 'anon'; }
         function initializeTrialForUser() { const key = getUserKey(); const startKey = `TRIAL_START_${key}`; const statusKey = `SUBSCRIPTION_STATUS_${key}`; if (!localStorage.getItem(startKey)) { localStorage.setItem(startKey, new Date().toISOString()); } const status = localStorage.getItem(statusKey) || (currentUser.subscription_status || 'trial_active'); localStorage.setItem(statusKey, status); const overrideStr = localStorage.getItem(`ADMIN_ACCESS_${key}`); if (overrideStr) { try { const o = JSON.parse(overrideStr); if (o && o.indefinite) { localStorage.setItem(statusKey, 'active'); } else if (o && o.days && o.days > 0) { const grantStartKey = `GRANT_START_${key}`; if (!localStorage.getItem(grantStartKey)) { const now = new Date().toISOString(); localStorage.setItem(grantStartKey, now); localStorage.setItem(startKey, now); } localStorage.setItem(`TRIAL_LENGTH_${key}`, String(o.days)); localStorage.setItem(statusKey, 'trial_active'); } } catch (e) {} } }
         function getRemainingTrialDays() { const key = getUserKey(); const startStr = localStorage.getItem(`TRIAL_START_${key}`); const lenStr = localStorage.getItem(`TRIAL_LENGTH_${key}`); const length = lenStr ? (parseInt(lenStr) || 14) : 14; if (!startStr) return length; const start = new Date(startStr); const now = new Date(); const days = Math.ceil((now - start) / (1000*60*60*24)); return Math.max(0, length - days); }
@@ -1428,50 +1442,72 @@
         function maybeWarnTrialExpiring() { const left = getRemainingTrialDays(); const key = getUserKey(); const markKey = `TRIAL_WARN_${key}_${new Date().toDateString()}`; if (left <= 3 && !localStorage.getItem(markKey)) { alert(`⚠️ Seu teste gratuito termina em ${left} dia${left===1?'':'s'}.`); localStorage.setItem(markKey, '1'); } }
         function unlockAfterPayment() { const key = getUserKey(); localStorage.setItem(`SUBSCRIPTION_STATUS_${key}`, 'active'); currentUser.subscription_status = 'active'; document.getElementById('paywallOverlay').classList.remove('active'); renderTrialBanner(); alert('✅ Assinatura ativada! Acesso liberado.'); }
         function handleReturnParams() { const params = new URLSearchParams(window.location.search); if (params.get('unlock') === '1' || params.get('paid') === '1' || params.get('status') === 'active') { if (currentUser) { unlockAfterPayment(); } else { localStorage.setItem('PAID_FLAG', '1'); } } }
-        
+        // ✅ Nova função: verificar pagamento ao voltar
+        async function checkPaymentStatus() {
+            if (!supabase || !currentUser) return;
+            
+            const redirectTime = localStorage.getItem('PAYMENT_REDIRECT_TIME');
+            if (!redirectTime) return;
+            
+            // Verificar se voltou nos últimos 5 minutos
+            const elapsed = Date.now() - parseInt(redirectTime);
+            if (elapsed > 5 * 60 * 1000) {
+                localStorage.removeItem('PAYMENT_REDIRECT_TIME');
+                return;
+            }
+            
+            try {
+                // Buscar status atualizado
+                const { data, error } = await supabase
+                    .from('users')
+                    .select('subscription_status')
+                    .eq('id', currentUser.id)
+                    .single();
+                
+                if (error) throw error;
+                
+                if (data.subscription_status === 'active') {
+                    localStorage.removeItem('PAYMENT_REDIRECT_TIME');
+                    unlockAfterPayment();
+                }
+            } catch (err) {
+                console.error('Check payment error:', err);
+            }
+        }
         function openAdminSetup() {
             document.getElementById('adminSetupOverlay').style.display = 'flex';
         }
-        
         function closeAdminSetup() {
             document.getElementById('adminSetupOverlay').style.display = 'none';
         }
-        
         async function saveAdminConfig() {
             const email = document.getElementById('adminEmailInput').value.trim().toLowerCase();
             const pass = document.getElementById('adminPassInput').value;
-            
             if (!email || !pass) {
                 alert('Please enter email and password');
                 return;
             }
-            
             const h = await hashSHA256(pass);
             localStorage.setItem('ADMIN_EMAIL', email);
             localStorage.setItem('ADMIN_PASSWORD_HASH', h);
             closeAdminSetup();
             alert('Admin configured');
         }
-        
         function openAdminPanel() {
             document.getElementById('adminOverlay').style.display = 'flex';
             loadAdminStats();
         }
-        
         function closeAdminPanel() {
             document.getElementById('adminOverlay').style.display = 'none';
         }
-        
         async function loadAdminStats() {
             const reviews = JSON.parse(localStorage.getItem('REVIEWS') || '[]');
             document.getElementById('adminReviewsCount').textContent = reviews.length;
-            
             if (!supabase) {
                 document.getElementById('adminUsersCount').textContent = 'N/A';
                 document.getElementById('adminActiveCount').textContent = 'N/A';
                 return;
             }
-            
             try {
                 const { data: users } = await supabase.from('users').select('id, subscription_status');
                 const total = users ? users.length : 0;
@@ -1485,7 +1521,6 @@
         }
         function grantAccess(){ const email=(document.getElementById('adminAccessEmail').value||'').trim().toLowerCase(); const days=parseInt(document.getElementById('adminAccessDays').value||'0'); const indef=document.getElementById('adminAccessIndef').checked; if(!email){ alert('Informe o email'); return; } if(indef){ const data={indefinite:true, createdAt:new Date().toISOString()}; localStorage.setItem(`ADMIN_ACCESS_${email}`, JSON.stringify(data)); alert('Acesso indeterminado concedido'); return; } const d=Math.max(1, days); const data={indefinite:false, days:d, createdAt:new Date().toISOString(), startAt:null}; localStorage.setItem(`ADMIN_ACCESS_${email}`, JSON.stringify(data)); alert(`Acesso por ${d} dias concedido`); }
         function removeAccess(){ const email=(document.getElementById('adminAccessEmail').value||'').trim().toLowerCase(); if(!email){ alert('Informe o email'); return; } localStorage.removeItem(`ADMIN_ACCESS_${email}`); alert('Override removido'); }
-        
         function exportReviews() {
             const reviews = localStorage.getItem('REVIEWS') || '[]';
             const blob = new Blob([reviews], { type: 'application/json' });
@@ -1495,14 +1530,12 @@
             a.download = 'reviews.json';
             a.click();
         }
-        
         function renderReviews() {
             const list = JSON.parse(localStorage.getItem('REVIEWS') || '[]');
             if (!list.length) {
                 document.getElementById('reviewsList').innerHTML = '<p style="text-align:center;color:#999;">No reviews yet.</p>';
                 return;
             }
-            
             document.getElementById('reviewsList').innerHTML = list.map(r => `
                 <div class="article-card">
                     <div class="article-card-title">${r.name} • ${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</div>
@@ -1511,32 +1544,26 @@
                 </div>
             `).join('');
         }
-        
         async function submitReview() {
             const name = document.getElementById('reviewName').value.trim();
             const rating = parseInt(document.getElementById('reviewRating').value);
             const comment = document.getElementById('reviewComment').value.trim();
-            
             if (!name || !comment) {
                 alert('Please fill name and comment');
                 return;
             }
-            
             const item = {
                 name,
                 rating,
                 comment,
                 createdAt: new Date().toISOString()
             };
-            
             const list = JSON.parse(localStorage.getItem('REVIEWS') || '[]');
             list.unshift(item);
             localStorage.setItem('REVIEWS', JSON.stringify(list));
             renderReviews();
-            
             document.getElementById('reviewName').value = '';
             document.getElementById('reviewComment').value = '';
-            
             if (supabase) {
                 try {
                     await supabase.from('reviews').insert({
@@ -1547,7 +1574,6 @@
                 } catch (err) { }
             }
         }
-        
         // ==================== ARTICLE GENERATION ====================
         async function generateArticle() {
             const topic = document.getElementById('articleTopic').value.trim();
@@ -1555,21 +1581,17 @@
                 alert('❌ Please enter a topic!');
                 return;
             }
-            
             const language = document.getElementById('articleLanguage').value;
             const wordCount = parseInt(document.getElementById('articleWordCount').value);
             const style = document.getElementById('articleStyle').value;
             const instructions = document.getElementById('articleInstructions').value.trim();
-            
             const btn = document.getElementById('generateBtn');
             btn.disabled = true;
             btn.textContent = '⏳ Generating...';
-            
             try {
                 const article = await generateLuxArticleContent(topic, language, wordCount, style, instructions);
                 currentArticle = article;
                 displayArticle(article);
-                
                 btn.textContent = '✅ Generated!';
                 setTimeout(() => {
                     btn.disabled = false;
@@ -1582,7 +1604,6 @@
                 btn.textContent = '🚀 Generate Article';
             }
         }
-        
         async function generateLuxArticleContent(topic, language, wordCount, style, instructions) {
             await new Promise(resolve => setTimeout(resolve, 300));
             const isPT = language === 'pt';
@@ -1617,7 +1638,6 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
     const R = mulberry32(seedInit);
     const pick = a => a[Math.floor(R() * a.length)];
     const num = (min, max) => Math.floor(R() * (max - min + 1)) + min;
-
     const lang = ['pt','en','es','fr','de'].includes(language) ? language : 'en';
     if (academic) {
         try {
@@ -1683,7 +1703,8 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
         }
         function cite(ref, style){ const s = surname(ref.author); return style==='abnt'?`(${s.toUpperCase()}, ${ref.year})`:style==='mla'?`(${s} ${ref.year})`:`(${s}, ${ref.year})`; }
         function parseRefsFromInput(txt){
-            const lines = txt.split(/\n+/).map(l=>l.trim()).filter(Boolean);
+            const lines = txt.split(/
++/).map(l=>l.trim()).filter(Boolean);
             const arr = [];
             for (const l of lines){
                 const parts = l.split(';').map(p=>p.trim());
@@ -1727,7 +1748,6 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
                            lang==='de'?`Erzeugt mit: ${levelName} · Stil: ${styleName} · Quelle: ${typeName} · Ziel: ${wordCount}`:
                            `Generated with: ${levelName} · Style: ${styleName} · Source: ${typeName} · Target: ${wordCount}`;
         content += `<div class="lux-meta">${metaLabel}</div>`;
-
         const H = {
             abs: lang==='pt'?'Resumo':lang==='es'?'Resumen':lang==='fr'?'Résumé':lang==='de'?'Abstract':'Abstract',
             intro: lang==='pt'?'Introdução':lang==='es'?'Introducción':lang==='fr'?'Introduction':lang==='de'?'Einleitung':'Introduction',
@@ -1741,7 +1761,6 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
             concl: lang==='pt'?'Conclusão':lang==='es'?'Conclusión':lang==='fr'?'Conclusion':lang==='de'?'Fazit':'Conclusion',
             refs: lang==='pt'?'Referências':lang==='es'?'Referencias':lang==='fr'?'Références':lang==='de'?'Referenzen':'References'
         };
-
         const absAdd = level==='phd'?(lang==='pt'?` Enquadra contribuição original e base teórica robusta.`:lang==='es'?` Enmarca contribución original y base teórica sólida.`:lang==='fr'?` Cadrage d’une contribution originale et d’un socle théorique solide.`:lang==='de'?` Rahmung eines originellen Beitrags mit solider Theorie.`:` Frames original contribution with solid theoretical basis.`):
                          level==='masters'?(lang==='pt'?` Evidencia replicabilidade e consistência metodológica.`:lang==='es'?` Evidencia replicabilidad y consistencia metodológica.`:lang==='fr'?` Met en évidence la reproductibilité et la cohérence méthodologique.`:lang==='de'?` Hebt Replizierbarkeit und methodische Konsistenz hervor.`:` Highlights replicability and methodological consistency.`):
                          (lang==='pt'?` Resume fundamentos e aplicações diretas.`:lang==='es'?` Resume fundamentos y aplicaciones directas.`:lang==='fr'?` Résume les fondamentaux et les applications directes.`:lang==='de'?` Fasst Grundlagen und direkte Anwendungen zusammen.`:` Summarizes fundamentals and direct applications.`);
@@ -1763,7 +1782,6 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
         const conclAdd = level==='phd'?(lang==='pt'?` Destaca originalidade e implicações teóricas.`:lang==='es'?` Destaca originalidad e implicaciones teóricas.`:lang==='fr'?` Met en avant l’originalité et les implications théoriques.`:lang==='de'?` Hebt Originalität und theoretische Implikationen hervor.`:` Highlights originality and theoretical implications.`):
                          level==='masters'?(lang==='pt'?` Sublinha robustez e aplicabilidade.`:lang==='es'?` Subraya robustez y aplicabilidad.`:lang==='fr'?` Souligne robustesse et applicabilité.`:lang==='de'?` Betont Robustheit und Anwendbarkeit.`:` Underscores robustness and applicability.`):
                          (lang==='pt'?` Reforça aprendizagem de base e utilidade imediata.`:lang==='es'?` Refuerza aprendizaje de base y utilidad inmediata.`:lang==='fr'?` Renforce l’apprentissage de base et l’utilité immédiate.`:lang==='de'?` Verstärkt Grundlagenlernen und unmittelbaren Nutzen.`:` Reinforces foundational learning and immediate utility.`);
-
         const tocLabel = lang==='pt'? 'Sumário' : lang==='es'? 'Contenido' : lang==='fr'? 'Sommaire' : lang==='de'? 'Inhaltsverzeichnis' : 'Table of Contents';
         content += `<h2>${tocLabel}</h2>`;
         content += `<ul><li><a href="#sec-abs">${H.abs}</a></li><li><a href="#sec-intro">${H.intro}</a></li><li><a href="#sec-rq">${H.rq}</a></li><li><a href="#sec-lit">${H.lit}</a></li><li><a href="#sec-meth">${H.meth}</a></li><li><a href="#sec-res">${H.res}</a></li><li><a href="#sec-disc">${H.disc}</a></li><li><a href="#sec-lim">${H.lim}</a></li><li><a href="#sec-fut">${H.fut}</a></li><li><a href="#sec-concl">${H.concl}</a></li><li><a href="#sec-refs">${H.refs}</a></li></ul>`;
@@ -1810,7 +1828,6 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
                   lang==='de'?`Fazit: Zusammenfassung der Ergebnisse, Nutzen und nächste Schritte.`:`Conclusion: synthesis of findings, utility, and next steps.`,
             refsIntro: lang==='pt'?`Referências exemplificativas:`:lang==='es'?`Referencias de ejemplo:`:lang==='fr'?`Références d’exemple :`:lang==='de'?`Beispielhafte Referenzen:`:`Sample references:`
         };
-
         content += `<h2 id="sec-abs">${H.abs}</h2><p>${L.abs} ${absAdd}</p>`;
         content += `<h2 id="sec-intro">${H.intro}</h2><p>${L.intro}</p>`;
         content += `<h2 id="sec-rq">${H.rq}</h2><p>${L.rq}</p>`;
@@ -1820,7 +1837,7 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
         const MB = lang==='pt'?(level==='phd'?[`Desenho multi‑método/longitudinal`,`Triangulação de dados`,`Modelos hierárquicos`,`Testes de robustez`]:level==='masters'?[`Amostra estratificada e poder amostral`,`Instrumentos validados`,`Procedimentos replicáveis`,`Análise de sensibilidade`]:[`Amostra básica com critérios objetivos`,`Instrumentos introdutórios`,`Procedimentos claros e replicáveis`]):
                     lang==='es'?(level==='phd'?[`Diseño multi‑método/longitudinal`,`Triangulación de datos`,`Modelos jerárquicos`,`Pruebas de robustez`]:level==='masters'?[`Muestra estratificada y poder estadístico`,`Instrumentos validados`,`Procedimientos replicables`,`Análisis de sensibilidad`]:[`Muestra básica con criterios objetivos`,`Instrumentos introductorios`,`Procedimientos claros y replicables`]):
                     lang==='fr'?(level==='phd'?[`Design multi‑méthodes/longitudinal`,`Triangulation des données`,`Modèles hiérarchiques`,`Tests de robustesse`]:level==='masters'?[`Échantillon stratifié et puissance statistique`,`Instruments validés`,`Procédures réplicables`,`Analyse de sensibilité`]:[`Échantillon de base avec critères objectifs`,`Instruments introductifs`,`Procédures claires et réplicables`]):
-                    lang==='de'?(level==='phd'?[`Multi‑Methoden/longitudinales Design`,`Daten‑Triangulation`,`Hierarchische Modelle`,`Robustheits‑Tests`]:level==='masters'?[`Stratifizierte Stichprobe und Teststärke`,`Validierte Instrumente`,`Replizierbare Verfahren`,`Sensitivitätsanalyse`]:[`Grundstichprobe mit objektiven Kriterien`,`Einführungsinstrumente`,`Klare, replizierbare Verfahren`]):
+                    lang==='de'?(level==='phd'?[`Multi‑Methoden/longitudinales Design`,`Daten‑Triangulation`,`Hierarchische Modelle`,`Robustheits‑Tests`]:level==='masters'?[`Stratifizierte Stichprobe und Teststärke`,`Validierte Instrumente`,`Replizierbare Verfahren`,`Sensitivitätsanalyse`]:[`Grundstichprobe mit objektiven Kriterien`,`Einführungsinstrumente`,`Klare, replizierbare Verfahren`] ):
                     (level==='phd'?[`Multi‑method/longitudinal design`,`Data triangulation`,`Hierarchical models`,`Robustness checks`]:level==='masters'?[`Stratified sample and power analysis`,`Validated instruments`,`Replicable procedures`,`Sensitivity analysis`]:[`Basic sample with objective criteria`,`Introductory instruments`,`Clear, replicable procedures`] );
         content += `<h2 id="sec-meth">${H.meth}</h2><p>${L.meth} ${c2} ${methAdd}</p><ul>${MB.map(li=>`<li>${li}</li>`).join('')}</ul>`;
         const c1 = refsData[1] ? cite(refsData[1], stylePref) : '';
@@ -1842,12 +1859,10 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
         const chipMac = lang==='pt'?'macOS':(lang==='es'?'macOS':(lang==='fr'?'macOS':(lang==='de'?'macOS':'macOS')));
         const payHref = `${STRIPE_LINK}?client_reference_id=${currentUser?currentUser.email:''}&prefilled_email=${currentUser?currentUser.email:''}`;
         content += `<div class="lux-cta"><h3>${ctaHead}</h3><p>${priceLineMid}</p><div style="display:flex;gap:.5rem;justify-content:center"><a href="${payHref}" target="_blank" rel="noopener">${ctaLink}</a><a href="#" onclick="openInstallGuide()">${installLabel}</a></div><div class="lux-platforms"><a href="#" onclick="openInstallGuide()" class="lux-chip"><svg viewBox="0 0 24 24"><path d="M12 2l3 3-3 3-3-3 3-3zm-6 6l3 3-3 3-3-3 3-3zm12 0l3 3-3 3-3-3 3-3zm-6 6l3 3-3 3-3-3 3-3z"/></svg>${chipAndroid}</a><a href="#" onclick="openInstallGuide()" class="lux-chip"><svg viewBox="0 0 24 24"><path d="M16 2c-2 0-3 1-4 2-1-1-2-2-4-2-3 0-6 3-6 7 0 6 7 10 10 13 3-3 10-7 10-13 0-4-3-7-6-7z"/></svg>${chipIOS}</a><a href="#" onclick="openInstallGuide()" class="lux-chip"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z M7 7h10v10H7z"/></svg>${chipMac}</a></div></div>`;
-
         content += `<h2 id="sec-concl">${H.concl}</h2><p>${L.concl} ${conclAdd}</p>`;
         content += `<h2 id="sec-refs">${H.refs}</h2><p>${L.refsIntro}</p><ul>`;
         for (const r of refsData) content += `<li>${fmtRef(r, stylePref, sourceType)}</li>`;
         content += `</ul>`;
-
         const A = lang==='pt'?{
             method:[
                 `Definição de variáveis e controles para ${topic}.`,
@@ -2030,7 +2045,6 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
             content += `<p>${s}</p>`;
             k++;
         }
-
         const finalCount = count(content);
         return { title: title, content: content, wordCount: finalCount, language: language, style: style, createdAt: new Date().toISOString() };
         } catch (err) {
@@ -2149,28 +2163,24 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
                 concl:[`Fechamento executivo: clareza, cadência e avanço previsível.`,`Próximo passo: manter foco na mesma alavanca antes de abrir outra.`]
             }
         };
-
         const S_EN = {
             creative:{intro:[`In ${year}, ${topic} gains sharp focus: a story without fluff, guided by clear goals and observable results.`,`${topic} demands direct structure. In ${year}, the roadmap focuses on problem, evidence, and action.`,`The journey of ${topic} in ${year} is lean: context, lever choice, and short cycles with proof.`,`For ${topic}, ${year} brings a simple map: clear intent, concrete steps, and impact measurement.`,`${topic} advances when writing is rigorous yet accessible: objective, method, and effect in few pages.`],plan:[`Action map: define objective, transform into observable steps, and execute short cycles with evidence review.`,`Practical agenda: one lever at a time, clear hypotheses, and direct measurement before expansion.`,`Sequence: diagnosis, minimal change, instrumentation, and pre/post comparison to decide with confidence.`,`Track: eliminate noise, focus on tasks with causal relation, and document only essentials.`,`Closing: compound gains with disciplined repetition on the same point before opening another.`],meth:[`Structure: scope delimitation, variable definition, sample criteria, validated instruments, and reproducible procedures.`,`Flow: explicit hypotheses, minimal experimental plan, observability before/after, guardrails, and quick review.`,`Organization: short sections, measurable objectives, and language favoring immediate understanding.`,`Cadence: ${num(7,14)}-day cycles, objective records, and decisions based on reliable signals.`,`Risk: safe tests with simple rollback and concise documentation.`],apps:[`Practical applications with gains between ${num(8,18)}% and ${num(19,32)}% when focused on one lever at a time.`,`Scenarios: initial adoption, retention, and decision — each with a clear, measurable change.`,`Cases: copy variations, reduced friction, and shortened time-to-value with direct impact.`,`In operation, ${topic} shows effect in specific cohorts; fine-tuning amplifies result.`,`Consistent results emerge from disciplined repetition on the same leverage point.`],metrics:[`Essential metrics: one main, two diagnostic, and one guardrail. Specific evidence avoids biased readings.`,`Track conversion by step, latency, and sanity signals to reduce ambiguity and speed up decisions.`,`Sensitivity analysis confirms robustness: cohort cuts and assumption verification.`,`Pre/post instrumentation ensures attribution: the effect is linked to the chosen change.`,`Concise reporting with numbers and short notes gives context without losing objectivity.`],faq:[`How long per cycle? ${num(7,14)} days with clear decision at the end.`,`Works without big budget? Yes, minimal changes with objective measurement.`,`What about disagreements? Transforming opinions into testable hypotheses resolves them.`],concl:[`Conclusion: choose a lever, execute fast, and measure. Discipline gives predictability and useful learning.`,`Closing: clarity, cadence, and evidence make ${topic} practical and reliable in ${year}.`]},
             casual:{intro:[`${topic} in ${year} asks for a direct guide: what to do, how to measure, and when to adjust.`,`Let's simplify ${topic}: few steps, visible results, and light language.`,`To start with ${topic}, focus on basics and track what really changes.`,`${topic} works best when you choose a clear action and observe the effect.`,`In ${year}, the secret of ${topic} is repeating what works and cutting the rest.`],plan:[`Quick plan: define a goal, list 3 simple actions, and measure each by step.`,`Short sequence: choose a lever, apply minimal change, and compare before/after.`,`Weekly agenda: two experiments, one objective decision at the end of the week.`,`Roadmap: focus on one main metric and two auxiliaries to diagnose.`,`Closing: keep what worked and adjust the rest without bureaucracy.`],meth:[`Step by step with simple goals and easy-to-apply instruments.`,`Short hypotheses, minimal test, and objective tracking.`,`Note before and after; decide based on what changed.`,`Use short cycles and adjust quickly when numbers ask for it.`,`Ensure easy rollback if something goes off track.`],apps:[`Practical examples with gains between ${num(6,14)}% and ${num(15,28)}%.`,`Small changes in text or flow make a difference.`,`Apply where attention drops; an adjustment can unlock value.`,`Group cuts show where to insist or change.`,`Repeating what worked increases effect with little effort.`],metrics:[`Pick one main metric and two supporting ones.`,`Measure by step and group to understand better.`,`Avoid generic data; focus on what guides decisions.`,`Include a guardrail to avoid side effects.`,`If the result is clear, advance; if not, adjust.`],faq:[`How long? ${num(7,14)} days are usually enough.`,`Need big investment? No.`,`Different opinions? Test and decide by the signal.`],concl:[`${topic} gets practical with focus and measure.`,`Closing with what works helps maintain cadence.`]},
             technical:{intro:[`Context of ${topic} in ${year} with defined objectives and precise language.`,`Scope of ${topic} with variables, criteria, and objective procedures.`,`Clear operational definition for consistent inference.`,`Principles and constraints of ${topic} aligned with measurable results.`,`Technical structure for observability and replication.`],plan:[`Technical plan: explicit hypotheses, design, target power ${num(80,95)}% and α=0.${num(1,5)}.`,`Sequence: pre/post instrumentation, sensitivity, and assumption verification.`,`Operation: stratified sample, cohorts, and reproducible procedures.`,`Diagnosis: metrics by step and guardrails for safe rollback.`,`Record: material versioning and scripts with hash.`],meth:[`Design: sample, instruments, procedures, analysis. Target power ${num(80,95)}% and α=0.${num(1,5)}.`,`Plan: hypotheses, minimal experiment, pre/post collection, and guardrails.`,`Validation: assumptions, sensitivity, and cohort cuts.`,`Attribution: instrumentation ensures cause-effect relationship.`,`Record: material version and results with hash.`],apps:[`Applications with estimated effect between ${num(9,17)}% and ${num(18,30)}% under controlled conditions.`,`Scenarios with latency reduction and conversion increase per step.`,`Light replications demonstrate operational consistency.`,`Fine-tuning maximizes gain in target segments.`,`Concise reports with main metrics table.`],metrics:[`Metrics: main, two diagnostic, and one guardrail; CI ${num(90,99)}%.`,`Observable evidence by step and cohort.`,`Sensitivity and assumption verification.`,`Instrumentation logs and script versioning.`,`Simplified author-date report when applicable.`],faq:[`Window of ${num(7,14)} days with objective decision.`,`Minimal changes with adequate measurement.`,`Tests resolve opinion divergences.`],concl:[`Technical synthesis with measurable next steps.`,`Direct applicability in ${year} with controlled risk.`]},
             professional:{intro:[`${topic} treated with practical rigor in ${year}: clear intent, measurable action, and objective reporting.`,`${topic} requires discipline: few levers, precise observation, and quick decision.`,`Direct strategy for ${topic}: focus, execution, and specific evidence.`,`${topic} benefits from short cycles and lean documentation.`,`Reliable results come from method and language clarity.`],plan:[`Executive plan: prioritize one lever, execute minimal change, and measure by step.`,`Roadmap: decision in ${num(7,14)} days with specific evidence and guardrails.`,`Sequence: diagnosis, lean execution, review, and objective communication.`,`Governance: visibility by cohort, sanity, and unequivocal attribution.`,`Closing: amplify effect on the same point before opening new project.`],meth:[`Delimitation, variables, sample, instruments, procedures, and analysis with guardrails.`,`Testable hypotheses and minimal experiments with clear attribution.`,`Pre/post measurement and weekly review.`,`Cohort cuts, sensitivity, and assumption verification.`,`Essential records and data available.`],apps:[`Typical gains between ${num(8,16)}% and ${num(17,29)}% when focusing on a point.`,`Cases show benefit in adoption and retention.`,`Simple flow adjustments produce measurable effect.`,`Aligned execution reduces noise.`,`Brief reports sustain executive communication.`],metrics:[`One main metric and two auxiliaries with guardrail.`,`Evidence by step confirms lever.`,`Sensitivity and sanity avoid false positives.`,`Decisions anchored in numbers and short context.`,`Objective report with neutral language.`],faq:[`Cycles of ${num(7,14)} days.`,`No need for big budget.`,`Divergences resolved with instrumented tests.`],concl:[`Executive closing: clarity, cadence, and predictable advance.`,`Next step: keep focus on the same lever before opening another.`]}
         };
-
         const S_ES = {
             creative:{intro:[`En ${year}, ${topic} gana contorno nítido: una historia sin adornos, guiada por objetivos claros.`,`${topic} pide estructura directa. En ${year}, el guion enfoca problema, evidencia y acción.`,`La jornada de ${topic} en ${year} es ágil: contexto, elección de palancas y ciclos cortos.`,`Para ${topic}, ${year} trae un mapa simple: claridad de intención y pasos concretos.`,`${topic} avanza cuando la escritura es rigurosa y accesible: objetivo y método en pocas páginas.`],plan:[`Mapa de acción: definir objetivo, transformar en pasos observables y ejecutar ciclos cortos.`,`Agenda práctica: una palanca a la vez, hipótesis claras y medición directa.`,`Secuencia: diagnóstico, cambio mínimo, instrumentación y comparación pre/post.`,`Camino: eliminar ruido, enfocar tareas con relación causal y documentar lo esencial.`,`Cierre: componer ganancias con repetición disciplinada en el mismo punto.`],meth:[`Estructura: delimitación de alcance, definición de variables y criterios de muestra.`,`Flujo: hipótesis explícitas, plan experimental mínimo y observabilidad antes/después.`,`Organización: secciones cortas, objetivos medibles y lenguaje claro.`,`Cadencia: ciclos de ${num(7,14)} días, registros objetivos y decisiones basadas en señales.`,`Riesgo: pruebas seguras con reversión simple y documentación sucinta.`],apps:[`Aplicaciones prácticas con ganancias entre ${num(8,18)}% y ${num(19,32)}% al enfocar una palanca.`,`Escenarios: adopción inicial, retención y decisión — cada uno con cambio medible.`,`Casos: variaciones de copia, fricción reducida y tiempo-al-valor acortado.`,`En operación, ${topic} muestra efecto en cohortes específicas.`,`Resultados consistentes surgen de la repetición disciplinada.`],metrics:[`Métricas esenciales: una principal, dos diagnósticas y un guardrail.`,`Acompañar conversión por etapa, latencia y señales de sanidad.`,`Análisis de sensibilidad confirma robustez y verificación de supuestos.`,`Instrumentación pre/post garantiza atribución del efecto.`,`Relato conciso con números y notas cortas da contexto sin perder objetividad.`],faq:[`¿Cuánto tiempo por ciclo? ${num(7,14)} días con decisión clara.`,`¿Funciona sin gran presupuesto? Sí, cambios mínimos con medición.`,`¿Y si hay desacuerdo? Transformar opiniones en hipótesis testables.`],concl:[`Conclusión: elija una palanca, ejecute rápido y mida.`,`Cierre: claridad, cadencia y evidencia hacen ${topic} práctico en ${year}.`]},
             casual:{intro:[`${topic} en ${year} pide una guía directa: qué hacer, cómo medir y cuándo ajustar.`,`Vamos a simplificar ${topic}: pocos pasos, resultados visibles y lenguaje ligero.`,`Para empezar con ${topic}, enfoque en lo básico y acompañe lo que cambia de verdad.`,`${topic} funciona mejor cuando elige una acción clara y observa el efecto.`,`En ${year}, el secreto de ${topic} es repetir lo que funciona y cortar el resto.`],plan:[`Plan rápido: definir un objetivo, listar 3 acciones simples y medir.`,`Secuencia corta: elegir una palanca, aplicar cambio mínimo y comparar.`,`Agenda semanal: dos experimentos, una decisión objetiva al fin de semana.`,`Guion: foco en una métrica principal y dos auxiliares para diagnosticar.`,`Cierre: mantener lo que funcionó y ajustar el resto sin burocracia.`],meth:[`Paso a paso con objetivos simples e instrumentos fáciles de aplicar.`,`Hipótesis cortas, prueba mínima y seguimiento objetivo.`,`Anote el antes y después; decida con base en lo que cambió.`,`Use ciclos cortos y ajuste rápido cuando los números lo pidan.`,`Garantice reversión fácil si algo sale de lo esperado.`],apps:[`Ejemplos prácticos con ganancias entre ${num(6,14)}% y ${num(15,28)}%.`,`Cambios pequeños en texto o flujo ya hacen diferencia.`,`Aplique donde la atención cae; un ajuste puede destrabar.`,`Cortes por grupo muestran dónde insistir o cambiar.`,`Repetir lo que dio cierto aumenta el efecto con poco esfuerzo.`],metrics:[`Elija una métrica principal y dos de apoyo.`,`Mida por etapa y por grupo para entender mejor.`,`Evite datos genéricos; enfoque en lo que guía decisiones.`,`Incluya un guardrail para evitar efectos colaterales.`,`Si el resultado es claro, avance; si no, ajuste.`],faq:[`¿Cuánto tiempo? ${num(7,14)} días suelen bastar.`,`¿Necesita gran inversión? No.`,`¿Y opiniones diferentes? Pruebe y decida por la señal.`],concl:[`${topic} se vuelve práctico con foco y medida.`,`Cerrar con lo que funciona ayuda a mantener la cadencia.`]},
             technical:{intro:[`Contexto de ${topic} en ${year} con objetivos definidos y lenguaje preciso.`,`Alcance de ${topic} con variables, criterios y procedimientos objetivos.`,`Definición operacional clara para inferencia consistente.`,`Principios y restricciones de ${topic} alineados a resultados medibles.`,`Estructura técnica para observabilidad y replicación.`],plan:[`Plan técnico: hipótesis explícitas, diseño, poder objetivo ${num(80,95)}% y α=0.${num(1,5)}.`,`Secuencia: instrumentación pre/post, sensibilidad y verificación de supuestos.`,`Operación: muestra estratificada, cohortes y procedimientos replicables.`,`Diagnóstico: métricas por etapa y guardrails para reversión segura.`,`Registro: versionamiento de materiales y scripts con hash.`],meth:[`Diseño: muestra, instrumentos, procedimientos, análisis. Poder objetivo ${num(80,95)}% y α=0.${num(1,5)}.`,`Plan: hipótesis, experimento mínimo, recolección pre/post y guardrails.`,`Validación: supuestos, sensibilidad y cortes por cohorte.`,`Atribución: instrumentación garantiza relación causa-efecto.`,`Registro: versión de material y resultados con hash.`],apps:[`Aplicaciones con efecto estimado entre ${num(9,17)}% y ${num(18,30)}% bajo condiciones controladas.`,`Escenarios con reducción de latencia y aumento de conversión por etapa.`,`Replicaciones ligeras demuestran consistencia operacional.`,`Ajustes finos maximizan ganancia en segmentos objetivo.`,`Relatos concisos con tabla de métricas principales.`],metrics:[`Métricas: principal, dos diagnósticas y un guardrail; IC ${num(90,99)}%.`,`Evidencia observable por etapa y cohorte.`,`Sensibilidad y verificación de supuestos.`,`Logs de instrumentación y versionamiento de scripts.`,`Relato autor-fecha simplificado cuando aplicable.`],faq:[`Ventana de ${num(7,14)} días con decisión objetiva.`,`Cambios mínimos con medición adecuada.`,`Pruebas resuelven divergencias de opinión.`],concl:[`Síntesis técnica con próximos pasos medibles.`,`Aplicabilidad directa en ${year} con riesgo controlado.`]},
             professional:{intro:[`${topic} tratado con rigor práctico en ${year}: intención clara y acción medible.`,`${topic} exige disciplina: pocas palancas, observación precisa y decisión rápida.`,`Estrategia directa para ${topic}: foco, ejecución y evidencia específica.`,`${topic} se beneficia de ciclos cortos y documentación ágil.`,`Resultados confiables surgen de método y claridad de lenguaje.`],plan:[`Plan ejecutivo: priorizar una palanca, ejecutar cambio mínimo y medir.`,`Guion: decisión en ${num(7,14)} días con evidencia específica y guardrails.`,`Secuencia: diagnóstico, ejecución ágil, revisión y comunicación objetiva.`,`Gobernanza: visibilidad por cohorte, sanidad y atribución inequívoca.`,`Cierre: ampliar efecto en el mismo punto antes de abrir nuevo proyecto.`],meth:[`Delimitación, variables, muestra, instrumentos, procedimientos y análisis.`,`Hipótesis testables y experimentos mínimos con atribución clara.`,`Medición pre/post y revisión semanal.`,`Cortes por cohorte, sensibilidad y verificación de supuestos.`,`Registros y datos esenciales disponibles.`],apps:[`Ganancias típicas entre ${num(8,16)}% y ${num(17,29)}% al enfocar un punto.`,`Casos muestran beneficio en adopción y retención.`,`Ajustes simples de flujo producen efecto medible.`,`Ejecución alineada a la prioridad reduce ruido.`,`Relatos breves sostienen comunicación ejecutiva.`],metrics:[`Una métrica principal y dos auxiliares con guardrail.`,`Evidencia por etapa confirma palanca.`,`Sensibilidad y sanidad evitan falsos positivos.`,`Decisiones ancladas en números y contexto corto.`,`Relato objetivo con lenguaje neutral.`],faq:[`Ciclos de ${num(7,14)} días.`,`Sin necesidad de gran presupuesto.`,`Divergencias resueltas con pruebas instrumentadas.`],concl:[`Cierre ejecutivo: claridad, cadencia y avance previsible.`,`Próximo paso: mantener foco en la misma palanca antes de abrir otra.`]}
         };
-
         const S_FR = {
             creative:{intro:[`En ${year}, ${topic} gagne un contour net : une histoire sans fioritures, guidée par des objectifs clairs.`,`${topic} demande une structure directe. En ${year}, la feuille de route se concentre sur le problème et l'action.`,`Le parcours de ${topic} en ${year} est simple : contexte, choix de levier et cycles courts.`,`Pour ${topic}, ${year} apporte une carte simple : clarté d'intention et étapes concrètes.`,`${topic} avance quand l'écriture est rigoureuse et accessible : objectif et méthode en quelques pages.`],plan:[`Carte d'action : définir l'objectif, transformer en étapes observables et exécuter des cycles courts.`,`Agenda pratique : un levier à la fois, hypothèses claires et mesure directe.`,`Séquence : diagnostic, changement minimal, instrumentation et comparaison pré/post.`,`Piste : éliminer le bruit, se concentrer sur les tâches causales et documenter l'essentiel.`,`Clôture : composer les gains avec une répétition disciplinée sur le même point.`],meth:[`Structure : délimitation de la portée, définition des variables et critères d'échantillon.`,`Flux : hypothèses explicites, plan expérimental minimal et observabilité avant/après.`,`Organisation : sections courtes, objectifs mesurables et langage clair.`,`Cadence : cycles de ${num(7,14)} jours, enregistrements objectifs et décisions basées sur des signaux.`,`Risque : tests sûrs avec retour en arrière simple et documentation succincte.`],apps:[`Applications pratiques avec des gains entre ${num(8,18)}% et ${num(19,32)}% en se concentrant sur un levier.`,`Scénarios : adoption initiale, rétention et décision — chacun avec un changement mesurable.`,`Cas : variations de copie, friction réduite et temps de valorisation raccourci.`,`En opération, ${topic} montre un effet dans des cohortes spécifiques.`,`Des résultats cohérents émergent d'une répétition disciplinée.`],metrics:[`Métriques essentielles : une principale, deux diagnostiques et un garde-fou.`,`Suivre la conversion par étape, la latence et les signaux de santé.`,`L'analyse de sensibilité confirme la robustesse et la vérification des hypothèses.`,`L'instrumentation pré/post garantit l'attribution de l'effet.`,`Un rapport concis avec des chiffres et des notes courtes donne le contexte.`],faq:[`Combien de temps par cycle ? ${num(7,14)} jours avec une décision claire.`,`Fonctionne sans gros budget ? Oui, changements minimes avec mesure.`,`Et en cas de désaccord ? Transformer les opinions en hypothèses testables.`],concl:[`Conclusion : choisissez un levier, exécutez rapidement et mesurez.`,`Clôture : clarté, cadence et preuves rendent ${topic} pratique en ${year}.`]},
             casual:{intro:[`${topic} en ${year} demande un guide direct : quoi faire, comment mesurer et quand ajuster.`,`Simplifions ${topic} : peu d'étapes, résultats visibles et langage léger.`,`Pour commencer avec ${topic}, concentrez-vous sur l'essentiel et suivez ce qui change vraiment.`,`${topic} fonctionne mieux lorsque vous choisissez une action claire et observez l'effet.`,`En ${year}, le secret de ${topic} est de répéter ce qui fonctionne et de couper le reste.`],plan:[`Plan rapide : définir un objectif, lister 3 actions simples et mesurer.`,`Séquence courte : choisir un levier, appliquer un changement minimal et comparer.`,`Agenda hebdomadaire : deux expériences, une décision objective en fin de semaine.`,`Feuille de route : focus sur une métrique principale et deux auxiliaires.`,`Clôture : garder ce qui a fonctionné et ajuster le reste sans bureaucratie.`],meth:[`Pas à pas avec des objectifs simples et des instruments faciles à appliquer.`,`Hypothèses courtes, test minimal et suivi objectif.`,`Notez l'avant et l'après ; décidez en fonction de ce qui a changé.`,`Utilisez des cycles courts et ajustez rapidement lorsque les chiffres le demandent.`,`Garantissez un retour facile si quelque chose ne va pas.`],apps:[`Exemples pratiques avec des gains entre ${num(6,14)}% et ${num(15,28)}%.`,`De petits changements de texte ou de flux font déjà la différence.`,`Appliquez où l'attention tombe ; un ajustement peut débloquer.`,`Les coupes par groupe montrent où insister ou changer.`,`Répéter ce qui a fonctionné augmente l'effet avec peu d'effort.`],metrics:[`Choisissez une métrique principale et deux de soutien.`,`Mesurez par étape et par groupe pour mieux comprendre.`,`Évitez les données génériques ; concentrez-vous sur ce qui guide les décisions.`,`Incluez un garde-fou pour éviter les effets secondaires.`,`Si le résultat est clair, avancez ; sinon, ajustez.`],faq:[`Combien de temps ? ${num(7,14)} jours suffisent généralement.`,`Besoin d'un gros investissement ? Non.`,`Et des opinions différentes ? Testez et décidez par le signal.`],concl:[`${topic} devient pratique avec focus et mesure.`,`Conclure avec ce qui fonctionne aide à maintenir la cadence.`]},
             technical:{intro:[`Contexte de ${topic} en ${year} avec des objectifs définis et un langage précis.`,`Portée de ${topic} avec variables, critères et procédures objectives.`,`Définition opérationnelle claire pour une inférence cohérente.`,`Principes et contraintes de ${topic} alignés sur des résultats mesurables.`,`Structure technique pour l'observabilité et la réplication.`],plan:[`Plan technique : hypothèses explicites, conception, puissance cible ${num(80,95)}% et α=0.${num(1,5)}.`,`Séquence : instrumentation pré/post, sensibilité et vérification des hypothèses.`,`Opération : échantillon stratifié, cohortes et procédures reproductibles.`,`Diagnostic : métriques par étape et garde-fous pour un retour sûr.`,`Enregistrement : versionnage des matériaux et scripts avec hachage.`],meth:[`Conception : échantillon, instruments, procédures, analyse. Puissance cible ${num(80,95)}%.`,`Plan : hypothèses, expérience minimale, collecte pré/post et garde-fous.`,`Validation : hypothèses, sensibilité et coupes de cohorte.`,`Attribution : l'instrumentation garantit la relation cause-effet.`,`Enregistrement : version du matériel et résultats avec hachage.`],apps:[`Applications avec effet estimé entre ${num(9,17)}% et ${num(18,30)}% sous conditions contrôlées.`,`Scénarios avec réduction de latence et augmentation de conversion par étape.`,`Les réplications légères démontrent une cohérence opérationnelle.`,`Les réglages fins maximisent le gain dans les segments cibles.`,`Rapports concis avec tableau des métriques principales.`],metrics:[`Métriques : principale, deux diagnostiques et un garde-fou ; IC ${num(90,99)}%.`,`Preuve observable par étape et cohorte.`,`Sensibilité et vérification des hypothèses.`,`Journaux d'instrumentation et versionnage de scripts.`,`Rapport auteur-date simplifié si applicable.`],faq:[`Fenêtre de ${num(7,14)} jours avec décision objective.`,`Changements minimes avec mesure adéquate.`,`Les tests résolvent les divergences d'opinion.`],concl:[`Synthèse technique avec prochaines étapes mesurables.`,`Applicabilité directe en ${year} avec risque contrôlé.`]},
             professional:{intro:[`${topic} traité avec rigueur pratique en ${year} : intention claire et action mesurable.`,`${topic} exige de la discipline : peu de leviers, observation précise et décision rapide.`,`Stratégie directe pour ${topic} : focus, exécution et preuves spécifiques.`,`${topic} bénéficie de cycles courts et d'une documentation allégée.`,`Des résultats fiables proviennent de la méthode et de la clarté du langage.`],plan:[`Plan exécutif : prioriser un levier, exécuter un changement minimal et mesurer.`,`Feuille de route : décision dans ${num(7,14)} jours avec preuves spécifiques.`,`Séquence : diagnostic, exécution allégée, révision et communication objective.`,`Gouvernance : visibilité par cohorte, santé et attribution sans équivoque.`,`Clôture : amplifier l'effet sur le même point avant d'ouvrir un nouveau projet.`],meth:[`Délimitation, variables, échantillon, instruments, procédures et analyse.`,`Hypothèses testables et expériences minimales avec attribution claire.`,`Mesure pré/post et révision hebdomadaire.`,`Coupes de cohorte, sensibilité et vérification des hypothèses.`,`Enregistrements et données essentiels disponibles.`],apps:[`Gains typiques entre ${num(8,16)}% et ${num(17,29)}% en se concentrant sur un point.`,`Les cas montrent un bénéfice en adoption et rétention.`,`De simples ajustements de flux produisent un effet mesurable.`,`Une exécution alignée sur la priorité réduit le bruit.`,`Des rapports brefs soutiennent la communication exécutive.`],metrics:[`Une métrique principale et deux auxiliaires avec garde-fou.`,`La preuve par étape confirme le levier.`,`Sensibilité et santé évitent les faux positifs.`,`Décisions ancrées dans les chiffres et contexte court.`,`Rapport objectif avec langage neutre.`],faq:[`Cycles de ${num(7,14)} jours.`,`Pas besoin de gros budget.`,`Divergences résolues par des tests instrumentés.`],concl:[`Clôture exécutive : clarté, cadence et avance prévisible.`,`Prochaine étape : garder le focus sur le même levier avant d'en ouvrir un autre.`]}
         };
-
         const S_DE = {
             creative:{intro:[`Im Jahr ${year} gewinnt ${topic} an scharfer Kontur: eine Geschichte ohne Schnörkel, geleitet von klaren Zielen.`,`${topic} verlangt direkte Struktur. Im Jahr ${year} konzentriert sich der Fahrplan auf Problem und Aktion.`,`Die Reise von ${topic} im Jahr ${year} ist schlank: Kontext, Hebelwahl und kurze Zyklen.`,`Für ${topic} bringt ${year} eine einfache Karte: klare Absicht und konkrete Schritte.`,`${topic} kommt voran, wenn das Schreiben rigoros und zugänglich ist: Ziel und Methode auf wenigen Seiten.`],plan:[`Aktionskarte: Ziel definieren, in beobachtbare Schritte umwandeln und kurze Zyklen ausführen.`,`Praktische Agenda: ein Hebel nach dem anderen, klare Hypothesen und direkte Messung.`,`Sequenz: Diagnose, minimale Änderung, Instrumentierung und Vorher/Nachher-Vergleich.`,`Pfad: Rauschen eliminieren, Aufgaben mit kausalem Bezug fokussieren und nur das Wesentliche dokumentieren.`,`Abschluss: Gewinne durch disziplinierte Wiederholung am selben Punkt zusammensetzen.`],meth:[`Struktur: Umfangsabgrenzung, Variablendefinition und Stichprobenkriterien.`,`Fluss: explizite Hypothesen, minimaler Versuchsplan und Beobachtbarkeit vorher/nachher.`,`Organisation: kurze Abschnitte, messbare Ziele und klare Sprache.`,`Kadenz: Zyklen von ${num(7,14)} Tagen, objektive Aufzeichnungen und Entscheidungen basierend auf Signalen.`,`Risiko: sichere Tests mit einfacher Rücknahme und knapper Dokumentation.`],apps:[`Praktische Anwendungen mit Gewinnen zwischen ${num(8,18)}% und ${num(19,32)}% bei Fokus auf einen Hebel.`,`Szenarien: anfängliche Akzeptanz, Bindung und Entscheidung — jeweils mit messbarer Änderung.`,`Fälle: Textvariationen, reduzierte Reibung und verkürzte Time-to-Value.`,`Im Betrieb zeigt ${topic} Wirkung in spezifischen Kohorten.`,`Konsistente Ergebnisse entstehen durch disziplinierte Wiederholung.`],metrics:[`Wesentliche Metriken: eine Haupt-, zwei Diagnose- und eine Leitplanke.`,`Verfolgung der Konversion pro Schritt, Latenz und Gesundheitssignale.`,`Sensitivitätsanalyse bestätigt Robustheit und Überprüfung von Annahmen.`,`Vorher/Nachher-Instrumentierung garantiert Zuordnung des Effekts.`,`Ein prägnanter Bericht mit Zahlen und kurzen Notizen gibt Kontext.`],faq:[`Wie lange pro Zyklus? ${num(7,14)} Tage mit klarer Entscheidung.`,`Funktioniert ohne großes Budget? Ja, minimale Änderungen mit Messung.`,`Und bei Meinungsverschiedenheiten? Meinungen in testbare Hypothesen umwandeln.`],concl:[`Fazit: Wählen Sie einen Hebel, führen Sie schnell aus und messen Sie.`,`Abschluss: Klarheit, Kadenz und Beweise machen ${topic} im Jahr ${year} praktisch.`]},
             casual:{intro:[`${topic} im Jahr ${year} verlangt einen direkten Leitfaden: was zu tun ist, wie man misst und wann man anpasst.`,`Vereinfachen wir ${topic}: wenige Schritte, sichtbare Ergebnisse und leichte Sprache.`,`Um mit ${topic} zu beginnen, konzentrieren Sie sich auf die Grundlagen und verfolgen Sie, was sich wirklich ändert.`,`${topic} funktioniert am besten, wenn Sie eine klare Aktion wählen und den Effekt beobachten.`,`Im Jahr ${year} ist das Geheimnis von ${topic}, das zu wiederholen, was funktioniert, und den Rest zu streichen.`],plan:[`Schneller Plan: ein Ziel definieren, 3 einfache Aktionen auflisten und messen.`,`Kurze Sequenz: einen Hebel wählen, minimale Änderung anwenden und vergleichen.`,`Wochenagenda: zwei Experimente, eine objektive Entscheidung am Wochenende.`,`Fahrplan: Fokus auf eine Hauptmetrik und zwei Hilfsmetriken zur Diagnose.`,`Abschluss: behalten, was funktioniert hat, und den Rest ohne Bürokratie anpassen.`],meth:[`Schritt für Schritt mit einfachen Zielen und leicht anzuwendenden Instrumenten.`,`Kurze Hypothesen, minimaler Test und objektive Verfolgung.`,`Notieren Sie das Vorher und Nachher; entscheiden Sie basierend auf dem, was sich geändert hat.`,`Nutzen Sie kurze Zyklen und passen Sie schnell an, wenn die Zahlen es verlangen.`,`Gewährleisten Sie einfache Rücknahme, wenn etwas vom Weg abkommt.`],apps:[`Praktische Beispiele mit Gewinnen zwischen ${num(6,14)}% und ${num(15,28)}%.`,`Kleine Änderungen im Text oder Fluss machen bereits einen Unterschied.`,`Wenden Sie an, wo die Aufmerksamkeit fällt; eine Anpassung kann Werte freisetzen.`,`Gruppenschnitte zeigen, wo man bestehen oder ändern sollte.`,`Das Wiederholen dessen, was funktioniert hat, erhöht den Effekt mit wenig Aufwand.`],metrics:[`Wählen Sie eine Hauptmetrik und zwei unterstützende.`,`Messen Sie pro Schritt und Gruppe, um besser zu verstehen.`,`Vermeiden Sie generische Daten; konzentrieren Sie sich auf das, was Entscheidungen leitet.`,`Fügen Sie eine Leitplanke hinzu, um Nebenwirkungen zu vermeiden.`,`Wenn das Ergebnis klar ist, weitergehen; wenn nicht, anpassen.`],faq:[`Wie lange? ${num(7,14)} Tage reichen gewöhnlich aus.`,`Große Investition nötig? Nein.`,`Und unterschiedliche Meinungen? Testen und nach Signal entscheiden.`],concl:[`${topic} wird mit Fokus und Maß praktisch.`,`Mit dem schließen, was funktioniert, hilft, die Kadenz zu halten.`]},
@@ -2213,54 +2223,42 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
         let content = `${css}<section class="lux-article"><h1>${title}</h1>`;
         const hook = `Most teams chase dozens of ideas and stall. D2 focuses on two moves: Diagnose precisely and Do fast, creating measurable progress in ${year}.`;
         content += `<div class="lux-callout">${hook}</div>`;
-
         content += `<h2>Introduction</h2>`;
         content += `<p>${topic} looks simple until you try to scale it. The D2 Method reduces chaos by forcing two disciplined steps: understand the exact constraint, then act decisively within a short window. Instead of debating strategies, teams run observable experiments that produce evidence in days, not months. D2 is pragmatic: it works whether you manage a SaaS onboarding flow, an e‑commerce checkout, or a content growth funnel. By anchoring decisions to measurable signals, it prevents scatter, accelerates learning, and compounds small wins into durable growth.</p>`;
-
         content += `<h2>Why It Matters for Growth</h2>`;
         content += `<p>Growth stalls when teams treat every problem as equal or pursue too many initiatives at once. D2 clarifies priority by identifying the single bottleneck that governs outcomes, then concentrating execution on that point. This alignment increases signal‑to‑noise, reduces cycle time, and unlocks predictable momentum. In practice, one focused experiment can improve activation by ${num(7,15)}% or cut churn by ${num(4,12)}% because effort finally matches leverage. D2 also builds trust: executives see real evidence, operators feel agency, and stakeholders align around numbers rather than opinions. The result is a repeatable cadence: diagnose, decide, act, measure, adjust.</p>`;
-
         const scenarios = ['SaaS onboarding','e‑commerce checkout','B2B lead generation','mobile retention','content funnel'];
-
         content += `<h2>Diagnosis</h2>`;
         content += `<p>Diagnosis isolates the constraint that most limits ${topic}. It replaces generic dashboards with focused queries: where does attention drop, which step delays action, what cohort deviates from the norm? The output is a precise hypothesis that can be tested quickly. For ${pick(scenarios)}, examine entry‑to‑value time, step‑level conversion, and user narratives. Good diagnosis narrows the scope until one lever stands out.</p>`;
         content += `<ul><li>Map the journey in discrete steps</li><li>Quantify drop‑offs and latency</li><li>Identify one lever with outsized impact</li></ul>`;
         content += `<p>Example: after mapping onboarding, the team saw a ${num(18,35)}% drop at email verification. A one‑step change (passkey + delayed verification) raised activation ${num(6,14)}% in two weeks.</p>`;
-
         content += `<h2>Execution</h2>`;
         content += `<p>Execution converts the hypothesis into a minimum viable experiment. The goal is speed without sloppiness: make one change that is easy to observe, safe to roll back, and attributable to the specific lever. D2 favors tight timeboxes (${num(7,14)} days) and unambiguous metrics so outcomes are clear.</p>`;
         content += `<ul><li>Define a single success metric</li><li>Ship the smallest change that moves it</li><li>Instrument before and after</li></ul>`;
         content += `<p>Example: simplifying checkout copy to reduce cognitive load improved completion by ${num(3,9)}% while decreasing support contacts by ${num(5,12)}%.</p>`;
-
         content += `<h2>Feedback</h2>`;
         content += `<p>Feedback closes the loop. Teams compare predicted and observed impact, capture qualitative reactions, and determine whether to persist, pivot, or revert. The emphasis is learning speed: each cycle should produce a confident decision. Feedback blends numbers with context to avoid false positives.</p>`;
         content += `<ul><li>Review metric deltas with cohort cuts</li><li>Collect quick user notes</li><li>Decide: scale, iterate, or discard</li></ul>`;
         content += `<p>Example: notifications increased re‑engagement by ${num(8,16)}%, but qualitative notes flagged fatigue; the team kept timing changes and dropped generic reminders.</p>`;
-
         content += `<h2>Optimization</h2>`;
         content += `<p>Optimization refines the winning change. Instead of adding new projects, D2 deepens performance on the same lever: copy, timing, placement, segment targeting, or friction removal. Small adjustments compound, turning a modest gain into a material shift.</p>`;
         content += `<ul><li>Run A/B on the chosen lever</li><li>Target segments with tailored variants</li><li>Remove micro‑frictions that block action</li></ul>`;
         content += `<p>Example: segment‑specific headlines raised trial‑to‑paid by ${num(5,11)}% on top of the initial uplift.</p>`;
-
         content += `<h2>Modification</h2>`;
         content += `<p>Modification adapts the approach when assumptions break. If a change helps one cohort but hurts another, D2 adjusts scope or shifts the lever. Modification preserves momentum by reacting to evidence rather than sunk cost.</p>`;
         content += `<ul><li>Detect asymmetric effects across cohorts</li><li>Scope changes to high‑impact segments</li><li>Switch levers when ROI drops</li></ul>`;
         content += `<p>Example: a new pricing card helped self‑serve but confused enterprise buyers; the team split experiences and recovered ${num(6,12)}% in qualified leads.</p>`;
-
         content += `<h2>Metrics</h2>`;
         content += `<p>Metrics define reality. D2 uses few, specific measures tied to user progress: time to value, step conversion, retention lag, and revenue‑linked behaviors. The dashboard shows the minimum needed to decide, not everything that can be tracked.</p>`;
         content += `<ul><li>One north‑star metric per cycle</li><li>Two supporting diagnostics</li><li>Always include a guardrail</li></ul>`;
         content += `<p>Example: for ${pick(scenarios)}, north‑star was activation; diagnostics were verification latency and first‑action depth; guardrail was support escalations.</p>`;
-
         content += `<h2>Myths vs Truths</h2>`;
         content += `<p>Myth: more projects mean more growth. Truth: focus increases leverage and shrinks time to evidence. Myth: plan everything first. Truth: reality teaches faster than documents when instrumentation is strong. Myth: copy the leader. Truth: context differs; borrow principles, not tactics. Myth: generic data is enough. Truth: specific, step‑level data prevents misreads and guides action.</p>`;
-
         content += `<h2>Myths vs Truths — Expanded</h2>`;
         content += `<p>“More is better” creates an illusion of progress while diluting attention. D2 caps concurrent work so every change is visible and attributable. Teams discover that one well‑chosen lever can move the whole system.</p>`;
         content += `<p>“Plan everything first” delays learning. D2 replaces certainty theater with instrumented experiments that surface reality early. When evidence contradicts assumptions, the team modifies quickly and keeps momentum.</p>`;
         content += `<p>“Copy leaders” ignores context. A tactic that works for a marketplace may fail for a SaaS onboarding with different user motivations. D2 copies decision principles—tight scopes, fast feedback, guardrails—not the exact playbook.</p>`;
         content += `<p>“Generic data is enough” leads to vague stories. D2 demands step‑level numbers and user notes so decisions connect to real behavior. This granularity prevents false confidence and highlights the next practical move.</p>`;
-
         content += `<h2>FAQ</h2>`;
         content += `<p><strong>How long is a D2 cycle?</strong> ${num(7,14)} days. Long enough to collect clean data, short enough to maintain urgency. Each cycle ends with a decision: double‑down, iterate, or stop.</p>`;
         content += `<p><strong>Does D2 work without big budgets?</strong> Yes. The method prioritizes minimum viable changes with clear measurement. Many wins come from copy, flow, or timing tweaks rather than heavy builds.</p>`;
@@ -2268,11 +2266,9 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
         content += `<p><strong>Can I apply D2 in ${pick(scenarios)}?</strong> Yes. Start by diagnosing the constraint, ship one change, measure, then iterate. The pattern is universal because it targets leverage, not a specific channel.</p>`;
         content += `<p><strong>How do we avoid harming users?</strong> Include guardrails: support load, complaint rate, or opt‑out signals. If a metric crosses a threshold, revert immediately.</p>`;
         content += `<p><strong>What happens after a win?</strong> Optimize the same lever before starting a new project. Compounding on one area often yields bigger returns than starting from scratch elsewhere.</p>`;
-
         content += `<h2>Conclusion</h2>`;
         content += `<p>D2 turns growth from guesswork into a disciplined cadence. By diagnosing constraints and acting quickly on the highest‑leverage change, teams create measurable progress and learn faster than they plan. The effect is cultural as much as tactical: clarity replaces noise, momentum replaces delay, and small wins compound. Choose one lever, instrument it, and run a ${num(7,14)}‑day cycle. Evidence will show the next move—and growth follows.</p>`;
         content += `</section>`;
-
         const finalCount = count(content);
         return { title: title, content: content, wordCount: finalCount, language: language, style: style, createdAt: new Date().toISOString() };
     }
@@ -2574,28 +2570,24 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
             T.pt.actions = ['Avalie tamanho e lug‑to‑lug','Verifique calibre e reserva de marcha','Teste resistência à água','Compare pulseiras e fechos','Inspecione acabamento e lume'];
             T.pt.proof = i => `Em testes cegos com ${topic}, satisfação subiu ${i}% ao priorizar movimento e materiais.`;
             T.pt.blockquote = 'Relógios de impacto começam no movimento e nos materiais — não no hype.';
-
             T.en.pillars = ['Design','Movement','Materials','Complications','Accuracy','Durability'];
             T.en.whyBase = `${topic} has impact when you prioritize movement, materials, and ergonomics; brand is secondary.`;
             T.en.how = `Define use (casual, dive, dress), choose movement (mechanical, automatic, quartz), assess materials (steel, titanium, sapphire), and test comfort.`;
             T.en.actions = ['Check case size and lug‑to‑lug','Verify calibre and power reserve','Test water resistance','Compare straps and clasps','Inspect finishing and lume'];
             T.en.proof = i => `In blind tests with ${topic}, satisfaction increased ${i}% when movement and materials were prioritized.`;
             T.en.blockquote = 'Impactful watches start with movement and materials — not hype.';
-
             T.es.pillars = ['Diseño','Movimiento','Materiales','Complicaciones','Precisión','Durabilidad'];
-            T.es.whyBase = `${topic} impacta cuando priorizas movimiento, materiales y ergonomía; la marca es secundaria.`;
+            T.es.whyBase = `${topic} impacta cuando priorizas movimiento, materiais y ergonomía; la marca es secundaria.`;
             T.es.how = `Define uso (casual, buceo, dress), elige movimiento (mecánico, automático, cuarzo), evalúa materiales (acero, titanio, zafiro) y prueba confort.`;
             T.es.actions = ['Revisa tamaño y lug‑to‑lug','Verifica calibre y reserva de marcha','Prueba resistencia al agua','Compara correas y cierres','Inspecciona acabado y lume'];
-            T.es.proof = i => `En pruebas ciegas con ${topic}, la satisfacción subió ${i}% al priorizar movimiento y materiales.`;
+            T.es.proof = i => `En pruebas ciegas con ${topic}, la satisfacción subió ${i}% al priorizar movimiento y materiais.`;
             T.es.blockquote = 'Relojes de impacto empiezan en movimiento y materiales — no en el hype.';
-
             T.fr.pillars = ['Design','Mouvement','Matériaux','Complications','Précision','Durabilité'];
             T.fr.whyBase = `${topic} a de l’impact quand on priorise le mouvement, les matériaux et l’ergonomie; la marque est secondaire.`;
             T.fr.how = `Définissez l’usage (casual, plongée, habillé), choisissez le mouvement (mécanique, automatique, quartz), évaluez les matériaux (acier, titane, saphir) et testez le confort.`;
             T.fr.actions = ['Vérifiez la taille et le lug‑to‑lug','Vérifiez le calibre et la réserve de marche','Testez l’étanchéité','Comparez les bracelets et boucles','Inspectez les finitions et le lume'];
             T.fr.proof = i => `En tests à l’aveugle avec ${topic}, la satisfaction a augmenté de ${i}% en priorisant mouvement et matériaux.`;
             T.fr.blockquote = 'Les montres à impact commencent par le mouvement et les matériaux — pas par le buzz.';
-
             T.de.pillars = ['Design','Werk','Materialien','Komplikationen','Genauigkeit','Haltbarkeit'];
             T.de.whyBase = `${topic} hat Wirkung, wenn Werk, Materialien und Ergonomie priorisiert werden; die Marke ist sekundär.`;
             T.de.how = `Definieren Sie den Einsatz (casual, Tauchen, Dress), wählen Sie das Werk (mechanisch, automatisch, Quarz), bewerten Sie Materialien (Stahl, Titan, Saphir) und testen Sie den Komfort.`;
@@ -2677,7 +2669,6 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
             const concl = academic ? (lang==='pt' ? `Para trabalhos acadêmicos, estruture ${topic} com problema de pesquisa, revisão de literatura, método, resultados e discussão, concluindo com limitações e próximos passos.` : lang==='es' ? `Para trabajos académicos, estructura ${topic} con problema de investigación, revisión de literatura, método, resultados y discusión, cerrando con limitaciones y próximos pasos.` : lang==='fr' ? `Pour les travaux académiques, structurez ${topic} avec problématique, revue de littérature, méthode, résultats et discussion, en terminant par limites et prochaines étapes.` : lang==='de' ? `Für akademische Arbeiten strukturieren Sie ${topic} mit Forschungsfrage, Literaturüberblick, Methode, Ergebnissen und Diskussion und schließen mit Grenzen und nächsten Schritten.` : `For academic work, structure ${topic} with research problem, literature review, method, results and discussion, closing with limitations and next steps.`) : T[lang].conclusionText;
             content += `<p>${concl}</p>`;
             content += `</section>`;
-            
             const hash = await hashSHA256(content);
             const last = localStorage.getItem('LAST_ARTICLE_HASH') || '';
         if (hash === last) {
@@ -2694,7 +2685,6 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
             const finalCount = count(content);
             return { title: title, content: content, wordCount: finalCount, language: language, style: style, createdAt: new Date().toISOString() };
         }
-        
         async function generateArticleContent(topic, language, wordCount, style, instructions) {
             await new Promise(resolve => setTimeout(resolve, 3000));
             const isPT = language === 'pt';
@@ -2704,7 +2694,8 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
             let content = `<h1>${title}</h1>`;
             content += `<p><em>${lead}</em></p>`;
             const ins = (instructions || '').trim();
-            const insItems = ins ? ins.split(/[\n,;]+/).map(s => s.trim()).filter(Boolean) : [];
+            const insItems = ins ? ins.split(/[
+,;]+/).map(s => s.trim()).filter(Boolean) : [];
             content += `<div style="background:#F3F4F6;border-left:4px solid #6366F1;padding:1rem;border-radius:10px;margin:1rem 0;">
                 <h3>${isPT ? 'Resumo Rápido' : 'Quick Summary'}</h3>
                 <ul>
@@ -2774,17 +2765,14 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
             content += `<p>${isPT ? `O ${topic} entrega o essencial com consistência. Se os pontos destacados conversam com seu uso, é uma escolha segura.` : `${topic} delivers the essentials consistently. If the highlighted points match your use, it is a safe choice.`}</p>`;
             return { title: title, content: content, wordCount: wordCount, language: language, style: style, createdAt: new Date().toISOString() };
         }
-        
         function displayArticle(article) {
             document.getElementById('articleContent').innerHTML = article.content;
             document.getElementById('currentWordCount').textContent = article.wordCount.toLocaleString();
             document.getElementById('readingTime').textContent = Math.ceil(article.wordCount / 200);
             document.getElementById('createdDate').textContent = new Date(article.createdAt).toLocaleDateString();
-            
             document.getElementById('articlePreview').classList.add('active');
             document.getElementById('articlePreview').scrollIntoView({ behavior: 'smooth' });
         }
-
         function openTitleOverlay() {
             if (!currentArticle) return;
             refreshTitleSuggestions();
@@ -2834,33 +2822,56 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
             localStorage.setItem('LAST_ARTICLE_TITLE', newTitle);
             closeTitleOverlay();
         }
-        
         // ==================== ARTICLE ACTIONS ====================
         async function saveArticle() {
-            if (!currentArticle) return;
+            if (!currentArticle || !currentUser) return;
             
-            if (!supabase) {
-                alert('💾 Article saved locally! (Supabase not configured)');
-                return;
+            if (supabase) {
+                try {
+                    const { data, error } = await supabase
+                        .from('articles')
+                        .insert({
+                            user_id: currentUser.id,
+                            title: currentArticle.title,
+                            content: currentArticle.content,
+                            word_count: currentArticle.wordCount,
+                            language: currentArticle.language,
+                            style: currentArticle.style,
+                            topic: document.getElementById('articleTopic').value,
+                            additional_instructions: document.getElementById('articleInstructions').value
+                        });
+                    
+                    if (error) throw error;
+                    
+                    alert('✅ Article saved successfully!');
+                    loadArticles();
+                    
+                } catch (err) {
+                    console.error('Save error:', err);
+                    alert('❌ Error saving article: ' + err.message);
+                }
+            } else {
+                // Fallback: localStorage
+                const articles = JSON.parse(localStorage.getItem('LOCAL_ARTICLES') || '[]');
+                articles.push({
+                    id: Date.now(),
+                    ...currentArticle,
+                    userId: currentUser.email
+                });
+                localStorage.setItem('LOCAL_ARTICLES', JSON.stringify(articles));
+                alert('💾 Article saved locally!');
             }
-            
-            alert('✅ Article saved successfully!');
-            loadArticles();
         }
-        
         async function downloadPDF() {
             if (!currentArticle) return;
-            
             const { jsPDF } = window.jspdf;
             const content = document.getElementById('articleContent');
-            
             try {
                 const canvas = await html2canvas(content, {
                     scale: 2,
                     useCORS: true,
                     logging: false
                 });
-                
                 const imgData = canvas.toDataURL('image/png');
                 const pdf = new jsPDF('p', 'mm', 'a4');
                 const imgWidth = 210;
@@ -2870,13 +2881,11 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
                 let position = 0;
                 const totalPages = Math.ceil(imgHeight / pageHeight) || 1;
                 let pageNum = 1;
-
                 pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
                 pdf.setFontSize(10);
                 pdf.text('Blog Writer ULTRA', 10, 10);
                 pdf.text(`${pageNum} / ${totalPages}`, 200, pageHeight - 10, { align: 'right' });
                 heightLeft -= pageHeight;
-                
                 while (heightLeft >= 0) {
                     position = heightLeft - imgHeight;
                     pdf.addPage();
@@ -2887,7 +2896,6 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
                     pdf.text(`${pageNum} / ${totalPages}`, 200, pageHeight - 10, { align: 'right' });
                     heightLeft -= pageHeight;
                 }
-                
                 pdf.save(`${currentArticle.title}.pdf`);
                 alert('✅ PDF downloaded successfully!');
             } catch (err) {
@@ -2895,10 +2903,8 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
                 alert('❌ Error generating PDF');
             }
         }
-        
         function copyHTML() {
             if (!currentArticle) return;
-            
             const html = document.getElementById('articleContent').innerHTML;
             const fullHTML = `<!DOCTYPE html>
 <html>
@@ -2930,15 +2936,12 @@ blockquote{border-left:6px solid #D4AF37;color:#1F513F;padding-left:1rem;margin:
 ${html}
 </body>
 </html>`;
-            
             navigator.clipboard.writeText(fullHTML)
                 .then(() => alert('✅ HTML copied to clipboard!'))
                 .catch(() => alert('❌ Error copying HTML'));
         }
-        
         function copyFormatted() {
             if (!currentArticle) return;
-            
             const content = document.getElementById('articleContent');
             const selection = window.getSelection();
             const range = document.createRange();
@@ -2947,47 +2950,91 @@ ${html}
             selection.addRange(range);
             document.execCommand('copy');
             selection.removeAllRanges();
-            
             alert('✅ Formatted text copied! You can paste it with formatting preserved.');
         }
-        
         function downloadMarkdown() {
             if (!currentArticle) return;
-            
             let markdown = currentArticle.content
-                .replace(/<h1>(.*?)<\/h1>/g, '# $1\n\n')
-                .replace(/<h2>(.*?)<\/h2>/g, '## $1\n\n')
-                .replace(/<h3>(.*?)<\/h3>/g, '### $1\n\n')
-                .replace(/<p>(.*?)<\/p>/g, '$1\n\n')
+                .replace(/<h1>(.*?)<\/h1>/g, '# $1
+')
+                .replace(/<h2>(.*?)<\/h2>/g, '## $1
+')
+                .replace(/<h3>(.*?)<\/h3>/g, '### $1
+')
+                .replace(/<p>(.*?)<\/p>/g, '$1
+')
                 .replace(/<strong>(.*?)<\/strong>/g, '**$1**')
                 .replace(/<em>(.*?)<\/em>/g, '*$1*')
-                .replace(/<ul>/g, '\n')
-                .replace(/<\/ul>/g, '\n')
-                .replace(/<li>(.*?)<\/li>/g, '- $1\n')
+                .replace(/<ul>/g, '
+')
+                .replace(/<\/ul>/g, '
+')
+                .replace(/<li>(.*?)<\/li>/g, '- $1
+')
                 .replace(/<[^>]*>/g, '');
-            
             const blob = new Blob([markdown], { type: 'text/markdown' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
             a.download = `${currentArticle.title}.md`;
             a.click();
-            
             alert('✅ Markdown downloaded!');
         }
-        
         // ==================== STATS & ARTICLES ====================
         function updateStats() {
             document.getElementById('statArticles').textContent = currentUser.articles_count || 0;
             document.getElementById('statWords').textContent = (currentUser.total_words || 0).toLocaleString();
             document.getElementById('statStreak').textContent = currentUser.streak || 0;
         }
-        
-        function loadArticles() {
-            const isPT = (document.getElementById('langSelect').value || 'pt') === 'pt';
-            document.getElementById('articlesGrid').innerHTML = isPT ? '<p style="text-align:center;color:#999;">Nenhum artigo ainda. Crie sua primeira obra-prima!</p>' : '<p style="text-align:center;color:#999;">No articles yet. Create your first masterpiece!</p>';
+        async function loadArticles() {
+            if (!currentUser) return;
+            
+            if (supabase) {
+                try {
+                    const { data, error } = await supabase
+                        .from('articles')
+                        .select('*')
+                        .eq('user_id', currentUser.id)
+                        .order('created_at', { ascending: false });
+                    
+                    if (error) throw error;
+                    
+                    if (data.length === 0) {
+                        const lang = document.getElementById('langSelect').value || 'pt';
+                        const msg = lang === 'pt' 
+                            ? 'Nenhum artigo ainda. Crie sua primeira obra-prima!' 
+                            : 'No articles yet. Create your first masterpiece!';
+                        document.getElementById('articlesGrid').innerHTML = `<p style="text-align:center;color:#999;">${msg}</p>`;
+                        return;
+                    }
+                    
+                    document.getElementById('articlesGrid').innerHTML = data.map(article => `
+                        <div class="article-card">
+                            <div class="article-card-title">${article.title}</div>
+                            <div class="article-card-info">
+                                <span>${article.word_count} palavras</span>
+                                <span>${new Date(article.created_at).toLocaleDateString()}</span>
+                            </div>
+                            <div class="article-card-actions">
+                                <button class="btn-card view" onclick="viewArticle('${article.id}')">Ver</button>
+                                <button class="btn-card delete" onclick="deleteArticle('${article.id}')">Excluir</button>
+                            </div>
+                        </div>
+                    `).join('');
+                    
+                } catch (err) {
+                    console.error('Load articles error:', err);
+                }
+            } else {
+                // Fallback: localStorage
+                const articles = JSON.parse(localStorage.getItem('LOCAL_ARTICLES') || '[]')
+                    .filter(a => a.userId === currentUser.email);
+                
+                if (articles.length === 0) {
+                    document.getElementById('articlesGrid').innerHTML = '<p style="text-align:center;color:#999;">Nenhum artigo ainda.</p>';
+                }
+            }
         }
-        
         function changeLanguage(lang) {
             const isPT = lang === 'pt';
             document.getElementById('langSelect').value = lang;
@@ -3051,3 +3098,4 @@ ${html}
     </script>
 </body>
 </html>
+
